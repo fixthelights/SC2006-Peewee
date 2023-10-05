@@ -11,11 +11,17 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from "react-router-dom";
+import {AuthController} from "../classes/AuthController"
+import Alert from '@mui/material/Alert';
+import Popup from 'reactjs-popup';
+import 'reactjs-popup/dist/index.css';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 export default function Register() {
+  const navigate = useNavigate();
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -25,7 +31,7 @@ export default function Register() {
     });
   };
 
-  const navigate = useNavigate();
+  const authController = new AuthController(false);
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -74,6 +80,7 @@ export default function Register() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              onClick={() => authController.registerUser("a", "b")}
             >
               Register
             </Button>
@@ -87,6 +94,27 @@ export default function Register() {
                 <Link href="#" variant="body2" onClick={() => navigate("/login")}>
                   {"Already have an account? Log in"}
                 </Link>
+              </Grid>
+              <Grid item>
+              <Popup trigger=
+                {authController.valid==true} 
+                modal nested>
+                {
+                    (close: () => void) => (
+                        <div className='modal'>
+                            <div className='content'>
+                                Welcome to GFG!!!
+                            </div>
+                            <div>
+                                <button onClick=
+                                    {() => close()}>
+                                        Close modal
+                                </button>
+                            </div>
+                        </div>
+                    )
+                }
+                </Popup>
               </Grid>
             </Grid>
           </Box>

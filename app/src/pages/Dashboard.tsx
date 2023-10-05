@@ -9,20 +9,17 @@ import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import Badge from '@mui/material/Badge';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import {mainListItems, secondaryListItems} from '../components/listItems';
 import Deposits from '../components/Deposits';
 import Orders from '../components/Orders';
 import {ListItemButton, ListItemIcon, ListItemText, DashboardIcon, CarCrashOutlinedIcon, MapOutlinedIcon, TrafficOutlinedIcon , LogoutOutlinedIcon} from '../components/listButtonIndex'
 import { useNavigate } from "react-router-dom";
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
+import Chart from '../components/Chart';
 
 const drawerWidth: number = 240;
 
@@ -105,7 +102,7 @@ export default function Dashboard() {
                 ...(open && { display: 'none' }),
               }}
             >
-              <MenuIcon />
+            <MenuIcon />
             </IconButton>
             <MapOutlinedIcon />
             <Typography
@@ -116,6 +113,15 @@ export default function Dashboard() {
               sx={{ flexGrow: 1 }}
             >
               PEEWEE
+            </Typography>
+            <Typography
+              component="h1"
+              variant="h6"
+              color="inherit"
+              noWrap
+              sx={{ flexGrow: 1 }}
+            >
+              Dashboard
             </Typography>
             <IconButton color="inherit">
               <AccountCircleOutlinedIcon/>
@@ -196,6 +202,7 @@ export default function Dashboard() {
                     height: 240,
                   }}
                 >
+                  <Chart />
                 </Paper>
               </Grid>
               {/* Recent Deposits */}
