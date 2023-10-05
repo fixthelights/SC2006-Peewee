@@ -1,26 +1,31 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
-
+import {Landing, Login, Register, ForgetPassword, SetNewPassword, Dashboard, Incidents, ReportIncidentType, ReportIncidentLocation, ReportIncidentDescription} from './pages/index'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom';
+  
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgetpassword" element={<ForgetPassword/>} />
+          <Route path="/setnewpassword" element={<SetNewPassword />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/incidents" element={<Incidents />} />
+          <Route path="/reporttype" element={<ReportIncidentType />} />
+          <Route path="/reportlocation" element={<ReportIncidentLocation />} />
+          <Route path="/reportdescription" element={<ReportIncidentDescription />} />
+        </Routes>
+      </Router>
     </div>
   );
-}
+};
 
 export default App;
