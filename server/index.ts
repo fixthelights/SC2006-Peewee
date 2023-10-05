@@ -1,8 +1,9 @@
 import express, { Request, Response } from 'express';
+import db from './src/db'
 
 // Import Express Routers
 const userRouter = require('./src/routes/userRouter');
- 
+const User = './src/models/user'
 
 // Express Code
 const app = express();

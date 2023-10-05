@@ -9,7 +9,7 @@ router.get('/', userController.getAllUsers);
 router.get('/:userId',userController.getOneUser);
 
 // POST request for registration
-router.post('/', userController.createUser);
+router.post('/register', userController.createUser);
 
 // PUT request to update student details
 router.put('/:userId', userController.updateUser);
