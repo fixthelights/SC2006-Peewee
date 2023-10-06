@@ -199,9 +199,9 @@ export default function Incidents() {
                   onClick={() => navigate("/reporttype")}
                 >
                   Report Incident
-              </Button>
+              </Button> 
               </Grid>
-              {/* Chart */}
+              {/* Create for loop to display each incident after retrieval from IncidentsController*/}
               <Grid item xs={12} md={12} lg={12}>
                 <Paper
                   sx={{

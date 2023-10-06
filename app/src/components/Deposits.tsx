@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { FC } from 'react';
 import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 import Title from './Title';
@@ -7,10 +7,14 @@ function preventDefault(event: React.MouseEvent) {
   event.preventDefault();
 }
 
-export default function Deposits() {
+interface DepositsProps {
+  title: string
+}
+
+const Deposits: FC<DepositsProps> = ({title}) => {
   return (
     <React.Fragment>
-      <Title>Favourite Routes</Title>
+      <Title>{title}</Title>
       <Typography component="p" variant="h4">
         $3,024.00
       </Typography>
@@ -25,3 +29,5 @@ export default function Deposits() {
     </React.Fragment>
   );
 }
+
+export {Deposits}

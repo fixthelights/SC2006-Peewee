@@ -4,8 +4,8 @@ import { LineChart, Line, XAxis, YAxis, Label, ResponsiveContainer } from 'recha
 import Title from './Title';
 
 // Generate Sales Data
-function createData(time: string, amount?: number) {
-  return { time, amount };
+function createData(time: string, carNumbers?: number) {
+  return { time, carNumbers };
 }
 
 const data = [
@@ -19,6 +19,10 @@ const data = [
   createData('21:00', 2400),
   createData('24:00', undefined),
 ];
+// change to:
+// const data = [
+// createData(i,j) for each i,j in trafficController.getTrafficDataList()
+//];
 
 export default function Chart() {
   const theme = useTheme();
@@ -60,7 +64,7 @@ export default function Chart() {
           <Line
             isAnimationActive={false}
             type="monotone"
-            dataKey="amount"
+            dataKey="carNumbers"
             stroke={theme.palette.primary.main}
             dot={false}
           />

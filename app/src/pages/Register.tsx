@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { FC } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -13,16 +13,45 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from "react-router-dom";
 import {AuthController} from "../classes/AuthController"
 import Alert from '@mui/material/Alert';
-import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
+import { useState } from 'react';
+
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
+const authController = new AuthController()
 
 export default function Register() {
+  
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+ 
+  // States for checking the errors
+  const [isInvalidEmail, setIsInvalidEmail] = useState(true);
+  const [isInvalidPassword, setIsInvalidPssword] = useState(true);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+
+  // Handling the email change
+  const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(event.target.value);
+  };
+
+  // Handling the password change
+  const handlePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(event.target.value);
+  };
+
+  const handleSubmit = () => {
+    setIsSubmitted(true);
+    let emailValid = authController.checkEmailValidity(email);
+    let passwordValid = authController.checkPasswordValidity(password);
+    setIsInvalidEmail(!emailValid);
+    setIsInvalidPssword(!passwordValid);
+  }
+
+  const handleInput = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     console.log({
@@ -31,7 +60,27 @@ export default function Register() {
     });
   };
 
-  const authController = new AuthController(false);
+  interface MessageProps {
+    submissionStatus: boolean;
+    passwordInvalidity: boolean;
+    emailInvalidity: boolean;
+  }
+
+  const Message: FC<MessageProps> = ({submissionStatus, passwordInvalidity, emailInvalidity }) => {
+    if (submissionStatus){
+      if (passwordInvalidity && emailInvalidity) {
+        return <Alert severity="info">Password and Email are invalid. Registration is unsuccessful.</Alert>
+      }
+      if (passwordInvalidity){
+        return <Alert severity="info">Password is invalid. Registration is unsuccessful.</Alert>
+      }
+      if (emailInvalidity){
+        return <Alert severity="info">Email is invalid. Registration is unsuccessful.</Alert>
+      }
+      return <Alert severity="info">Registration is successful.</Alert>
+    }
+    return null;
+  }
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -51,7 +100,7 @@ export default function Register() {
           <Typography component="h1" variant="h5">
             Register
           </Typography>
-          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+          <Box component="form" noValidate onSubmit={handleInput} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
@@ -60,7 +109,7 @@ export default function Register() {
                   id="email"
                   label="Email Address"
                   name="email"
-                  autoComplete="email"
+                  onChange={handleEmail}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -71,7 +120,8 @@ export default function Register() {
                   label="Password"
                   type="password"
                   id="password"
-                  autoComplete="new-password"
+                  onChange={handlePassword}
+                  helperText="Password must be at least 8 characters long, contain 1 uppercase character, 1 lowercase character and 1 special character"
                 />
               </Grid>
             </Grid>
@@ -80,7 +130,7 @@ export default function Register() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              onClick={() => authController.registerUser("a", "b")}
+              onClick={handleSubmit}
             >
               Register
             </Button>
@@ -95,26 +145,12 @@ export default function Register() {
                   {"Already have an account? Log in"}
                 </Link>
               </Grid>
-              <Grid item>
-              <Popup trigger=
-                {authController.valid==true} 
-                modal nested>
-                {
-                    (close: () => void) => (
-                        <div className='modal'>
-                            <div className='content'>
-                                Welcome to GFG!!!
-                            </div>
-                            <div>
-                                <button onClick=
-                                    {() => close()}>
-                                        Close modal
-                                </button>
-                            </div>
-                        </div>
-                    )
-                }
-                </Popup>
+              <Grid item sx={{pt:2}}>
+                <Message 
+                submissionStatus={isSubmitted}
+                emailInvalidity={isInvalidEmail} 
+                passwordInvalidity={isInvalidPassword}
+                />
               </Grid>
             </Grid>
           </Box>

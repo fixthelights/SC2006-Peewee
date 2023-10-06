@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { FC } from 'react';
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import MuiDrawer from '@mui/material/Drawer';
@@ -23,6 +23,8 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Button from '@mui/material/Button';
+import { useState } from 'react';
+import Stack from '@mui/material/Stack';
 
 
 const drawerWidth: number = 240;
@@ -97,11 +99,27 @@ export default function ReportIncidentType() {
 
   const navigate = useNavigate();
 
-  const [age, setAge] = React.useState('');
+  const [incidentType, setIncidentType] = useState('');
 
   const handleChange = (event: SelectChangeEvent) => {
-    setAge(event.target.value); 
+    setIncidentType(event.target.value); 
   };
+
+  interface NextButtonProps {
+    typeOfIncident: string
+  }
+
+  const NextButton: FC<NextButtonProps> = ({typeOfIncident}) => {
+    if (typeOfIncident!=''){
+      <Button 
+        variant="contained" 
+        onClick={() => navigate("/register")}
+      >
+        Next
+      </Button>
+    }
+    return null;
+  }
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -211,14 +229,15 @@ export default function ReportIncidentType() {
           }}
         >
        <Toolbar />
+       <Stack spacing={2} direction="row">
         <Box sx={{ width: 240, pl: 3, pt: 3 }}>
           <FormControl fullWidth>
           <InputLabel id="demo-simple-select-label">Incident Type</InputLabel>
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
-            value="incident-type"
-            label="Incident Type"
+            value="incidentType"
+            label="incidentType"
             onChange={handleChange}
            >
           <MenuItem value={"Accidents"}>Accidents</MenuItem>
@@ -228,6 +247,8 @@ export default function ReportIncidentType() {
           </Select>
           </FormControl>
         </Box>
+        <NextButton typeOfIncident={incidentType} />
+       </Stack> 
       </Box>
       </Box>
     </ThemeProvider>

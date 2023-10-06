@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { FC } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -13,12 +13,47 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from "react-router-dom";
+import {AuthController} from "../classes/AuthController"
+import { useState } from 'react';
+import Alert from '@mui/material/Alert';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
+const authController = new AuthController();
 
 export default function Login() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+ 
+  // States for checking the errors
+  const [isInvalidEmail, setIsInvalidEmail] = useState(true);
+  const [isInvalidPassword, setIsInvalidPssword] = useState(true);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+
+  // Handling the email change
+  const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(event.target.value);
+  };
+
+  // Handling the password change
+  const handlePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(event.target.value);
+  };
+
+  const handleSubmit = () => {
+    setIsSubmitted(true);
+    let emailValid = authController.checkMatchingEmail(email); //would check for empty string
+    let passwordValid = authController.checkMatchingPassword(email, password); // would check for empty string
+    if (emailValid && passwordValid){
+      {navigate("/dashboard")};
+    }
+    setIsInvalidEmail(!emailValid);
+    setIsInvalidPssword(!passwordValid);
+  }
+
+  const handleInput = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     console.log({
@@ -27,7 +62,26 @@ export default function Login() {
     });
   };
 
-  const navigate = useNavigate();
+  interface MessageProps {
+    submissionStatus: boolean;
+    passwordInvalidity: boolean;
+    emailInvalidity: boolean;
+  }
+
+  const Message: FC<MessageProps> = ({submissionStatus, passwordInvalidity, emailInvalidity }) => {
+    if (submissionStatus){
+      if (passwordInvalidity && emailInvalidity) {
+        return <Alert severity="info">Password and Email are invalid. Log In is unsuccessful.</Alert>
+      }
+      if (passwordInvalidity){
+        return <Alert severity="info">Password is invalid. Log In is unsuccessful.</Alert>
+      }
+      if (emailInvalidity){
+        return <Alert severity="info">Email is invalid. Log In is unsuccessful.</Alert>
+      }
+    }
+    return null;
+  }
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -47,7 +101,7 @@ export default function Login() {
           <Typography component="h1" variant="h5">
             Log In
           </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+          <Box component="form" onSubmit={handleInput} noValidate sx={{ mt: 1 }}>
             <TextField
               margin="normal"
               required
@@ -57,6 +111,7 @@ export default function Login() {
               name="email"
               autoComplete="email"
               autoFocus
+              onChange={handleEmail}
             />
             <TextField
               margin="normal"
@@ -67,6 +122,7 @@ export default function Login() {
               type="password"
               id="password"
               autoComplete="current-password"
+              onChange={handlePassword}
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
@@ -77,7 +133,7 @@ export default function Login() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              onClick={() => navigate("/dashboard")}
+              onClick={handleSubmit}
             >
               Log In
             </Button>
@@ -91,6 +147,13 @@ export default function Login() {
                 <Link href="#" variant="body2" onClick={() => navigate("/register")}>
                   {"Don't have an account? Register"}
                 </Link>
+              </Grid>
+              <Grid item sx={{pt:2}}>
+                <Message 
+                submissionStatus={isSubmitted}
+                emailInvalidity={isInvalidEmail} 
+                passwordInvalidity={isInvalidPassword}
+                />
               </Grid>
             </Grid>
           </Box>
