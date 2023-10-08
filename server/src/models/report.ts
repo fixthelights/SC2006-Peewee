@@ -19,8 +19,8 @@ const ReportSchema = new Schema({
 });
 
 // Compile model from schema
-const SomeModel = mongoose.model("Report", ReportSchema);
+const Report = mongoose.model("Report", ReportSchema);
 
 // Export model
-module.exports = SomeModel
+module.exports = Report;
 
