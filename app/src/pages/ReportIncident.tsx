@@ -9,25 +9,20 @@ import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import {ListItemButton, ListItemIcon, ListItemText, DashboardIcon, CarCrashOutlinedIcon, MapOutlinedIcon, TrafficOutlinedIcon , LogoutOutlinedIcon} from '../components/ListButtonIndex'
 import { useNavigate } from "react-router-dom";
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
-import { Theme, useTheme } from '@mui/material/styles';
-import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Select from '@mui/material/Select';
 import Button from '@mui/material/Button';
 import { useState } from 'react';
 import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
 import { ReportController } from "../classes/ReportController";
-import TextField from '@mui/material/TextField';
 
 const drawerWidth: number = 240;
 
@@ -109,15 +104,6 @@ export default function ReportIncident() {
   const [validLocation, setValidLocation] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState(false);
   const [validSubmission, setValidSubmission] = useState(false);
-
-  const handleIncidentTypeChange = (event: SelectChangeEvent) => {
-    setIncidentType(event.target.value); 
-  };
-
-  const handleIncidentDescriptionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setIncidentDescription(event.target.value); 
-    console.log(incidentDescription);
-  };
 
   const LocationMessage = () => {
     if (!submissionStatus){
@@ -202,7 +188,7 @@ export default function ReportIncident() {
                 id="demo-simple-select"
                 value={incidentType}
                 label="Incident Type"
-                onChange={handleIncidentTypeChange}
+                onChange={(e) => setIncidentType(e.target.value)}
                 >
                 <MenuItem value={"Accidents"}>Accidents</MenuItem>
                 <MenuItem value={"Roadworks"}>Roadworks</MenuItem>

@@ -6,7 +6,6 @@ import SetNewPassword from './SetNewPassword'
 import Dashboard from './Dashboard'
 import Incidents from './Incidents'
 import ReportIncident from './ReportIncident'
-import ReportSubmission from './ReportSubmission'
 
 export {Landing, Login, Register, ForgetPassword, SetNewPassword, Dashboard, Incidents, ReportIncident}
 
