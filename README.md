@@ -5,7 +5,9 @@ Details/Progress for front end first half:
 Created folders for classes, components and pages in the source folder: 
 
 Classes - controller classes in charge of linking to backend
-Componenets - reusuable UI elements 
+
+Components - reusuable UI elements 
+
 Pages - different UI pages 
 
 What is left for frontend first half: 
