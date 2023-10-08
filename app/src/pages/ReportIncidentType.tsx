@@ -13,7 +13,7 @@ import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import {ListItemButton, ListItemIcon, ListItemText, DashboardIcon, CarCrashOutlinedIcon, MapOutlinedIcon, TrafficOutlinedIcon , LogoutOutlinedIcon} from '../components/listButtonIndex'
+import {ListItemButton, ListItemIcon, ListItemText, DashboardIcon, CarCrashOutlinedIcon, MapOutlinedIcon, TrafficOutlinedIcon , LogoutOutlinedIcon} from '../components/ListButtonIndex'
 import { useNavigate } from "react-router-dom";
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import { Theme, useTheme } from '@mui/material/styles';
@@ -25,7 +25,9 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Button from '@mui/material/Button';
 import { useState } from 'react';
 import Stack from '@mui/material/Stack';
-
+import Alert from '@mui/material/Alert';
+import { ReportController } from "../classes/ReportController";
+import TextField from '@mui/material/TextField';
 
 const drawerWidth: number = 240;
 
@@ -98,26 +100,153 @@ export default function ReportIncidentType() {
   };
 
   const navigate = useNavigate();
+  const reportController = new ReportController();
 
   const [incidentType, setIncidentType] = useState('');
+  const [incidentLocation, setIncidentLocation] = useState('');
+  const [incidentDescription, setIncidentDescription] = useState('')
+  const [locationPermission, setLocationPermission] = useState(false);
+  const [validLocation, setValidLocation] = useState(false);
 
-  const handleChange = (event: SelectChangeEvent) => {
+  const handleIncidentTypeChange = (event: SelectChangeEvent) => {
     setIncidentType(event.target.value); 
   };
 
-  interface NextButtonProps {
-    typeOfIncident: string
+  const handleIncidentDescriptionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setIncidentDescription(event.target.value); 
+    console.log(incidentDescription);
+  };
+
+  interface LocationMessageProps {
+    locationAccess: boolean;
+    locationValidity: boolean;
   }
 
-  const NextButton: FC<NextButtonProps> = ({typeOfIncident}) => {
-    if (typeOfIncident!=''){
-      <Button 
-        variant="contained" 
-        onClick={() => navigate("/register")}
-      >
-        Next
-      </Button>
+  const LocationMessage: FC<LocationMessageProps> = ({locationAccess, locationValidity}) => {
+    if (!locationAccess){
+      return <Alert 
+                severity="info"
+              >
+                Grant location access to PEEWEE?
+              <Stack spacing={2} direction="row">
+                <Button 
+                    variant="contained" 
+                    onClick={()=>handleLocationAccess()}
+                >
+                    Yes
+                </Button>
+                <Button 
+                    variant="contained" 
+                    onClick={() => navigate("/incidents")}
+                >
+                    Return to Incidents Page
+                </Button>
+              </Stack>
+              </Alert>
+    } else if (locationValidity){
+      return <Box sx={{ pl: 3, pt: 3 }}>
+              <Typography
+                component="h1"
+                variant="body1"
+              >
+                {incidentLocation}
+              </Typography>
+              </Box>
+    } else {
+      return <Alert 
+                severity="info"
+              >
+                Location is invalid. Redetect current location?
+              <Stack spacing={2} direction="row">
+                <Button 
+                    variant="contained" 
+                    onClick={handleLocationAccess}
+                >
+                    Yes
+                </Button>
+                <Button 
+                    variant="contained" 
+                    onClick={() => navigate("/incidents")}
+                >
+                    Return to Incident Page
+                </Button>
+              </Stack>
+              </Alert>
     }
+  }
+
+  const handleLocationAccess = () => {
+    setLocationPermission(true);
+    let location = reportController.getUserLocation();
+    if (location != ''){
+      setIncidentLocation(reportController.getUserLocation())
+      setValidLocation(true);
+    } else {
+      setValidLocation(false);
+    }
+  }
+
+  interface IncidentTypeSelectionProps {
+    locationValidity: boolean;
+  }
+
+  const IncidentTypeSelection: FC<IncidentTypeSelectionProps> = ({locationValidity}) => {
+    if (locationValidity){
+      return  <Box sx={{ width: 360, pl: 3, pt: 3 }}>
+              <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label">Incident Type</InputLabel>
+              <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={incidentType}
+              label="Incident Type"
+              onChange={handleIncidentTypeChange}
+              >
+              <MenuItem value={"Accidents"}>Accidents</MenuItem>
+              <MenuItem value={"Roadworks"}>Roadworks</MenuItem>
+              <MenuItem value={"Closure"}>Closure</MenuItem>
+              <MenuItem value={"Slow Traffic"}>Slow Traffic</MenuItem>
+              </Select>
+              </FormControl>
+              </Box>
+    } 
+    return null;
+  }
+
+  interface IncidentDescriptionInputProps {
+    typeOfIncident: string;
+  }
+
+  const IncidentDescriptionInput: FC<IncidentDescriptionInputProps> = ({typeOfIncident}) => {
+    if (typeOfIncident != ''){
+      return  <textarea 
+                name="Text1" 
+                cols={40} 
+                rows={5}
+                value={incidentDescription}
+                ref={ref => ref && ref.focus()}
+                onFocus={(e)=>e.currentTarget.setSelectionRange(e.currentTarget.value.length, e.currentTarget.value.length)}
+                onChange={(e) => setIncidentDescription(e.target.value)}>
+              </textarea>
+    }
+    return null;
+  }
+
+  interface SubmitButtonProps{
+    descriptionOfIncident: string
+  }
+
+  const SubmitButton: FC<SubmitButtonProps> = ({descriptionOfIncident}) =>{
+    if (descriptionOfIncident!=''){
+      return <Box sx={{ pl: 3, pt: 3 }}>
+              <Button 
+                variant="contained" 
+                onClick={() => navigate("/login")}
+              >
+              Submit
+              </Button>
+              </Box>
+    } 
     return null;
   }
 
@@ -229,26 +358,27 @@ export default function ReportIncidentType() {
           }}
         >
        <Toolbar />
-       <Stack spacing={2} direction="row">
-        <Box sx={{ width: 240, pl: 3, pt: 3 }}>
-          <FormControl fullWidth>
-          <InputLabel id="demo-simple-select-label">Incident Type</InputLabel>
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            value="incidentType"
-            label="incidentType"
-            onChange={handleChange}
-           >
-          <MenuItem value={"Accidents"}>Accidents</MenuItem>
-          <MenuItem value={"Roadworks"}>Roadworks</MenuItem>
-          <MenuItem value={"Closure"}>Closure</MenuItem>
-          <MenuItem value={"Slow Traffic"}>Slow Traffic</MenuItem>
-          </Select>
-          </FormControl>
-        </Box>
-        <NextButton typeOfIncident={incidentType} />
-       </Stack> 
+       <Box sx={{ width: 360, pl: 3, pt: 3 }}>
+       <Typography
+          component="h1"
+          variant="body1"
+        >
+        Incident Location:
+       </Typography>
+       </Box>
+       <LocationMessage 
+        locationAccess={locationPermission} 
+        locationValidity={validLocation}
+        />
+       <IncidentTypeSelection 
+        locationValidity={validLocation}
+        />
+        <IncidentDescriptionInput
+        typeOfIncident={incidentType}
+        />
+        <SubmitButton 
+        descriptionOfIncident={incidentDescription}
+        />
       </Box>
       </Box>
     </ThemeProvider>

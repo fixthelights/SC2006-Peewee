@@ -44,13 +44,24 @@ export default function Register() {
   };
 
   const handleSubmit = () => {
+    // update submission status 
     setIsSubmitted(true);
+
+    // validate credentials using authcontroller
     let emailValid = authController.checkEmailValidity(email);
     let passwordValid = authController.checkPasswordValidity(password);
+
+    // save user in database
+    if (emailValid && passwordValid){
+      authController.saveUser(email, password);
+    }
+
+    // save validity states for display of corresponding message
     setIsInvalidEmail(!emailValid);
     setIsInvalidPssword(!passwordValid);
   }
 
+  // display input
   const handleInput = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -59,6 +70,8 @@ export default function Register() {
       password: data.get('password'),
     });
   };
+
+  // message display depending on validity
 
   interface MessageProps {
     submissionStatus: boolean;
@@ -69,17 +82,17 @@ export default function Register() {
   const Message: FC<MessageProps> = ({submissionStatus, passwordInvalidity, emailInvalidity }) => {
     if (submissionStatus){
       if (passwordInvalidity && emailInvalidity) {
-        return <Alert severity="info">Password and Email are invalid. Registration is unsuccessful.</Alert>
+        return <Alert severity="info">Password and email are invalid. Registration is unsuccessful.</Alert>
       }
       if (passwordInvalidity){
-        return <Alert severity="info">Password is invalid. Registration is unsuccessful.</Alert>
+        return <Alert severity="info">Password does not meet the requirements. Registration is unsuccessful.</Alert>
       }
       if (emailInvalidity){
-        return <Alert severity="info">Email is invalid. Registration is unsuccessful.</Alert>
+        return <Alert severity="info">Email is invalid. Registration is unsuccessful.</Alert> 
       }
       return <Alert severity="info">Registration is successful.</Alert>
     }
-    return null;
+    return null; 
   }
 
   return (

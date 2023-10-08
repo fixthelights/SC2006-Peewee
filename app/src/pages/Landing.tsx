@@ -1,6 +1,5 @@
 import React from "react";
 import './Landing.css'
-import './index.css'
 import { useNavigate } from "react-router-dom";
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';

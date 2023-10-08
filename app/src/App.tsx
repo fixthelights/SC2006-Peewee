@@ -1,10 +1,9 @@
 import React from 'react';
-import {Landing, Login, Register, ForgetPassword, SetNewPassword, Dashboard, Incidents, ReportIncidentType, ReportIncidentLocation, ReportIncidentDescription} from './pages/index'
+import {Landing, Login, Register, ForgetPassword, SetNewPassword, Dashboard, Incidents, ReportIncidentType, ReportIncidentLocation, ReportIncidentDescription} from './pages/PageIndex'
 import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
 } from 'react-router-dom';
   
 function App() {

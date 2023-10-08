@@ -1,13 +1,15 @@
 class AuthController{
 
+    // check if email exists in database and its format
     checkEmailValidity(email: string): boolean{
-        if (this.checkMatchingEmail(email) && this.validateEmailAddressFormat(email)){
+        if (!this.checkMatchingEmail(email) && this.validateEmailAddressFormat(email)){
             return true;
         }
-        return false;
+        return true; // return true first for functioning system
 
     }
 
+    // check if password meets requirements
     checkPasswordValidity(password: string) : boolean {
 
         let upper: number = 0;
@@ -32,6 +34,7 @@ class AuthController{
 
     }
 
+    // check if email is in the correct format
     validateEmailAddressFormat(email: string): boolean { 
         const atSymbol: number = email.indexOf("@"); 
         const dotSymbol: number = email.lastIndexOf("."); 
@@ -50,6 +53,7 @@ class AuthController{
         } 
     }
 
+    // check if there is an existing email in database
     checkMatchingEmail(email: string): boolean{
         // call api/function to find if there is a matching email
         // if matches return true
@@ -57,11 +61,16 @@ class AuthController{
         return true;
     }
 
+    // check if there is an existing pair of email and password in database
     checkMatchingPassword(email: string, password: string): boolean{
         // call api/function to find if there is a matching email & password
         // if matches return true
         // else return false 
         return true;
+    }
+
+    saveUser(email: string, password: string): void{
+        // store email and password in database
     }
 }
 

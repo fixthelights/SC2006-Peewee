@@ -44,11 +44,17 @@ export default function Login() {
 
   const handleSubmit = () => {
     setIsSubmitted(true);
+
+    // validate user
     let emailValid = authController.checkMatchingEmail(email); //would check for empty string
     let passwordValid = authController.checkMatchingPassword(email, password); // would check for empty string
+
+    // redirect valid user
     if (emailValid && passwordValid){
       {navigate("/dashboard")};
     }
+
+    // display message for invalid user
     setIsInvalidEmail(!emailValid);
     setIsInvalidPssword(!passwordValid);
   }
@@ -62,6 +68,7 @@ export default function Login() {
     });
   };
 
+  // message for invalid credentials
   interface MessageProps {
     submissionStatus: boolean;
     passwordInvalidity: boolean;
@@ -71,7 +78,7 @@ export default function Login() {
   const Message: FC<MessageProps> = ({submissionStatus, passwordInvalidity, emailInvalidity }) => {
     if (submissionStatus){
       if (passwordInvalidity && emailInvalidity) {
-        return <Alert severity="info">Password and Email are invalid. Log In is unsuccessful.</Alert>
+        return <Alert severity="info">Password and email are invalid. Log In is unsuccessful.</Alert>
       }
       if (passwordInvalidity){
         return <Alert severity="info">Password is invalid. Log In is unsuccessful.</Alert>
