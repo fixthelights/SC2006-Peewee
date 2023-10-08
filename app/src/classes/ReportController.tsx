@@ -54,6 +54,13 @@ class ReportController{
           })
 
     }*/
+
+    saveReport(incidentLocation: string, incidentType: string, incidentDescription: string): boolean{
+      // save to database
+      // if successful return true
+      // else return false
+      return true;
+    }
 }
 
 export {ReportController};

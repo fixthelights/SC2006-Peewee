@@ -93,7 +93,7 @@ const MenuProps = {
   },
 };
 
-export default function ReportIncidentType() {
+export default function ReportIncident() {
   const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
@@ -107,6 +107,8 @@ export default function ReportIncidentType() {
   const [incidentDescription, setIncidentDescription] = useState('')
   const [locationPermission, setLocationPermission] = useState(false);
   const [validLocation, setValidLocation] = useState(false);
+  const [submissionStatus, setSubmissionStatus] = useState(false);
+  const [validSubmission, setValidSubmission] = useState(false);
 
   const handleIncidentTypeChange = (event: SelectChangeEvent) => {
     setIncidentType(event.target.value); 
@@ -117,62 +119,65 @@ export default function ReportIncidentType() {
     console.log(incidentDescription);
   };
 
-  interface LocationMessageProps {
-    locationAccess: boolean;
-    locationValidity: boolean;
-  }
-
-  const LocationMessage: FC<LocationMessageProps> = ({locationAccess, locationValidity}) => {
-    if (!locationAccess){
-      return <Alert 
-                severity="info"
-              >
-                Grant location access to PEEWEE?
-              <Stack spacing={2} direction="row">
-                <Button 
-                    variant="contained" 
-                    onClick={()=>handleLocationAccess()}
+  const LocationMessage = () => {
+    if (!submissionStatus){
+      if (!locationPermission){
+        return <Alert 
+                  severity="info"
                 >
-                    Yes
-                </Button>
-                <Button 
-                    variant="contained" 
-                    onClick={() => navigate("/incidents")}
-                >
-                    Return to Incidents Page
-                </Button>
-              </Stack>
-              </Alert>
-    } else if (locationValidity){
-      return <Box sx={{ pl: 3, pt: 3 }}>
+                  Grant location access to PEEWEE?
+                <Box sx={{ pt: 3 }}>
+                <Stack spacing={2} direction="row">
+                  <Button 
+                      variant="contained" 
+                      onClick={()=>handleLocationAccess()}
+                  >
+                      Yes
+                  </Button>
+                  <Button 
+                      variant="contained" 
+                      onClick={() => navigate("/incidents")}
+                  >
+                      Return to Incidents Page
+                  </Button>
+                </Stack>
+                </Box>
+                </Alert>
+      } else if (validLocation){
+        return <Box sx={{ pl: 3, pt: 3 }}>
               <Typography
                 component="h1"
                 variant="body1"
               >
-                {incidentLocation}
+              Incident Location:
+              {incidentLocation}
               </Typography>
               </Box>
-    } else {
-      return <Alert 
-                severity="info"
-              >
-                Location is invalid. Redetect current location?
-              <Stack spacing={2} direction="row">
-                <Button 
-                    variant="contained" 
-                    onClick={handleLocationAccess}
+      } else {
+        return <Alert 
+                  severity="info"
                 >
-                    Yes
-                </Button>
-                <Button 
-                    variant="contained" 
-                    onClick={() => navigate("/incidents")}
-                >
-                    Return to Incident Page
-                </Button>
-              </Stack>
-              </Alert>
+                  Location is invalid. Redetect current location?
+                <Box sx={{ pt: 3 }}>
+                <Stack spacing={2} direction="row">
+                  <Button 
+                      variant="contained" 
+                      onClick={handleLocationAccess}
+                  >
+                      Yes
+                  </Button>
+                  <Button 
+                      variant="contained" 
+                      onClick={() => navigate("/incidents")}
+                  >
+                      Return to Incident Page
+                  </Button>
+                </Stack>
+                </Box>
+                </Alert>
+      }
     }
+    return null;
   }
 
   const handleLocationAccess = () => {
@@ -186,68 +191,126 @@ export default function ReportIncidentType() {
     }
   }
 
-  interface IncidentTypeSelectionProps {
-    locationValidity: boolean;
-  }
-
-  const IncidentTypeSelection: FC<IncidentTypeSelectionProps> = ({locationValidity}) => {
-    if (locationValidity){
-      return  <Box sx={{ width: 360, pl: 3, pt: 3 }}>
-              <FormControl fullWidth>
-              <InputLabel id="demo-simple-select-label">Incident Type</InputLabel>
-              <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={incidentType}
-              label="Incident Type"
-              onChange={handleIncidentTypeChange}
-              >
-              <MenuItem value={"Accidents"}>Accidents</MenuItem>
-              <MenuItem value={"Roadworks"}>Roadworks</MenuItem>
-              <MenuItem value={"Closure"}>Closure</MenuItem>
-              <MenuItem value={"Slow Traffic"}>Slow Traffic</MenuItem>
-              </Select>
-              </FormControl>
-              </Box>
-    } 
+  const IncidentTypeSelection = () => {
+    if (!submissionStatus){
+      if (validLocation){
+        return  <Box sx={{ width: 360, pl: 3, pt: 3 }}>
+                <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label">Incident Type</InputLabel>
+                <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={incidentType}
+                label="Incident Type"
+                onChange={handleIncidentTypeChange}
+                >
+                <MenuItem value={"Accidents"}>Accidents</MenuItem>
+                <MenuItem value={"Roadworks"}>Roadworks</MenuItem>
+                <MenuItem value={"Closure"}>Closure</MenuItem>
+                <MenuItem value={"Slow Traffic"}>Slow Traffic</MenuItem>
+                </Select>
+                </FormControl>
+                </Box>
+      } 
+    }
     return null;
   }
+  
 
-  interface IncidentDescriptionInputProps {
-    typeOfIncident: string;
-  }
-
-  const IncidentDescriptionInput: FC<IncidentDescriptionInputProps> = ({typeOfIncident}) => {
-    if (typeOfIncident != ''){
-      return  <textarea 
-                name="Text1" 
-                cols={40} 
-                rows={5}
-                value={incidentDescription}
-                ref={ref => ref && ref.focus()}
-                onFocus={(e)=>e.currentTarget.setSelectionRange(e.currentTarget.value.length, e.currentTarget.value.length)}
-                onChange={(e) => setIncidentDescription(e.target.value)}>
-              </textarea>
+  const IncidentDescriptionInput= () => {
+    if (!submissionStatus){
+      if (incidentType!= ''){
+        return  <Box sx={{ width: 360, pl: 3, pt: 3 }}>
+                  <Typography
+                  component="h1"
+                  variant="body1"
+                  >
+                  Incident Description:
+                  </Typography>
+                  <Box>
+                  <textarea 
+                  name="Text1" 
+                  cols={100} 
+                  rows={5}
+                  value={incidentDescription}
+                  ref={ref => ref && ref.focus()}
+                  onFocus={(e)=>e.currentTarget.setSelectionRange(e.currentTarget.value.length, e.currentTarget.value.length)}
+                  onChange={(e) => setIncidentDescription(e.target.value)}>
+                  </textarea>
+                  </Box>
+                </Box>
+      }
     }
     return null;
   }
 
-  interface SubmitButtonProps{
-    descriptionOfIncident: string
+  const SubmitButton = () =>{
+    if (!submissionStatus){
+      if (incidentDescription!=''){
+        return <Box sx={{ pl: 3, pt: 3 }}>
+                <Button 
+                  variant="contained" 
+                  onClick={handleSubmission} // navigate to submission page 
+                >
+                Submit
+                </Button>
+                </Box>
+      } 
+    }
+    return null;
   }
 
-  const SubmitButton: FC<SubmitButtonProps> = ({descriptionOfIncident}) =>{
-    if (descriptionOfIncident!=''){
-      return <Box sx={{ pl: 3, pt: 3 }}>
-              <Button 
-                variant="contained" 
-                onClick={() => navigate("/login")}
-              >
-              Submit
-              </Button>
-              </Box>
-    } 
+  const handleSubmission = () =>{
+    setSubmissionStatus(true);
+    setValidSubmission(reportController.saveReport(incidentLocation,incidentType,incidentDescription));
+  }
+
+  const SubmissionMessage = () => {
+    if (submissionStatus){
+      if (validSubmission){
+        return <Alert severity="info"> 
+                  Incident is successfully reported. 
+                  <Box sx={{ pt: 3 }}>
+                  <Button 
+                      variant="contained" 
+                      onClick={()=>navigate("/incidents")}
+                  >
+                  Return to Incident Page
+                  </Button>
+                  </Box>
+                </Alert>
+      } else{
+        return <Alert severity="info"> 
+                  Error in report submission
+                  <Box sx={{ pt: 3 }}>
+                  <Stack spacing={2} direction="row">
+                  <Button 
+                      variant="contained" 
+                      onClick={handleReenter}
+                  >
+                      Re-enter form details
+                  </Button>
+                  <Button 
+                      variant="contained" 
+                      onClick={() => navigate("/incidents")}
+                  >
+                      Return to Incidents Page
+                  </Button>
+                  </Stack>
+                  </Box>
+                </Alert>
+      }
+    }
     return null;
+  }
+
+  const handleReenter = () => {
+    setIncidentLocation('');
+    setLocationPermission(false);
+    setValidLocation(false);
+    setIncidentType('');
+    setIncidentDescription('');
+    setSubmissionStatus(false);
   }
 
   return (
@@ -358,27 +421,11 @@ export default function ReportIncidentType() {
           }}
         >
        <Toolbar />
-       <Box sx={{ width: 360, pl: 3, pt: 3 }}>
-       <Typography
-          component="h1"
-          variant="body1"
-        >
-        Incident Location:
-       </Typography>
-       </Box>
-       <LocationMessage 
-        locationAccess={locationPermission} 
-        locationValidity={validLocation}
-        />
-       <IncidentTypeSelection 
-        locationValidity={validLocation}
-        />
-        <IncidentDescriptionInput
-        typeOfIncident={incidentType}
-        />
-        <SubmitButton 
-        descriptionOfIncident={incidentDescription}
-        />
+       <LocationMessage />
+       <IncidentTypeSelection />
+       <IncidentDescriptionInput />
+       <SubmitButton />
+       <SubmissionMessage />
       </Box>
       </Box>
     </ThemeProvider>
