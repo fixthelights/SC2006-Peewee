@@ -1,5 +1,5 @@
 // Require Mongoose
-const mongoose = require("mongoose");
+import mongoose from 'mongoose'
 
 // Define a schema
 const Schema = mongoose.Schema;
@@ -15,12 +15,18 @@ const ReportSchema = new Schema({
   },
   duration_hours: { type: Number, required: true },
   description: { type: String, required: true },
-  timestamp: { type: Date, default: Date.now() }
+  timestamp: { type: Date, default: Date.now() },
+  reported_by: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    //required: true
+    required: false
+  }
 });
 
 // Compile model from schema
 const Report = mongoose.model("Report", ReportSchema);
 
 // Export model
-module.exports = Report;
+export default Report;
 

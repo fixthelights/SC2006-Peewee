@@ -1,31 +1,41 @@
-import express, { Request, Response } from 'express';
-const mongoose = require("mongoose");
-const Report = require("../models/report")
-
-//200 - SUCCESS - Found and sent.
+import { Request, Response } from 'express';
+import { AppError } from '../config/AppError';
+import Report from '../models/report';
 
 exports.getAllReports = async (req :Request, res :Response) => {
-    const reports = await Report.find().exec()
-    return res.status(200).send(reports);
+    try{
+        const reports = await Report.find().exec();
+        return res.status(200).send(reports)
+    }catch(error: any){
+        throw new AppError({
+            type: "Error",
+            statusCode: 500,
+            description: 'Error loading reports.',
+            error: error
+        });
+    }
 }
 
 exports.getOneReport = async (req :Request, res :Response) => {
-
+    // Extract ID from URL
     const id = req.params.reportId;
-    if(!id){ // Check for empty id
-        return res.status(400).send();
-    }
 
     try{
         const report = await Report.findOne({ _id: id});
         return res.status(200).send(report);
     }catch(error: any){
-        return res.status(404).send(error);
-    }    
+        throw new AppError({
+            type: "Error",
+            statusCode: 500,
+            description: 'Error loading report.',
+            error: error
+        });
+    }
 }
 
 exports.submitReport = async (req :Request, res :Response) => {
-    const json = req.body; // Extract JSON from Request body
+    // Extract fields from JSON Request body
+    const json = req.body; 
 
     const report = new Report;
     report.incident = json.incident;
@@ -35,17 +45,70 @@ exports.submitReport = async (req :Request, res :Response) => {
 
     try{
         await report.save()
+        return res.status(200).send();
     }catch(error: any){
-        console.log(error);
-        throw new Error("Unable to save report")
+        throw new AppError({
+            type: "Error",
+            statusCode: 500,
+            description: 'Error submitting report.',
+            error: error
+        });
     }
-    return res.status(200).send();
+    
 }
 
-exports.updateReport = (req :Request, res :Response) => {
-    return res.status(200).send();
+// API allows update to all report fields
+// Fields are optional, at least 1 field is required. 
+/*
+    For example, this request json is valid.
+    {
+        "duration_hours": 12,
+        "description": "Accident at Jurong West St 64"
+    }
+*/
+exports.updateReport = async (req :Request, res :Response) => {
+    // Extract ID from URL
+    const id = req.params.reportId;
+
+    // Extract fields from JSON Request body
+    const json = req.body;
+
+    console.log(json)
+
+    if(Object.keys(json).length == 0){
+        throw new AppError({
+            type: "RequestError",
+            statusCode: 400,
+            description: 'Empty json in request body!'
+        });
+    }
+
+    try{
+        const report = await Report.findOneAndUpdate({_id:id}, json, { new: true })
+        return res.status(200).send(report);
+    }catch(error: any){
+        throw new AppError({
+            type: "Error",
+            statusCode: 500,
+            description: 'Unable to save reports.',
+            error: error
+        });
+    }
 }
 
-exports.deleteReport = (req :Request, res :Response) => {
-    return res.status(200).send();
+exports.deleteReport = async (req :Request, res :Response) => {
+    // Extract ID from URL
+    const id = req.params.reportId;
+    
+    try{
+        const report = await Report.findOneAndDelete({ _id: id});
+        return res.status(200).send(report);
+    }catch(error: any){
+        throw new AppError({
+            type: "Error",
+            statusCode: 500,
+            description: 'Error deleting reports.',
+            error: error
+        });
+    }
 }
