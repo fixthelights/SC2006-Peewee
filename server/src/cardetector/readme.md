@@ -14,4 +14,7 @@ e.g. {
 <h1>Saves the image with labelled features in same filepath as input, with "_labelled" as a suffix.</h1>
 
 e.g. /Users/thehamcar/Work/SC2006-Peewee-main/SC2006-Peewee/server/src/cardetector/1711_labelled.jpg
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
