@@ -4,6 +4,8 @@
 
 e.g. http://localhost:8080/detect?file_path=/Users/thehamcar/Work/SC2006-Peewee-main/SC2006-Peewee/server/src/cardetector/1711.jpg
 
+![1711.jpg](./1711.jpg)
+
 <h1>returns a JSON with number of objects in each class</h1>
 
 e.g. {
@@ -14,7 +16,5 @@ e.g. {
 <h1>Saves the image with labelled features in same filepath as input, with "_labelled" as a suffix.</h1>
 
 e.g. /Users/thehamcar/Work/SC2006-Peewee-main/SC2006-Peewee/server/src/cardetector/1711_labelled.jpg
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
+![1711_labelled.jpg](./1711_labelled.jpg)
