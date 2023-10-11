@@ -15,6 +15,9 @@ const userRouter = require('./src/routes/userRouter');
 const reportRouter = require('./src/routes/reportRouter');
 //const routeRouter = require('./src/routes./routeRouter');
  
+// Import User Object
+const User = './src/models/user'
+
 // Express Code
 const app = express();
 const port = process.env.PORT || 2000;
