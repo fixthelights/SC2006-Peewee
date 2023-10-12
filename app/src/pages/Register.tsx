@@ -14,7 +14,8 @@ import { useNavigate } from "react-router-dom";
 import {AuthController} from "../classes/AuthController"
 import Alert from '@mui/material/Alert';
 import 'reactjs-popup/dist/index.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios'
 
 
 // TODO remove, this demo shouldn't need to reset the theme.
@@ -31,6 +32,21 @@ export default function Register() {
   const [isInvalidEmail, setIsInvalidEmail] = useState(true);
   const [isInvalidPassword, setIsInvalidPssword] = useState(true);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [userList, setUserList] = useState([])
+
+  /*useEffect(()=> {  
+      // here we get the data by requesting data from this link
+      // to our nodejs server
+      Axios.get('http://localhost:2000/') 
+      .then((res)=> setUserList(res.data));
+  }, []);*/
+
+  /*let checkMatchingEmail = userList.map((user)=>{
+    if (user.email == email){
+      return true;
+    }
+    return false;
+  });*/
 
 
   // Handling the email change
@@ -43,18 +59,31 @@ export default function Register() {
     setPassword(event.target.value);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+
+    event.preventDefault();
+
     // update submission status 
     setIsSubmitted(true);
 
     // validate credentials using authcontroller
-    let emailValid = authController.checkEmailValidity(email);
+    let emailValid = authController.validateEmailAddressFormat(email) /*&& checkMatchingEmail*/
     let passwordValid = authController.checkPasswordValidity(password);
 
-    // save user in database
-    if (emailValid && passwordValid){
-      authController.saveUser(email, password);
+    // save credentials in a variable
+    const data = new FormData(event.currentTarget);
+    const newUser = {
+      email: data.get('email'),
+      password: data.get('password')
     }
+
+    // save user in database
+    /*if (emailValid && passwordValid){
+      axios.post('http://localhost:2000/', newUser)
+      .then(res => {
+        console.log(res.data)
+      })
+    }*/
 
     // save validity states for display of corresponding message
     setIsInvalidEmail(!emailValid);
@@ -73,21 +102,15 @@ export default function Register() {
 
   // message display depending on validity
 
-  interface MessageProps {
-    submissionStatus: boolean;
-    passwordInvalidity: boolean;
-    emailInvalidity: boolean;
-  }
-
-  const Message: FC<MessageProps> = ({submissionStatus, passwordInvalidity, emailInvalidity }) => {
-    if (submissionStatus){
-      if (passwordInvalidity && emailInvalidity) {
+  const Message = () => {
+    if (isSubmitted){
+      if (isInvalidPassword && isInvalidEmail) {
         return <Alert severity="info">Password and email are invalid. Registration is unsuccessful.</Alert>
       }
-      if (passwordInvalidity){
+      if (isInvalidPassword){
         return <Alert severity="info">Password does not meet the requirements. Registration is unsuccessful.</Alert>
       }
-      if (emailInvalidity){
+      if (isInvalidEmail){
         return <Alert severity="info">Email is invalid. Registration is unsuccessful.</Alert> 
       }
       return <Alert severity="info">Registration is successful.</Alert>
@@ -113,7 +136,7 @@ export default function Register() {
           <Typography component="h1" variant="h5">
             Register
           </Typography>
-          <Box component="form" noValidate onSubmit={handleInput} sx={{ mt: 3 }}>
+          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
@@ -143,7 +166,6 @@ export default function Register() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              onClick={handleSubmit}
             >
               Register
             </Button>
@@ -159,11 +181,7 @@ export default function Register() {
                 </Link>
               </Grid>
               <Grid item sx={{pt:2}}>
-                <Message 
-                submissionStatus={isSubmitted}
-                emailInvalidity={isInvalidEmail} 
-                passwordInvalidity={isInvalidPassword}
-                />
+                <Message/>
               </Grid>
             </Grid>
           </Box>

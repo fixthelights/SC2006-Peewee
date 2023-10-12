@@ -21,6 +21,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import FmdGoodOutlinedIcon from '@mui/icons-material/FmdGoodOutlined';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import { useState } from 'react'
 
 const drawerWidth: number = 240;
 
@@ -76,12 +77,24 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const defaultTheme = createTheme();
 
 export default function Incidents() {
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
   const navigate = useNavigate();
+  const [reportList, setReportList] = useState([])
+
+  /*useEffect(()=> {  
+      // here we get the data by requesting data from this link
+      // to our nodejs server
+      Axios.get('http://localhost:2000/') 
+      .then((res)=> setReportList(res.data));
+  }, []);*/
+
+  /*let displayReport = reportList.map((report)=>{
+    return <li key={item.id}>{item.name}</li>
+  });*/
 
   return (
     <ThemeProvider theme={defaultTheme}>

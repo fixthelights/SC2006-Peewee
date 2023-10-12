@@ -2,32 +2,19 @@ import React, { useEffect, useState } from 'react';
 
 class ReportController{
     getUserLocation(): string{
+      this.getUserCoordinates();
         // return this.convertCoordinatesToLocation(this.getUserCoordinates());
         return "NTU";
     }
-    /*getUserCoordinates(): Array<number>{
-       let latitude = 1000;
-       let longitude = 1000;
 
-        useEffect(() => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position: GeolocationPosition) => {
-                    latitude = position.coords.latitude;
-                    longitude =position.coords.longitude;
-                },
-                (error: GeolocationPositionError) => {
-                    console.error(error);
-                }
-            );
-        } else {
-            console.error('Geolocation is not supported by this browser.');
-        }
-        }, []);
-
-        return [latitude,longitude];
+    getUserCoordinates(): void{
+       navigator.geolocation.getCurrentPosition(function(position) {
+        console.log("Latitude is :", position.coords.latitude);
+        console.log("Longitude is :", position.coords.longitude);
+      });
     }
-    convertCoordinatesToLocation(list: Array<number>): Promise<string | undefined>{
+
+    /*convertCoordinatesToLocation(list: Array<number>): Promise<string | undefined>{
         let latitude = list[0];
         let longitude = list[1];
         return new Promise((resolve) => {

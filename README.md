@@ -10,30 +10,36 @@ Components - reusuable UI elements
 
 Pages - different UI pages 
 
-What is left for frontend first half: 
+What is left for frontend first half:  
 
 Register 
-- link to backend to check if email exists in backend (controller class) 
+- check if getting user list data is successful 
+- check if posting new user data is successful 
+- error handling for getting and posting data 
 
 Login 
-- link to backend to check for exisiting email and password (controller class) 
+- check if getting user list data is successful 
+- logic for 'remember me' option 
+- error handling for getting data 
 
 Forget password 
-- sending otp to user email (controller class)
-- validating otp and new password (controller class)
-- link to backend to save new password (controller class)
-- conditional message rendering based on validity of otp and password (UI) 
+- sending otp to user email 
+- validating otp and new password 
+- link to backend to save new password 
+- conditional message rendering based on validity of otp and password 
 
-Dashboard 
-- link to backend data for display (controller class and UI)
-- layout of data display (UI) 
+Dashboard -> implement if have time? 
+- link to backend data for display 
+- layout of data display  
 
 Incidents 
-- link to backend data for display (controller class and UI) 
+- link to backend data for display 
+- logic for getting current day data 
 
 Report Incidents 
 - getting user's current location coordinates 
-- converting coordinates to address (controller class)
-- checking if address is on a driving road (controller class) 
-- passing report info to backend (controller class)
+- capture report time 
+- converting coordinates to address 
+- checking if address is on a driving road 
+- passing report info to backend 
 

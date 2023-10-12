@@ -170,7 +170,7 @@ export default function ReportIncident() {
     setLocationPermission(true);
     let location = reportController.getUserLocation();
     if (location != ''){
-      setIncidentLocation(reportController.getUserLocation())
+      setIncidentLocation(location);
       setValidLocation(true);
     } else {
       setValidLocation(false);

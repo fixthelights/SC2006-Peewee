@@ -19,7 +19,6 @@ import Alert from '@mui/material/Alert';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
-const authController = new AuthController();
 
 export default function Login() {
   const navigate = useNavigate();
@@ -30,7 +29,28 @@ export default function Login() {
   const [isInvalidEmail, setIsInvalidEmail] = useState(true);
   const [isInvalidPassword, setIsInvalidPssword] = useState(true);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [userList, setUserList] = useState([])
 
+  /*useEffect(()=> {  
+      // here we get the data by requesting data from this link
+      // to our nodejs server
+      Axios.get('http://localhost:2000/') 
+      .then((res)=> setUserList(res.data));
+  }, []);*/
+
+  /*let checkMatchingEmail = userList.map((user)=>{
+    if (user.email === email){
+      return true;
+    }
+    return false;
+  });*/
+
+  /*let checkMatchingPassword = userList.map((user)=>{
+    if (user.password === password && user.email === email){
+      return true;
+    }
+    return false;
+  });*/
 
   // Handling the email change
   const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,9 +65,13 @@ export default function Login() {
   const handleSubmit = () => {
     setIsSubmitted(true);
 
+    // to be removed
+    let emailValid = true;
+    let passwordValid = false;
+
     // validate user
-    let emailValid = authController.checkMatchingEmail(email); //would check for empty string
-    let passwordValid = authController.checkMatchingPassword(email, password); // would check for empty string
+    /*let emailValid = checkMatchingEmail;*/
+    /*let passwordValid = checkMatchingPassword; // would check for empty string*/
 
     // redirect valid user
     if (emailValid && passwordValid){
