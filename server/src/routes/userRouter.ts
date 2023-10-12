@@ -1,6 +1,8 @@
 import express, { Request, Response } from 'express';
 const router = express.Router();
 const userController = require('../controllers/userController');
+// const jwt = require("jwt");
+// const session = require('express-session')
 
 // GET request for a list of all users
 router.get('/', userController.getAllUsers);
@@ -10,6 +12,12 @@ router.get('/:userId',userController.getOneUser);
 
 // POST request for registration
 router.post('/register', userController.createUser);
+
+// POST request for login
+router.post('/login', userController.login);
+
+// POST request for forget password
+router.post('/forget-password', userController.forgetPassword);
 
 // PUT request to update student details
 router.put('/:userId', userController.updateUser);
