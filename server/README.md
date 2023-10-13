@@ -1,3 +1,44 @@
+# Configuration
+> **[IMPORTANT]** This step **must** be completed to enable communication between server and database.
+
+Create a `.env` file in the current working directory. Here's an example:
+
+```diff
+    server
++   ├── .env
+    ├── .gitignore
+    ├── README.md
+    ├── index.ts
+    ├── node_modules
+    ├── nodemon.json
+    ├── package-lock.json
+    ├── package.json
+    ├── src
+    └── tsconfig.json
+```
+Here's an example of a `.env` configuration file, where you can copy directly:
+
+```dotenv
+# ---------------
+# ExpressJS configuration
+PORT= 2000
+
+# ---------------
+# MongoDB connection configuration
+MONGO_HOST= limzhengguang.com
+MONGO_PORT= 27017
+MONGO_DB = peewee
+MONGO_TLS = TRUE
+MONGO_USER = user
+MONGO_PASS = bjRUVe5o9xr7TVRd384sQ0k862SqWhVq5cbDec94
+```
+
+To connect to our cloud mongoDB server using `mongosh` or `mongo`, enter:
+```
+mongosh -tls --host limzhengguang.com -u user -p bjRUVe5o9xr7TVRd384sQ0k862SqWhVq5cbDec94
+```
+
+
 # API Design Guidelines
 https://stackoverflow.blog/2020/03/02/best-practices-for-rest-api-design/
 
