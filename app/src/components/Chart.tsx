@@ -2,11 +2,24 @@ import * as React from 'react';
 import { useTheme } from '@mui/material/styles';
 import { LineChart, Line, XAxis, YAxis, Label, ResponsiveContainer } from 'recharts';
 import Title from './Title';
+import {useState} from 'react'
 
 // Generate Sales Data
 function createData(time: string, carNumbers?: number) {
   return { time, carNumbers };
 }
+
+/*useEffect(()=> {  
+      axios.get('http://localhost:2000/') 
+      .then((res)=> setTrafficDataList(res.data));
+  }, []);*/
+
+/*const trafficData =[]
+function populateData(){
+  trafficDataList.map((data)=>{
+    trafficData.push(createData(data.time, data.numVehicles))
+  });
+}*/
 
 const data = [
   createData('00:00', 0),
@@ -19,14 +32,19 @@ const data = [
   createData('21:00', 2400),
   createData('24:00', undefined),
 ];
-// change to:
-// const data = [
-// createData(i,j) for each i,j in trafficController.getTrafficDataList()
-//];
+
+/*let data = reportList.map((report)=>{
+    return <IncidentListItem
+              incidentType: report.incident
+              incidentTime: kiv
+              incidentLocation: kiv
+              incidentDescription: report.description
+            />
+  });*/
 
 export default function Chart() {
   const theme = useTheme();
-
+  const [trafficDataList, getTrafficDataList] = useState([])
   return (
     <React.Fragment>
       <Title>Today</Title>

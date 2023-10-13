@@ -1,36 +1,37 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'react';
 
 class ReportController{
-    getUserLocation(): string{
+
+    getUserLocation(){
+      let coordinates=[];
+      coordinates=this.getUserCoordinates();
         // return this.convertCoordinatesToLocation(this.getUserCoordinates());
-        return "NTU";
+      return "NTU";
     }
-    /*getUserCoordinates(): Array<number>{
-       let latitude = 1000;
-       let longitude = 1000;
 
-        useEffect(() => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position: GeolocationPosition) => {
-                    latitude = position.coords.latitude;
-                    longitude =position.coords.longitude;
-                },
-                (error: GeolocationPositionError) => {
-                    console.error(error);
-                }
-            );
-        } else {
-            console.error('Geolocation is not supported by this browser.');
-        }
-        }, []);
-
-        return [latitude,longitude];
+    getUserCoordinates(): Array<number>{
+      let latitude=1000; // default value for error checking 
+      let longitude=1000;
+      navigator.geolocation.getCurrentPosition(function(position) {
+        console.log("Latitude is :", position.coords.latitude);
+        console.log("Longitude is :", position.coords.longitude);
+        latitude = position.coords.latitude;
+        longitude = position.coords.longitude
+      });
+      return [latitude, longitude]
     }
-    convertCoordinatesToLocation(list: Array<number>): Promise<string | undefined>{
+
+    /*convertCoordinatesToLocation(list: Array<number>): {
         let latitude = list[0];
         let longitude = list[1];
-        return new Promise((resolve) => {
+        /*axios.get(`https://eu1.locationiq.com/v1/reverse?key=pk.565aea3b0b4252d7587da4689cd6869e&lat=${latitude}&lon=${longitude}&format=json`)
+        .then((res)=> console.log(res.data['display_name']))
+        .catch(function(error) {
+            console.log(error);
+        });*/
+
+        /*return new Promise((resolve) => {
             const url = `https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?prox=41.8842%2C-87.6388%2C250&mode=retrieveAddresses&maxresults=1&gen=9&apiKey=H6XyiCT0w1t9GgTjqhRXxDMrVj9h78ya3NuxlwM7XUs&mode=retrieveAddresses&prox=${latitude},${longitude}`
             fetch(url)
               .then(res => res.json())
@@ -51,9 +52,7 @@ class ReportController{
                 console.log('Error in getAddressFromCoordinates', e)
                 resolve(undefined)
               })
-          })
-
-    }*/
+          })*/
 
     saveReport(incidentLocation: string, incidentType: string, incidentDescription: string): boolean{
       // save to database

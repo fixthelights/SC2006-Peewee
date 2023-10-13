@@ -19,7 +19,6 @@ import Alert from '@mui/material/Alert';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
-const authController = new AuthController();
 
 export default function Login() {
   const navigate = useNavigate();
@@ -30,7 +29,26 @@ export default function Login() {
   const [isInvalidEmail, setIsInvalidEmail] = useState(true);
   const [isInvalidPassword, setIsInvalidPssword] = useState(true);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [userList, setUserList] = useState([])
 
+  /*useEffect(()=> {  
+      axios.get('http://localhost:2000/') 
+      .then((res)=> setUserList(res.data));
+  }, []);*/
+
+  /*let checkMatchingEmail = userList.map((user)=>{
+    if (user.email === email){
+      return true;
+    }
+    return false;
+  });*/
+
+  /*let checkMatchingPassword = userList.map((user)=>{
+    if (user.password === password && user.email === email){
+      return true;
+    }
+    return false;
+  });*/
 
   // Handling the email change
   const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,9 +63,13 @@ export default function Login() {
   const handleSubmit = () => {
     setIsSubmitted(true);
 
+    // to be removed
+    let emailValid = true;
+    let passwordValid = true;
+
     // validate user
-    let emailValid = authController.checkMatchingEmail(email); //would check for empty string
-    let passwordValid = authController.checkMatchingPassword(email, password); // would check for empty string
+    /*let emailValid = checkMatchingEmail;*/
+    /*let passwordValid = checkMatchingPassword; // would check for empty string*/
 
     // redirect valid user
     if (emailValid && passwordValid){
@@ -68,22 +90,15 @@ export default function Login() {
     });
   };
 
-  // message for invalid credentials
-  interface MessageProps {
-    submissionStatus: boolean;
-    passwordInvalidity: boolean;
-    emailInvalidity: boolean;
-  }
-
-  const Message: FC<MessageProps> = ({submissionStatus, passwordInvalidity, emailInvalidity }) => {
-    if (submissionStatus){
-      if (passwordInvalidity && emailInvalidity) {
+  const Message = () => {
+    if (isSubmitted){
+      if (isInvalidPassword && isInvalidEmail) {
         return <Alert severity="info">Password and email are invalid. Log In is unsuccessful.</Alert>
       }
-      if (passwordInvalidity){
+      if (isInvalidPassword){
         return <Alert severity="info">Password is invalid. Log In is unsuccessful.</Alert>
       }
-      if (emailInvalidity){
+      if (isInvalidEmail){
         return <Alert severity="info">Email is invalid. Log In is unsuccessful.</Alert>
       }
     }
@@ -108,7 +123,7 @@ export default function Login() {
           <Typography component="h1" variant="h5">
             Log In
           </Typography>
-          <Box component="form" onSubmit={handleInput} noValidate sx={{ mt: 1 }}>
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
             <TextField
               margin="normal"
               required
@@ -156,11 +171,7 @@ export default function Login() {
                 </Link>
               </Grid>
               <Grid item sx={{pt:2}}>
-                <Message 
-                submissionStatus={isSubmitted}
-                emailInvalidity={isInvalidEmail} 
-                passwordInvalidity={isInvalidPassword}
-                />
+                <Message />
               </Grid>
             </Grid>
           </Box>

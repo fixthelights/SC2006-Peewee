@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response} from 'express';
 import { connectDB } from './src/config/mongo';
 import { errorHandler } from './src/middlewares/errorHandler';
 import { AppError } from './src/config/AppError';
@@ -14,17 +14,19 @@ import 'express-async-errors';
 // Import Express Routers
 const userRouter = require('./src/routes/userRouter');
 const reportRouter = require('./src/routes/reportRouter');
-//const routeRouter = require('./src/routes./routeRouter');
+// const routeRouter = require('./src/routes/routeRouter');
  
 // Express Code
 const app = express();
+const cors = require('cors');
 const port = process.env.PORT || 2000;
 app.use(express.json());
+app.use(cors());
 
 // Define API Routes
 app.use('/users',userRouter);
 app.use('/reports',reportRouter);
-//app.use('/routes',routeRouter);
+// app.use('/routes',routeRouter);
 
 
 // Catch 404 and forward to error handler

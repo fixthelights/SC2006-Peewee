@@ -21,6 +21,9 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import FmdGoodOutlinedIcon from '@mui/icons-material/FmdGoodOutlined';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import { useState } from 'react'
+import axios from 'axios'
+// import IncidentListItem from '../components/IncidentListItem';
 
 const drawerWidth: number = 240;
 
@@ -76,12 +79,30 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const defaultTheme = createTheme();
 
 export default function Incidents() {
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
   const navigate = useNavigate();
+  const [reportList, setReportList] = useState([])
+
+  /*useEffect(()=> {  
+      axios.get('http://localhost:2000/') 
+      .then((res)=> setReportList(res.data));
+  }, []);*/
+
+  /* let displayReport(){ reportList.map((report)=>{
+      if (report.time === today){
+        return <IncidentListItem
+                incidentType: report.incident
+                incidentTime: kiv
+                incidentLocation: kiv
+                incidentDescription: report.description
+              />
+      }
+    }
+  });*/
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -201,7 +222,7 @@ export default function Incidents() {
                   Report Incident
               </Button> 
               </Grid>
-              {/* Create for loop to display each incident after retrieval from IncidentsController*/}
+              {/*Change to displayReport*/}
               <Grid item xs={12} md={12} lg={12}>
                 <Paper
                   sx={{
