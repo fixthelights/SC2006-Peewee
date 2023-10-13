@@ -10,11 +10,17 @@ connectDB();
 // Add async error handling
 import 'express-async-errors';
 
+// Run Scheduled Jobs every X minute (AI Traffic Image Processing)
+import scheduledFunctions from './src/cardetector/processingTasks';
+scheduledFunctions.initScheduledJobs();
+
 
 // Import Express Routers
 const userRouter = require('./src/routes/userRouter');
 const reportRouter = require('./src/routes/reportRouter');
+const trafficRouter = require('./src/routes/trafficRouter')
 // const routeRouter = require('./src/routes/routeRouter');
+
  
 // Express Code
 const app = express();
@@ -26,7 +32,9 @@ app.use(cors());
 // Define API Routes
 app.use('/users',userRouter);
 app.use('/reports',reportRouter);
+app.use('/traffic-condition', trafficRouter);
 // app.use('/routes',routeRouter);
+
 
 
 // Catch 404 and forward to error handler
