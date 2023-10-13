@@ -1,30 +1,21 @@
 import express, { Request, Response } from 'express';
+import crypto from 'crypto';
 
-// import { UserDocument } from '../models/user';
-const userRouter = require("../routes/userRouter");
 const User = require("../models/user");
+const PasswordToken = require("../models/passwordToken");
+const userRouter = require("../routes/userRouter");
 const bcrypt = require("bcrypt");
-const nodemailer = require("nodemailer");
-
-let mailTransporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: "peeweeSC2006@gmail.com",
-        pass: "!peeweeShagBro"
-    }
-});
-
+const { sendForgetEmail } = require("../middlewares/BrevoAPI");
 
 //200 - SUCCESS - Found and sent.
-
 
 exports.getAllUsers = async (req :Request, res :Response) => {
     try {
         const users = await User.find();
-        res.json(users);
+        return res.json(users);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Internal Server Error');
+        return res.status(500).send('Internal Server Error');
     }
     // return res.status(200).send(User.getAll());
 };
@@ -32,7 +23,7 @@ exports.getAllUsers = async (req :Request, res :Response) => {
 exports.getOneUser = async (req :Request, res :Response) => {
     try {
         const userId = req.params.userId;
-        const user = await User.findById({_id : userId});
+        const user = await User.findById({userId : userId});
 
         if (!user) {
             return res.status(404).send('User not found');
@@ -43,7 +34,7 @@ exports.getOneUser = async (req :Request, res :Response) => {
         console.error(error);
         res.status(500).send('Internal Server Error');
     }
-    return res.status(200).send(User.getOne(1));
+    return res.status(200).send(User.findOne(1));
 };
 
 // Create user with POST request
@@ -59,7 +50,7 @@ exports.createUser = async (req :Request, res :Response) => {
         
         if (username && password) {
             // Check if user already exists
-            if (await userExists(username)) {
+            if (!!await User.findOne({ username : username })) {
                 return res.status(404).json({message:"User already exists"})
             }
             // Create a new user instance
@@ -100,28 +91,53 @@ exports.login = async (req : Request,res : Response) => {
     }
 };
 
-// Forget Password with POST request
+// POST request for forget password - Request change password
 exports.forgetPassword = async ( req: Request, res: Response ) => {
     try {
         const username = req.body.username;
         const email = req.body.email;
 
-        let mailDetails = {
-            from: "peeweeSC2006@gmail.com",
-            to: "chengyao.lee@gmail.com",
-            subject: 'Test mail',
-            text: "Node.js testing mail"
-        };
+        const verifiedUser = await User.findOne({username : username});
+        if (verifiedUser.email !== email) {
+            return res.status(404).json({message:"Email does not match username"})
+        }
 
-        mailTransporter.sendMail(mailDetails, function(err : Error, data : any) {
-            if(err) {
-                console.log(err);
-                console.log('Error');
-            } else {
-                console.log('Email sent successfully');
-            }
+        let token = await PasswordToken.findOne({ userId: verifiedUser._id });
+        if (!token) {
+            token = await new PasswordToken({
+                userId: verifiedUser._id,
+                token: crypto.randomBytes(32).toString("hex"),
+            }).save();
+        }
+
+        const link = `${process.env.BASE_URL}/password-reset/${verifiedUser._id}/${token.token}`;
+        await sendForgetEmail(verifiedUser.email, "Password reset", link);
+        
+        return res.status(200).send("Password reset link sent to your email account");
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send("Internal Server Error")
+    }
+};
+
+// POST request for forget password - Change password
+exports.validatePasswordToken = async (req: Request, res: Response) => {
+    try {
+    
+        const verifiedUser = await User.findById(req.params.userId);
+        if (!verifiedUser) return res.status(400).send("Invalid or expired link");
+
+        const token = await PasswordToken.findOne({
+            userId: verifiedUser.userId,
+            token: req.params.token,
         });
-        return res.status(200).send("Email sent successfully");
+        if (!token) return res.status(400).send("Invalid or expired link");
+
+        verifiedUser.password = req.body.password;
+        await verifiedUser.save();
+        await token.delete();
+
+        return res.status(200).send("Password reset sucessfully");
     } catch (error) {
         console.log(error);
         return res.status(500).send("Internal Server Error")
@@ -134,7 +150,7 @@ exports.updateUser = async (req :Request, res :Response) => {
         const userId = req.params.userId;
         const { username, password } = req.body;
 
-        const user = await User.findById({_id : userId});
+        const user = await User.findById({userId : userId});
 
         if (!user) {
             return res.status(404).send('User not found');
@@ -159,7 +175,7 @@ exports.updateUser = async (req :Request, res :Response) => {
 exports.deleteUser = async (req :Request, res :Response) => {
     try {
         const userId = req.params.userId;
-        const user = await User.findByIdAndDelete({_id : userId});
+        const user = await User.findByIdAndDelete({userId : userId});
 
         if (!user) {
             return res.status(404).send('User not found');
@@ -177,17 +193,17 @@ exports.deleteUser = async (req :Request, res :Response) => {
 
 ////////////////// Helper functions //////////////////
 
-// Check if the user exists in our DB
-const userExists = async (username : String) => {    
-    try {
-        const queriedUser = await User.findOne({ username : username });
+// // Check if the user exists in our DB
+// const userExists = async (username : String) => {    
+//     try {
+//         const queriedUser = await User.findOne({ username : username });
 
-        return !!queriedUser; // Returns true if the user exists, false otherwise
-    } catch (error) {
-        console.log(error);
-        return false;
-    }
-};
+//         return !!queriedUser; // Returns true if the user exists, false otherwise
+//     } catch (error) {
+//         console.log(error);
+//         return false;
+//     }
+// };
 
 // Check if username and password match our DB
 const authenticatedUser = async ( username : String, password : String ) => {

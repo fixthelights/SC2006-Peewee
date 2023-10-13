@@ -16,8 +16,11 @@ router.post('/register', userController.createUser);
 // POST request for login
 router.post('/login', userController.login);
 
-// POST request for forget password
+// POST request for forget password - Request change password
 router.post('/forget-password', userController.forgetPassword);
+
+// POST request for forget password - Change password
+router.post('/forget-password/:userId/:passwordToken', userController.validatePasswordToken);
 
 // PUT request to update student details
 router.put('/:userId', userController.updateUser);
