@@ -9,10 +9,15 @@ connectDB();
 // Add async error handling
 import 'express-async-errors';
 
+// Run Scheduled Jobs every X minute (AI Traffic Image Processing)
+import scheduledFunctions from './src/cardetector/generateTrafficData';
+scheduledFunctions.initScheduledJobs();
+
 
 // Import Express Routers
 const userRouter = require('./src/routes/userRouter');
 const reportRouter = require('./src/routes/reportRouter');
+const trafficRouter = require('./src/routes/trafficRouter')
 //const routeRouter = require('./src/routes./routeRouter');
  
 // Express Code
@@ -23,6 +28,7 @@ app.use(express.json());
 // Define API Routes
 app.use('/users',userRouter);
 app.use('/reports',reportRouter);
+app.use('/traffic-condition', trafficRouter);
 //app.use('/routes',routeRouter);
 
 

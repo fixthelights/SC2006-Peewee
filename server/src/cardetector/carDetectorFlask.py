@@ -4,13 +4,16 @@ from waitress import serve
 from PIL import Image, ImageDraw
 import numpy as np
 import os
+import io
+import requests as new_request
 
 app = Flask(__name__)
 
 
 def main():
-    serve(app, host='0.0.0.0', port=8080)
-
+    # Use insecure HTTP flask server for development
+    app.run(debug=True, use_debugger=False, use_reloader=True, port=8080)
+    #serve(app, host='0.0.0.0', port=8080)
 
 
 @app.route("/detect", methods=["POST"])
@@ -36,6 +39,29 @@ def detect():
     draw_boxes_on_image(file_path, boxes)
     return(count_object_types(boxes))
 
+
+@app.route("/detect-url", methods=["POST"])
+def detect_url():
+    """
+        Handler of /detect POST endpoint
+        Receives uploaded file with a name "image_file", passes it
+        through YOLOv8 object detection network and returns and array
+        of bounding boxes.
+        :return: a JSON array of objects bounding boxes in format [[x1,y1,x2,y2,object_type,probability],..]
+    """
+    #buf = request.files["image_file"]
+
+    url = request.args.get("url")
+    response = new_request.get(url)
+    buf = io.BytesIO(response.content)
+
+    if not url:
+        return jsonify({"error": "Missing 'url' parameter in query"}), 400
+
+    #buf = open("1711.jpg","rb")
+    boxes = detect_objects_on_image(buf)
+    draw_boxes_on_image(buf, boxes)
+    return(count_object_types(boxes))
 
 
 def detect_objects_on_image(buf):
@@ -190,9 +216,13 @@ def draw_boxes_on_image(image_path, detected_boxes):
         # Draw the label
         label = f"{object_type}: {probability:.2f}"
         draw.text((x1, y1 - 10), label, fill="red")
-    output_path = image_path.replace(os.path.basename(image_path), f"{os.path.basename(image_path).replace('.', '_labelled.')}")
-    # Save the output image
-    image.save(output_path)
+    
+    
+    # Skip for development
+    #output_path = image_path.replace(os.path.basename(image_path), f"{os.path.basename(image_path).replace('.', '_labelled.')}")
+
+    # Save the output image 
+    #image.save(output_path)
 
 # Array of YOLOv8 class labels
 yolo_classes = [
