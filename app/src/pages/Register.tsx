@@ -34,17 +34,24 @@ export default function Register() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [userList, setUserList] = useState([])
 
-  /*useEffect(()=> {  
-      axios.get('http://localhost:2000/') 
-      .then((res)=> setUserList(res.data));
-  }, [])*/
+  const loadUserList = () => {
+    axios.get('http://localhost:2000/users/')
+    .then((res)=> console.log(res.data))
+    .catch(function(error) {
+      console.log(error);
+    });
+}
 
-  /*let checkMatchingEmail = userList.map((user)=>{
-    if (user.email == email){
-      return true;
-    }
+const checkMatchingEmail = userList.map((user: { email: string, password: string }) => {
+  loadUserList();
+  if (user.email === email) {
+    console.log(true)
+    return true;
+  } else{
+    console.log(false)
     return false;
-  })*/
+  }
+});
 
   // Handling the email change
   const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,26 +71,22 @@ export default function Register() {
     setIsSubmitted(true);
 
     // validate credentials using authcontroller
-    let emailValid = authController.validateEmailAddressFormat(email) /*&& checkMatchingEmail*/
+    let emailValid = !checkMatchingEmail;
     let passwordValid = authController.checkPasswordValidity(password);
 
     // save credentials in a variable
     const data = new FormData(event.currentTarget);
-    const newUser = {
-      email: data.get('email'),
-      password: data.get('password')
-    }
 
     // save user in database
     if (emailValid && passwordValid){
-      let result = await fetch(
-        'http://localhost:2000/user/', {
-            method: "post",
-            body: JSON.stringify({ email, password }),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
+      axios.post('http://localhost:2000/users/', {
+        email: email,
+        password: password
+      })
+      .then((res)=> console.log(res))
+      .catch(function(error) {
+        console.log(error);
+      });
     }
 
     // save validity states for display of corresponding message

@@ -13,23 +13,20 @@ Pages - different UI pages
 What is left for frontend first half:  
 
 Register 
-- check if getting user list data is successful 
-- check if posting new user data is successful 
-- error handling for getting and posting data 
+- backend testing
 
 Login 
-- check if getting user list data is successful 
+- backend testing
 - logic for 'remember me' option 
-- error handling for getting data 
 
 Forget password 
-- sending otp to user email 
-- link to backend to save new password 
+- backend testing
 - solve the problem of the message disappearing too fast
 
-Dashboard -> implement if have time? 
+Dashboard 
 - link to backend data for display 
-- layout of data display  
+- reusing map components 
+- rendering list of recent and favourite routes
 
 Incidents 
 - link to backend data for display 

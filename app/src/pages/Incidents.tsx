@@ -92,13 +92,16 @@ export default function Incidents() {
       .then((res)=> setReportList(res.data));
   }, []);*/
 
-  /*let displayReport = reportList.map((report)=>{
-    return <IncidentListItem
-              incidentType: report.incident
-              incidentTime: kiv
-              incidentLocation: kiv
-              incidentDescription: report.description
-            />
+  /* let displayReport(){ reportList.map((report)=>{
+      if (report.time === today){
+        return <IncidentListItem
+                incidentType: report.incident
+                incidentTime: kiv
+                incidentLocation: kiv
+                incidentDescription: report.description
+              />
+      }
+    }
   });*/
 
   return (
