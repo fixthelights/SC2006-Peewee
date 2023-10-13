@@ -35,19 +35,16 @@ export default function Register() {
   const [userList, setUserList] = useState([])
 
   /*useEffect(()=> {  
-      // here we get the data by requesting data from this link
-      // to our nodejs server
-      Axios.get('http://localhost:2000/') 
+      axios.get('http://localhost:2000/') 
       .then((res)=> setUserList(res.data));
-  }, []);*/
+  }, [])*/
 
   /*let checkMatchingEmail = userList.map((user)=>{
     if (user.email == email){
       return true;
     }
     return false;
-  });*/
-
+  })*/
 
   // Handling the email change
   const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,7 +56,7 @@ export default function Register() {
     setPassword(event.target.value);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async(event: React.FormEvent<HTMLFormElement>) => {
 
     event.preventDefault();
 
@@ -78,12 +75,16 @@ export default function Register() {
     }
 
     // save user in database
-    /*if (emailValid && passwordValid){
-      axios.post('http://localhost:2000/', newUser)
-      .then(res => {
-        console.log(res.data)
-      })
-    }*/
+    if (emailValid && passwordValid){
+      let result = await fetch(
+        'http://localhost:2000/user/', {
+            method: "post",
+            body: JSON.stringify({ email, password }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+    }
 
     // save validity states for display of corresponding message
     setIsInvalidEmail(!emailValid);

@@ -24,9 +24,8 @@ Login
 
 Forget password 
 - sending otp to user email 
-- validating otp and new password 
 - link to backend to save new password 
-- conditional message rendering based on validity of otp and password 
+- solve the problem of the message disappearing too fast
 
 Dashboard -> implement if have time? 
 - link to backend data for display 

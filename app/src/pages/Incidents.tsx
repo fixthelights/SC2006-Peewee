@@ -22,6 +22,8 @@ import FmdGoodOutlinedIcon from '@mui/icons-material/FmdGoodOutlined';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import { useState } from 'react'
+import axios from 'axios'
+// import IncidentListItem from '../components/IncidentListItem';
 
 const drawerWidth: number = 240;
 
@@ -86,14 +88,17 @@ export default function Incidents() {
   const [reportList, setReportList] = useState([])
 
   /*useEffect(()=> {  
-      // here we get the data by requesting data from this link
-      // to our nodejs server
-      Axios.get('http://localhost:2000/') 
+      axios.get('http://localhost:2000/') 
       .then((res)=> setReportList(res.data));
   }, []);*/
 
   /*let displayReport = reportList.map((report)=>{
-    return <li key={item.id}>{item.name}</li>
+    return <IncidentListItem
+              incidentType: report.incident
+              incidentTime: kiv
+              incidentLocation: kiv
+              incidentDescription: report.description
+            />
   });*/
 
   return (
@@ -214,7 +219,7 @@ export default function Incidents() {
                   Report Incident
               </Button> 
               </Grid>
-              {/* Create for loop to display each incident after retrieval from IncidentsController*/}
+              {/*Change to displayReport*/}
               <Grid item xs={12} md={12} lg={12}>
                 <Paper
                   sx={{

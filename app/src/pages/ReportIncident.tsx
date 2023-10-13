@@ -23,6 +23,8 @@ import { useState } from 'react';
 import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
 import { ReportController } from "../classes/ReportController";
+import axios from 'axios'
+import {MouseEvent} from 'react'
 
 const drawerWidth: number = 240;
 
@@ -106,7 +108,7 @@ export default function ReportIncident() {
   const [validSubmission, setValidSubmission] = useState(false);
 
   const LocationMessage = () => {
-    if (!submissionStatus){
+    if (!submissionStatus && incidentType!=''){
       if (!locationPermission){
         return <Alert 
                   severity="info"
@@ -179,7 +181,6 @@ export default function ReportIncident() {
 
   const IncidentTypeSelection = () => {
     if (!submissionStatus){
-      if (validLocation){
         return  <Box sx={{ width: 360, pl: 3, pt: 3 }}>
                 <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label">Incident Type</InputLabel>
@@ -197,7 +198,6 @@ export default function ReportIncident() {
                 </Select>
                 </FormControl>
                 </Box>
-      } 
     }
     return null;
   }
@@ -205,7 +205,7 @@ export default function ReportIncident() {
 
   const IncidentDescriptionInput= () => {
     if (!submissionStatus){
-      if (incidentType!= ''){
+      if (validLocation){
         return  <Box sx={{ width: 360, pl: 3, pt: 3 }}>
                   <Typography
                   component="h1"
@@ -246,9 +246,16 @@ export default function ReportIncident() {
     return null;
   }
 
-  const handleSubmission = () =>{
+  const handleSubmission = async(e: MouseEvent<HTMLButtonElement>) =>{
     setSubmissionStatus(true);
-    setValidSubmission(reportController.saveReport(incidentLocation,incidentType,incidentDescription));
+    let result = await fetch(
+      'http://localhost:2000/report/', {
+          method: "post",
+          body: JSON.stringify({ incidentType, incidentLocation, incidentDescription }),
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      })
   }
 
   const SubmissionMessage = () => {
@@ -407,8 +414,8 @@ export default function ReportIncident() {
           }}
         >
        <Toolbar />
-       <LocationMessage />
        <IncidentTypeSelection />
+       <LocationMessage />
        <IncidentDescriptionInput />
        <SubmitButton />
        <SubmissionMessage />

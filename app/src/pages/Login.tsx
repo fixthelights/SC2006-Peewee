@@ -32,9 +32,7 @@ export default function Login() {
   const [userList, setUserList] = useState([])
 
   /*useEffect(()=> {  
-      // here we get the data by requesting data from this link
-      // to our nodejs server
-      Axios.get('http://localhost:2000/') 
+      axios.get('http://localhost:2000/') 
       .then((res)=> setUserList(res.data));
   }, []);*/
 
@@ -67,7 +65,7 @@ export default function Login() {
 
     // to be removed
     let emailValid = true;
-    let passwordValid = false;
+    let passwordValid = true;
 
     // validate user
     /*let emailValid = checkMatchingEmail;*/
@@ -92,22 +90,15 @@ export default function Login() {
     });
   };
 
-  // message for invalid credentials
-  interface MessageProps {
-    submissionStatus: boolean;
-    passwordInvalidity: boolean;
-    emailInvalidity: boolean;
-  }
-
-  const Message: FC<MessageProps> = ({submissionStatus, passwordInvalidity, emailInvalidity }) => {
-    if (submissionStatus){
-      if (passwordInvalidity && emailInvalidity) {
+  const Message = () => {
+    if (isSubmitted){
+      if (isInvalidPassword && isInvalidEmail) {
         return <Alert severity="info">Password and email are invalid. Log In is unsuccessful.</Alert>
       }
-      if (passwordInvalidity){
+      if (isInvalidPassword){
         return <Alert severity="info">Password is invalid. Log In is unsuccessful.</Alert>
       }
-      if (emailInvalidity){
+      if (isInvalidEmail){
         return <Alert severity="info">Email is invalid. Log In is unsuccessful.</Alert>
       }
     }
@@ -132,7 +123,7 @@ export default function Login() {
           <Typography component="h1" variant="h5">
             Log In
           </Typography>
-          <Box component="form" onSubmit={handleInput} noValidate sx={{ mt: 1 }}>
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
             <TextField
               margin="normal"
               required
@@ -180,11 +171,7 @@ export default function Login() {
                 </Link>
               </Grid>
               <Grid item sx={{pt:2}}>
-                <Message 
-                submissionStatus={isSubmitted}
-                emailInvalidity={isInvalidEmail} 
-                passwordInvalidity={isInvalidPassword}
-                />
+                <Message />
               </Grid>
             </Grid>
           </Box>

@@ -1,17 +1,24 @@
 import React, { useEffect, useState } from 'react';
 
 class ReportController{
-    getUserLocation(): string{
-      this.getUserCoordinates();
+
+    getUserLocation(){
+      let coordinates=[];
+      coordinates=this.getUserCoordinates();
         // return this.convertCoordinatesToLocation(this.getUserCoordinates());
-        return "NTU";
+      return "NTU";
     }
 
-    getUserCoordinates(): void{
-       navigator.geolocation.getCurrentPosition(function(position) {
+    getUserCoordinates(): Array<number>{
+      let latitude=1000; // default value for error checking 
+      let longitude=1000;
+      navigator.geolocation.getCurrentPosition(function(position) {
         console.log("Latitude is :", position.coords.latitude);
         console.log("Longitude is :", position.coords.longitude);
+        latitude = position.coords.latitude;
+        longitude = position.coords.longitude
       });
+      return [latitude, longitude]
     }
 
     /*convertCoordinatesToLocation(list: Array<number>): Promise<string | undefined>{
