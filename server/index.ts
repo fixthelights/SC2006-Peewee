@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import { connectDB } from './src/config/mongo';
 import { errorHandler } from './src/middlewares/errorHandler';
 import { AppError } from './src/config/AppError';
+require('dotenv').config();
 
 // Connect to MongoDB
 connectDB();
