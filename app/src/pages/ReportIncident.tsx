@@ -106,6 +106,7 @@ export default function ReportIncident() {
   const [validLocation, setValidLocation] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState(false);
   const [validSubmission, setValidSubmission] = useState(false);
+  const [locationResponse, setLocationResponse] = useState('')
 
   const LocationMessage = () => {
     if (!submissionStatus && incidentType!=''){
@@ -168,15 +169,25 @@ export default function ReportIncident() {
     return null;
   }
 
+  const setUserAddress = () => {
+    let coordinatesList = reportController.getUserLocation();
+    //let latitude = coordinatesList[0]
+    //let longitude = coordinatesList[1]
+    let latitude = 1.326104; // PIE address
+    let longitude = 103.90571; // PIE address
+    axios.get(`https://eu1.locationiq.com/v1/reverse?key=pk.565aea3b0b4252d7587da4689cd6869e&lat=${latitude}&lon=${longitude}&format=json`)
+        .then((res)=> setIncidentLocation(res.data['display_name']))
+        .catch(function(error) {
+            console.log(error);
+    });
+  }
+
   const handleLocationAccess = () => {
     setLocationPermission(true);
-    let location = reportController.getUserLocation();
-    if (location != ''){
-      setIncidentLocation(location);
+    setUserAddress();
+    if (incidentLocation !== ''){
       setValidLocation(true);
-    } else {
-      setValidLocation(false);
-    }
+    } 
   }
 
   const IncidentTypeSelection = () => {
@@ -248,14 +259,15 @@ export default function ReportIncident() {
 
   const handleSubmission = async(e: MouseEvent<HTMLButtonElement>) =>{
     setSubmissionStatus(true);
-    let result = await fetch(
+    /*let result = await fetch(
       'http://localhost:2000/report/', {
           method: "post",
           body: JSON.stringify({ incidentType, incidentLocation, incidentDescription }),
           headers: {
               'Content-Type': 'application/json'
           }
-      })
+      })*/
+      setValidSubmission(true);
   }
 
   const SubmissionMessage = () => {

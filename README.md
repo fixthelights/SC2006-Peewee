@@ -4,7 +4,7 @@ Details/Progress for front end first half:
 
 Created folders for classes, components and pages in the source folder: 
 
-Classes - controller classes in charge of linking to backend
+Classes - controller classes in charge of linking to backend (doesn't really work for api calls)
 
 Components - reusuable UI elements 
 
@@ -13,29 +13,22 @@ Pages - different UI pages
 What is left for frontend first half:  
 
 Register 
-- backend testing
+- linking to users api
 
 Login 
-- backend testing
-- logic for 'remember me' option 
+- linking to users api 
 
 Forget password 
-- backend testing
-- solve the problem of the message disappearing too fast
+- find api that provides email sending service
+- combine with set new password page so that email does not need to be entered again 
 
 Dashboard 
-- link to backend data for display 
-- reusing map components 
-- rendering list of recent and favourite routes
+- only basic UI structure done, need to fill in with respective data
 
 Incidents 
-- link to backend data for display 
-- logic for getting current day data 
+- linking to reports api 
 
 Report Incidents 
-- getting user's current location coordinates 
-- capture report time 
-- converting coordinates to address 
-- checking if address is on a driving road 
-- passing report info to backend 
+- validating incident location 
+- linking to reports api 
 

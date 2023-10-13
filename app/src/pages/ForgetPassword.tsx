@@ -43,7 +43,7 @@ export default function ForgetPassword() {
     event.preventDefault();
     setIsSubmitted(true);
     //let validEmail = checkMatchingEmail 
-    let validEmail = false;
+    let validEmail = true;
     let isSentOTP = false;
     if (validEmail){
       isSentOTP = forgetPasswordController.sendOTP(email)

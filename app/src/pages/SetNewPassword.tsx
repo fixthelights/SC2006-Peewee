@@ -59,7 +59,8 @@ export default function SetNewPassword() {
     setRetypedPassword(event.target.value);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
 
      // let OTP = correctOTP
     let OTP = 12345678
