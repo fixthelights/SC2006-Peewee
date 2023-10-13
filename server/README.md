@@ -25,12 +25,17 @@ PORT= 2000
 
 # ---------------
 # MongoDB connection configuration
-MONGO_HOST= localhost
+MONGO_HOST= limzhengguang.com
 MONGO_PORT= 27017
 MONGO_DB = peewee
-MONGO_TLS = FALSE
-MONGO_USER = #Can be left blank
-MONGO_PASS = #Can be left blank
+MONGO_TLS = TRUE
+MONGO_USER = user
+MONGO_PASS = bjRUVe5o9xr7TVRd384sQ0k862SqWhVq5cbDec94
+```
+
+To connect to our cloud mongoDB server using `mongosh` or `mongo`, enter:
+```
+mongosh -tls --host limzhengguang.com -u user -p bjRUVe5o9xr7TVRd384sQ0k862SqWhVq5cbDec94
 ```
 
 

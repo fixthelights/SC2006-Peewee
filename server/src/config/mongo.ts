@@ -23,7 +23,6 @@ const connectDB = async () => {
     const conn = await mongoose.connect(MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      tlsAllowInvalidCertificates: true,
       ssl: (MONGO_TLS === 'TRUE' ? true : false)
     });
     console.log(`MongoDB Connected: ${conn.connection.host}`);
