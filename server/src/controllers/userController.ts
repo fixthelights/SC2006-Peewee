@@ -110,9 +110,10 @@ exports.forgetPassword = async ( req: Request, res: Response ) => {
             }).save();
         }
 
-        const link = `${process.env.BASE_URL}/password-reset/${verifiedUser._id}/${token.token}`;
-        await sendForgetEmail(verifiedUser.email, "Password reset", link);
-        
+        const link = req.protocol + "://" + req.get('host') + req.originalUrl + "/" + verifiedUser._id + "/" + token.token;
+        console.log(link);
+        // await sendForgetEmail(verifiedUser.email, "Password reset", link);
+
         return res.status(200).send("Password reset link sent to your email account");
     } catch (error) {
         console.log(error);
@@ -123,7 +124,6 @@ exports.forgetPassword = async ( req: Request, res: Response ) => {
 // POST request for forget password - Change password
 exports.validatePasswordToken = async (req: Request, res: Response) => {
     try {
-    
         const verifiedUser = await User.findById(req.params.userId);
         if (!verifiedUser) return res.status(400).send("Invalid or expired link");
 
