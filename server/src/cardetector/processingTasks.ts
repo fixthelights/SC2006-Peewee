@@ -147,7 +147,7 @@ const initScheduledJobs = () => {
         { camera_id: camera.id },
         {
           location: camera.location,
-          car_counts: trends,
+          hourly_counts: trends,
         },
         { upsert: true, new: true }
       );

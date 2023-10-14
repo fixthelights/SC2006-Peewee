@@ -12,7 +12,7 @@ import 'express-async-errors';
 
 // Run Scheduled Jobs every X minute (AI Traffic Image Processing)
 import scheduledFunctions from './src/cardetector/processingTasks';
-scheduledFunctions.initScheduledJobs();
+process.env.PROCESSING === 'TRUE' && scheduledFunctions.initScheduledJobs();
 
 
 // Import Express Routers
