@@ -14,8 +14,7 @@ import { useNavigate } from "react-router-dom";
 import {AuthController} from "../classes/AuthController"
 import Alert from '@mui/material/Alert';
 import 'reactjs-popup/dist/index.css';
-import { useState, useEffect } from 'react';
-import axios from 'axios'
+import { useState } from 'react';
 
 
 // TODO remove, this demo shouldn't need to reset the theme.
@@ -32,26 +31,7 @@ export default function Register() {
   const [isInvalidEmail, setIsInvalidEmail] = useState(true);
   const [isInvalidPassword, setIsInvalidPssword] = useState(true);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [userList, setUserList] = useState([])
 
-  const loadUserList = () => {
-    axios.get('http://localhost:2000/users/')
-    .then((res)=> console.log(res.data))
-    .catch(function(error) {
-      console.log(error);
-    });
-}
-
-const checkMatchingEmail = userList.map((user: { email: string, password: string }) => {
-  loadUserList();
-  if (user.email === email) {
-    console.log(true)
-    return true;
-  } else{
-    console.log(false)
-    return false;
-  }
-});
 
   // Handling the email change
   const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,30 +43,17 @@ const checkMatchingEmail = userList.map((user: { email: string, password: string
     setPassword(event.target.value);
   };
 
-  const handleSubmit = async(event: React.FormEvent<HTMLFormElement>) => {
-
-    event.preventDefault();
-
+  const handleSubmit = () => {
     // update submission status 
     setIsSubmitted(true);
 
     // validate credentials using authcontroller
-    let emailValid = !checkMatchingEmail;
+    let emailValid = authController.checkEmailValidity(email);
     let passwordValid = authController.checkPasswordValidity(password);
-
-    // save credentials in a variable
-    const data = new FormData(event.currentTarget);
 
     // save user in database
     if (emailValid && passwordValid){
-      axios.post('http://localhost:2000/users/', {
-        email: email,
-        password: password
-      })
-      .then((res)=> console.log(res))
-      .catch(function(error) {
-        console.log(error);
-      });
+      authController.saveUser(email, password);
     }
 
     // save validity states for display of corresponding message
@@ -106,15 +73,21 @@ const checkMatchingEmail = userList.map((user: { email: string, password: string
 
   // message display depending on validity
 
-  const Message = () => {
-    if (isSubmitted){
-      if (isInvalidPassword && isInvalidEmail) {
+  interface MessageProps {
+    submissionStatus: boolean;
+    passwordInvalidity: boolean;
+    emailInvalidity: boolean;
+  }
+
+  const Message: FC<MessageProps> = ({submissionStatus, passwordInvalidity, emailInvalidity }) => {
+    if (submissionStatus){
+      if (passwordInvalidity && emailInvalidity) {
         return <Alert severity="info">Password and email are invalid. Registration is unsuccessful.</Alert>
       }
-      if (isInvalidPassword){
+      if (passwordInvalidity){
         return <Alert severity="info">Password does not meet the requirements. Registration is unsuccessful.</Alert>
       }
-      if (isInvalidEmail){
+      if (emailInvalidity){
         return <Alert severity="info">Email is invalid. Registration is unsuccessful.</Alert> 
       }
       return <Alert severity="info">Registration is successful.</Alert>
@@ -140,7 +113,7 @@ const checkMatchingEmail = userList.map((user: { email: string, password: string
           <Typography component="h1" variant="h5">
             Register
           </Typography>
-          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+          <Box component="form" noValidate onSubmit={handleInput} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
@@ -170,6 +143,7 @@ const checkMatchingEmail = userList.map((user: { email: string, password: string
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              onClick={handleSubmit}
             >
               Register
             </Button>
@@ -185,7 +159,11 @@ const checkMatchingEmail = userList.map((user: { email: string, password: string
                 </Link>
               </Grid>
               <Grid item sx={{pt:2}}>
-                <Message/>
+                <Message 
+                submissionStatus={isSubmitted}
+                emailInvalidity={isInvalidEmail} 
+                passwordInvalidity={isInvalidPassword}
+                />
               </Grid>
             </Grid>
           </Box>

@@ -4,17 +4,48 @@ const routeController = require('../controllers/routeController');
 
 
 //implement CRUD operations for routes
-router.post('/', routeController.createRoutes);
+app.post('/', routeController.createRoutes);
     
     //read all routes(GET):
-router.get('/', routeController.findRoutes);
+app.get('/routes', async (req, res)=>{
+     try {
+        const routes = await Route.find();
+        res.send(routes);
+     } catch(err){
+        res.status(500).send(err.message);
+     }
+    
+    });
     
     //read specific route(GET by ID):
-router.get('/:id', routeController.getRoutes);
+    app.get('/routes/:id', async(req,res)=>{
+      try {
+        const route = await Route.findById(req.params.id);
+        if(!route) return res.status(404).send('Route not found');
+        res.send(route);
+      }catch(err){
+        res.status(500).send(err.message);
+      }
+    });
     
     //update (PUT by ID):
-router.put('/:id', routeController.updateRoutes);
+    app.put('/routes/:id', async(req, res)=> {
+      try {
+        const route = await Route.findByIdAndDelete(req.params.id);
+        if (!route) return res.status(404).send('Route not found');
+      } catch(err){
+        res.status(400).send(err.message);
+      }
+    });
     
     //delete(DELETE BY ID)
-router.delete('/:id',routeController.deleteRoutes);
+    app.delete('/routes/:id', async (req, res) => {
+        try {
+            const route = await Route.findByIdAndDelete(req.params.id);
+            if (!route) return res.status(404).send('Route not found');
+            res.status(204).send();
+        } catch (err) {
+            res.status(500).send(err.message);
+        }
+    });
     

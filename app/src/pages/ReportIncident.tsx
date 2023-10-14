@@ -23,8 +23,6 @@ import { useState } from 'react';
 import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
 import { ReportController } from "../classes/ReportController";
-import axios from 'axios'
-import {MouseEvent} from 'react'
 
 const drawerWidth: number = 240;
 
@@ -106,10 +104,9 @@ export default function ReportIncident() {
   const [validLocation, setValidLocation] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState(false);
   const [validSubmission, setValidSubmission] = useState(false);
-  const [locationResponse, setLocationResponse] = useState('')
 
   const LocationMessage = () => {
-    if (!submissionStatus && incidentType!=''){
+    if (!submissionStatus){
       if (!locationPermission){
         return <Alert 
                   severity="info"
@@ -169,29 +166,20 @@ export default function ReportIncident() {
     return null;
   }
 
-  const setUserAddress = () => {
-    let coordinatesList = reportController.getUserLocation();
-    //let latitude = coordinatesList[0]
-    //let longitude = coordinatesList[1]
-    let latitude = 1.326104; // PIE address
-    let longitude = 103.90571; // PIE address
-    axios.get(`https://eu1.locationiq.com/v1/reverse?key=pk.565aea3b0b4252d7587da4689cd6869e&lat=${latitude}&lon=${longitude}&format=json`)
-        .then((res)=> setIncidentLocation(res.data['display_name']))
-        .catch(function(error) {
-            console.log(error);
-    });
-  }
-
   const handleLocationAccess = () => {
     setLocationPermission(true);
-    setUserAddress();
-    if (incidentLocation !== ''){
+    let location = reportController.getUserLocation();
+    if (location != ''){
+      setIncidentLocation(reportController.getUserLocation())
       setValidLocation(true);
-    } 
+    } else {
+      setValidLocation(false);
+    }
   }
 
   const IncidentTypeSelection = () => {
     if (!submissionStatus){
+      if (validLocation){
         return  <Box sx={{ width: 360, pl: 3, pt: 3 }}>
                 <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label">Incident Type</InputLabel>
@@ -209,6 +197,7 @@ export default function ReportIncident() {
                 </Select>
                 </FormControl>
                 </Box>
+      } 
     }
     return null;
   }
@@ -216,7 +205,7 @@ export default function ReportIncident() {
 
   const IncidentDescriptionInput= () => {
     if (!submissionStatus){
-      if (validLocation){
+      if (incidentType!= ''){
         return  <Box sx={{ width: 360, pl: 3, pt: 3 }}>
                   <Typography
                   component="h1"
@@ -257,17 +246,9 @@ export default function ReportIncident() {
     return null;
   }
 
-  const handleSubmission = async(e: MouseEvent<HTMLButtonElement>) =>{
+  const handleSubmission = () =>{
     setSubmissionStatus(true);
-    /*let result = await fetch(
-      'http://localhost:2000/report/', {
-          method: "post",
-          body: JSON.stringify({ incidentType, incidentLocation, incidentDescription }),
-          headers: {
-              'Content-Type': 'application/json'
-          }
-      })*/
-      setValidSubmission(true);
+    setValidSubmission(reportController.saveReport(incidentLocation,incidentType,incidentDescription));
   }
 
   const SubmissionMessage = () => {
@@ -426,8 +407,8 @@ export default function ReportIncident() {
           }}
         >
        <Toolbar />
-       <IncidentTypeSelection />
        <LocationMessage />
+       <IncidentTypeSelection />
        <IncidentDescriptionInput />
        <SubmitButton />
        <SubmissionMessage />

@@ -4,31 +4,36 @@ Details/Progress for front end first half:
 
 Created folders for classes, components and pages in the source folder: 
 
-Classes - controller classes in charge of linking to backend (doesn't really work for api calls)
+Classes - controller classes in charge of linking to backend
 
 Components - reusuable UI elements 
 
 Pages - different UI pages 
 
-What is left for frontend first half:  
+What is left for frontend first half: 
 
 Register 
-- linking to users api
+- link to backend to check if email exists in backend (controller class) 
 
 Login 
-- linking to users api 
+- link to backend to check for exisiting email and password (controller class) 
 
 Forget password 
-- find api that provides email sending service
-- combine with set new password page so that email does not need to be entered again 
+- sending otp to user email (controller class)
+- validating otp and new password (controller class)
+- link to backend to save new password (controller class)
+- conditional message rendering based on validity of otp and password (UI) 
 
 Dashboard 
-- only basic UI structure done, need to fill in with respective data
+- link to backend data for display (controller class and UI)
+- layout of data display (UI) 
 
 Incidents 
-- linking to reports api 
+- link to backend data for display (controller class and UI) 
 
 Report Incidents 
-- validating incident location 
-- linking to reports api 
+- getting user's current location coordinates 
+- converting coordinates to address (controller class)
+- checking if address is on a driving road (controller class) 
+- passing report info to backend (controller class)
 

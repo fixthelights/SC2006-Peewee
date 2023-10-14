@@ -1,5 +1,5 @@
 .Landing {
-    background-image: url('../assets/Background.png');
+    background-image: url('../components/Background.png');
     background-position: 'center bottom';
     background-repeat: no-repeat;
     background-size: cover;

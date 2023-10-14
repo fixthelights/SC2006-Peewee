@@ -3,34 +3,9 @@ import './Landing.css'
 import { useNavigate } from "react-router-dom";
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import axios from 'axios'
 
 function Landing() {
     const navigate = useNavigate();
-    const testBackend = () => {
-        axios.post('http://localhost:2000/reports/', {
-            incident: "Accident",
-            description: "Accident at Jurong West St 64",
-            location: {
-                lat: 1.339808,
-                long: 103.704116
-            },
-            duration_hours: "12"
-        })
-        .then((res)=> console.log(res.data))
-        .catch(function(error) {
-            console.log(error);
-        });
-    }
-
-    const testRG = () => {
-        axios.get("https://eu1.locationiq.com/v1/reverse?key=pk.565aea3b0b4252d7587da4689cd6869e&lat=1.3483&lon=103.6831&format=json")
-        .then((res)=> console.log(res.data['display_name']))
-        .catch(function(error) {
-            console.log(error);
-        });
-    }
-
     return (
         <div className='Landing'>
             <h1>Take Control of Your Journey</h1>
@@ -47,18 +22,6 @@ function Landing() {
                     onClick={() => navigate("/login")}
                 >
                     Log In
-                </Button>
-                <Button 
-                    variant="contained" 
-                    onClick={testBackend}
-                >
-                    Test Backend 
-                </Button>
-                <Button 
-                    variant="contained" 
-                    onClick={testRG}
-                >
-                    Test Reverse Geolocation
                 </Button>
             </Stack>
         </div>
