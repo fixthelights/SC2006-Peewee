@@ -13,5 +13,7 @@ const routeSchema = new mongoose.Schema({
     },
     description: String
     });
+
     const Route = mongoose.model('Route', routeSchema);
     
+    export default Route;

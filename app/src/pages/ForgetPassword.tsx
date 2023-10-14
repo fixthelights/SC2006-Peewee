@@ -8,20 +8,64 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from 'react'
+import { ForgetPasswordController } from '../classes/ForgetPasswordController';
+import Alert from '@mui/material/Alert';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
+const forgetPasswordController = new ForgetPasswordController()
 
 export default function ForgetPassword() {
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState('');
+ 
+  // States for checking the errors
+  const [isInvalidEmail, setIsInvalidEmail] = useState(true);
+  const [isOTPSent, setIsOTPSent] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [userList, setUserList] = useState([])
+
+  /*useEffect(()=> {  
+      axios.get('http://localhost:2000/') 
+      .then((res)=> setUserList(res.data));
+  }, []);*/
+
+  /*let checkMatchingEmail = userList.map((user)=>{
+    if (user.email == email){
+      return true;
+    }
+    return false;
+  });*/
+  
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-    });
+    setIsSubmitted(true);
+    //let validEmail = checkMatchingEmail 
+    let validEmail = true;
+    let isSentOTP = false;
+    if (validEmail){
+      isSentOTP = forgetPasswordController.sendOTP(email)
+      if (isSentOTP){
+        {navigate('/setnewpassword')}
+      }
+    }
+    setIsInvalidEmail(!validEmail);
+    setIsOTPSent(isSentOTP);
   };
 
-  const navigate = useNavigate();
+  const Message = () => {
+    if (isSubmitted){
+      if (isInvalidEmail){
+        return <Alert severity="info">Email is invalid</Alert>
+      }
+      if (!isInvalidEmail && !isOTPSent){
+        return <Alert severity="info">OTP failed to send. Please retry.</Alert>
+      }
+    }
+    return null;
+  }
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -61,12 +105,12 @@ export default function ForgetPassword() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              onClick={() => navigate("/setnewpassword")}
             >
               Confirm
             </Button>
           </Box>
         </Box>
+        <Message />
       </Container>
     </ThemeProvider>
   );
