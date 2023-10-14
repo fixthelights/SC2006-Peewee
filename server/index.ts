@@ -4,6 +4,7 @@ import { errorHandler } from './src/middlewares/errorHandler';
 import { AppError } from './src/config/AppError';
 require('dotenv').config();
 
+
 // Connect to MongoDB
 connectDB();
 
@@ -18,10 +19,8 @@ process.env.PROCESSING === 'TRUE' && scheduledFunctions.initScheduledJobs();
 // Import Express Routers
 const userRouter = require('./src/routes/userRouter');
 const reportRouter = require('./src/routes/reportRouter');
-const trafficRouter = require('./src/routes/trafficRouter')
-// const routeRouter = require('./src/routes/routeRouter');
+//const routeRouter = require('./src/routes./routeRouter');
 
- 
 // Express Code
 const app = express();
 const cors = require('cors');
