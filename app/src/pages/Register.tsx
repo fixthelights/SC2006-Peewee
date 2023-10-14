@@ -25,40 +25,46 @@ const authController = new AuthController()
 export default function Register() {
   
   const navigate = useNavigate();
+  const [username, setUsername] = useState('')
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
  
   // States for checking the errors
-  const [isInvalidEmail, setIsInvalidEmail] = useState(true);
+  const [isInvalidEmailFormat, setIsInvalidEmailFormat] = useState(true);
+  const [isExistingUser, setIsExistingUser] = useState(false);
   const [isInvalidPassword, setIsInvalidPssword] = useState(true);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [userList, setUserList] = useState([])
 
-  const loadUserList = () => {
-    axios.get('http://localhost:2000/users/')
-    .then((res)=> console.log(res.data))
-    .catch(function(error) {
-      console.log(error);
-    });
-}
+  const getUserList = async () => {
+    const { data } = await axios.get('http://localhost:2000/users');
+    setUserList(data);
+  };
 
-const checkMatchingEmail = userList.map((user: { email: string, password: string }) => {
-  loadUserList();
-  if (user.email === email) {
-    console.log(true)
-    return true;
-  } else{
-    console.log(false)
-    return false;
-  }
-});
+  useEffect(() => {
+    getUserList();
+  }, []);
 
-  // Handling the email change
+  function checkMatchingEmail(): boolean{
+    let i = 0;
+    let foundMatching = false;
+    while (i < userList.length) {
+      if (userList[i]["email"]===email && foundMatching===false){
+        foundMatching = true;
+      } 
+      i++;
+    }
+    return foundMatching;
+  };
+
+  const handleUsername = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(event.target.value);
+  };
+
   const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
   };
 
-  // Handling the password change
   const handlePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(event.target.value);
   };
@@ -67,59 +73,71 @@ const checkMatchingEmail = userList.map((user: { email: string, password: string
 
     event.preventDefault();
 
-    // update submission status 
     setIsSubmitted(true);
 
-    // validate credentials using authcontroller
-    let emailValid = !checkMatchingEmail;
-    let passwordValid = authController.checkPasswordValidity(password);
+    let userExists = false;
+    let emailFormatValid = authController.validateEmailAddressFormat(email)
+    let passwordValid = authController.checkPasswordValidity(password)
 
-    // save credentials in a variable
-    const data = new FormData(event.currentTarget);
+    if (emailFormatValid){
+      userExists = checkMatchingEmail()
+    }
 
     // save user in database
-    if (emailValid && passwordValid){
-      axios.post('http://localhost:2000/users/', {
+    if (!userExists && passwordValid){
+      axios.post('http://localhost:2000/users/register', {
+        username : "b",
         email: email,
-        password: password
+        password: password,
+        firstName: "b",
+        lastName: "b",
+        phone: "b"
       })
-      .then((res)=> console.log(res))
+      .then((res)=> console.log(res.data))
       .catch(function(error) {
         console.log(error);
-      });
+      })
     }
 
     // save validity states for display of corresponding message
-    setIsInvalidEmail(!emailValid);
+    setIsExistingUser(userExists);
+    setIsInvalidEmailFormat(!emailFormatValid);
     setIsInvalidPssword(!passwordValid);
   }
 
-  // display input
-  const handleInput = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-  };
-
   // message display depending on validity
 
-  const Message = () => {
+  const EmailStatusMessage = () => {
     if (isSubmitted){
-      if (isInvalidPassword && isInvalidEmail) {
-        return <Alert severity="info">Password and email are invalid. Registration is unsuccessful.</Alert>
+      if (isInvalidEmailFormat) {
+        return <Alert severity="info"> Invalid email. </Alert>
       }
-      if (isInvalidPassword){
-        return <Alert severity="info">Password does not meet the requirements. Registration is unsuccessful.</Alert>
+      if (isExistingUser){
+        return <Alert severity="info"> Existing user. </Alert>
       }
-      if (isInvalidEmail){
-        return <Alert severity="info">Email is invalid. Registration is unsuccessful.</Alert> 
-      }
-      return <Alert severity="info">Registration is successful.</Alert>
+      return null;
     }
     return null; 
+  }
+
+  const PasswordStatusMessage = () => {
+    if (isSubmitted){
+      if (isInvalidPassword) {
+        return <Alert severity="info">Password does not meet the requirements.</Alert>
+      }
+     return null;
+    }
+    return null;
+  }
+
+  const RegistrationStatusMessage = () => {
+    if (isSubmitted){
+      if (!isExistingUser && !isInvalidPassword) {
+        return <Alert severity="info">Registration is successful.</Alert>
+      }
+     return null;
+    }
+    return null;
   }
 
   return (
@@ -147,10 +165,23 @@ const checkMatchingEmail = userList.map((user: { email: string, password: string
                   required
                   fullWidth
                   id="email"
+                  label="Username"
+                  name="email"
+                  onChange={handleUsername}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="email"
                   label="Email Address"
                   name="email"
                   onChange={handleEmail}
                 />
+              </Grid>
+              <Grid item xs={12}>
+              <EmailStatusMessage />
               </Grid>
               <Grid item xs={12}>
                 <TextField
@@ -163,6 +194,9 @@ const checkMatchingEmail = userList.map((user: { email: string, password: string
                   onChange={handlePassword}
                   helperText="Password must be at least 8 characters long, contain 1 uppercase character, 1 lowercase character and 1 special character"
                 />
+              </Grid>
+              <Grid item xs={12}>
+              <PasswordStatusMessage/>
               </Grid>
             </Grid>
             <Button
@@ -185,7 +219,7 @@ const checkMatchingEmail = userList.map((user: { email: string, password: string
                 </Link>
               </Grid>
               <Grid item sx={{pt:2}}>
-                <Message/>
+                <RegistrationStatusMessage/>
               </Grid>
             </Grid>
           </Box>

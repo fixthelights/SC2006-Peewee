@@ -14,8 +14,9 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from "react-router-dom";
 import {AuthController} from "../classes/AuthController"
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Alert from '@mui/material/Alert';
+import axios from 'axios'
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
@@ -26,29 +27,44 @@ export default function Login() {
   const [password, setPassword] = useState('');
  
   // States for checking the errors
-  const [isInvalidEmail, setIsInvalidEmail] = useState(true);
-  const [isInvalidPassword, setIsInvalidPssword] = useState(true);
+  const [isValidUser, setIsValidUser] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [userList, setUserList] = useState([])
 
-  /*useEffect(()=> {  
-      axios.get('http://localhost:2000/') 
-      .then((res)=> setUserList(res.data));
-  }, []);*/
-
-  /*let checkMatchingEmail = userList.map((user)=>{
-    if (user.email === email){
-      return true;
+  async function checkValidUser () {
+    let validUser = false
+    try{
+      const response = await axios.get('http://localhost:2000/users') 
+      if (response.data["message"] != "Username/Password is invalid"){
+        validUser = true;
+      }
     }
-    return false;
-  });*/
-
-  /*let checkMatchingPassword = userList.map((user)=>{
-    if (user.password === password && user.email === email){
-      return true;
+    catch(error){
+      console.log(error)
     }
-    return false;
-  });*/
+    return validUser
+  };
+
+  const getUserList = async () => {
+    const { data } = await axios.get('http://localhost:2000/users');
+    setUserList(data);
+  };
+
+  useEffect(() => {
+    getUserList();
+  }, []);
+
+  function checkMatchingUser(): boolean{
+    let i = 0;
+    let foundMatching = false;
+    while (i < userList.length) {
+      if (userList[i]["email"]===email && userList[i]["password"]===password){
+        foundMatching = true;
+      } 
+      i++;
+    }
+    return foundMatching;
+  };
 
   // Handling the email change
   const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,47 +76,29 @@ export default function Login() {
     setPassword(event.target.value);
   };
 
-  const handleSubmit = () => {
-    setIsSubmitted(true);
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 
-    // to be removed
-    let emailValid = true;
-    let passwordValid = true;
+    event.preventDefault()
 
-    // validate user
-    /*let emailValid = checkMatchingEmail;*/
-    /*let passwordValid = checkMatchingPassword; // would check for empty string*/
+    setIsSubmitted(true)
 
-    // redirect valid user
-    if (emailValid && passwordValid){
-      {navigate("/dashboard")};
+    let userValid = checkMatchingUser()
+    console.log(userList)
+
+    if (userValid){
+      {navigate("/dashboard")}
     }
 
-    // display message for invalid user
-    setIsInvalidEmail(!emailValid);
-    setIsInvalidPssword(!passwordValid);
-  }
+    setIsValidUser(userValid);
 
-  const handleInput = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-  };
+  }
 
   const Message = () => {
     if (isSubmitted){
-      if (isInvalidPassword && isInvalidEmail) {
-        return <Alert severity="info">Password and email are invalid. Log In is unsuccessful.</Alert>
+      if (!isValidUser) {
+        return <Alert severity="info">Invalid User.</Alert>
       }
-      if (isInvalidPassword){
-        return <Alert severity="info">Password is invalid. Log In is unsuccessful.</Alert>
-      }
-      if (isInvalidEmail){
-        return <Alert severity="info">Email is invalid. Log In is unsuccessful.</Alert>
-      }
+      return null;
     }
     return null;
   }
@@ -146,16 +144,11 @@ export default function Login() {
               autoComplete="current-password"
               onChange={handlePassword}
             />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
             <Button
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              onClick={handleSubmit}
             >
               Log In
             </Button>
