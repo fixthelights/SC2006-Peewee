@@ -19,6 +19,7 @@ process.env.PROCESSING === 'TRUE' && scheduledFunctions.initScheduledJobs();
 // Import Express Routers
 const userRouter = require('./src/routes/userRouter');
 const reportRouter = require('./src/routes/reportRouter');
+const trafficRouter = require('./src/routes/trafficRouter');
 //const routeRouter = require('./src/routes./routeRouter');
 
 // Express Code
