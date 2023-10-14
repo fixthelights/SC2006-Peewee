@@ -2,6 +2,7 @@ const CronJob = require("node-cron");
 import Camera from '../models/camera';
 import Picture from '../models/picture';
 import Trend from '../models/trend';
+import detectObjectsOnImageUrl from '../cardetector/car_detector'
 
 import startOfDay from 'date-fns/startOfDay';
 import endOfDay from 'date-fns/endOfDay';
@@ -51,17 +52,11 @@ const initScheduledJobs = () => {
         // Send image to AI for processing
         try {
           const url = camera.image;
-          const result = await axios.post(
-            `http://localhost:8080/detect-url?url=${url}`,
-            {
-              timeout: 3000,
-            }
-          );
-          const data = result.data;
+          const result = await detectObjectsOnImageUrl(url);
           let vehicle_count = 0;
 
-          for (let vehicle_type in data) {
-            vehicle_count += data[vehicle_type];
+          for (let vehicle_type in result) {
+            vehicle_count += result[vehicle_type];
           }
 
           picture = new Picture();
