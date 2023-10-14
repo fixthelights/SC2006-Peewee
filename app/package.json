@@ -29,7 +29,8 @@
     "recharts": "^2.8.0",
     "two-step-auth": "^1.1.2",
     "typescript": "^4.9.5",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "cors": "^2.8.5"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -61,3 +62,4 @@
     "@types/recharts": "^1.8.25"
   }
 }
+
