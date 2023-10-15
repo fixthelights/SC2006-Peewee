@@ -9,6 +9,7 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
 
     return res.status(statusCode).send({ 
         error: {
+            type: err.type,
             statusCode: err.statusCode,
             description: err.message,
             rawError: err.error

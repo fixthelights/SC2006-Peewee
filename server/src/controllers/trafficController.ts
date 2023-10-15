@@ -156,6 +156,8 @@ exports.getTrafficConditionsOneCamera = async (req: Request, res: Response) => {
     }
     return res.status(200).send(output);
   } catch (error: any) {
+    if(error instanceof AppError) throw error;
+
     throw new AppError({
       error: error,
       statusCode: 500,
