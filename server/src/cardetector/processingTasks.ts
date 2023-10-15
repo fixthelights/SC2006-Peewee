@@ -143,6 +143,7 @@ const initScheduledJobs = () => {
         {
           location: camera.location,
           hourly_counts: trends,
+          last_updated: Date.now()
         },
         { upsert: true, new: true }
       );
