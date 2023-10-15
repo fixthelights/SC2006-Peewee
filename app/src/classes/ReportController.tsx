@@ -11,14 +11,32 @@ class ReportController{
     }
 
     getUserCoordinates(): Array<number>{
+
       let latitude=1000; // default value for error checking 
       let longitude=1000;
-      navigator.geolocation.getCurrentPosition(function(position) {
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(success, error);
+      } else {
+        console.log("Geolocation not supported");
+      }
+      
+      function success(position: GeolocationPosition) {
+        latitude = position.coords.latitude;
+        longitude = position.coords.longitude;
+        console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
+      }
+      
+      function error() {
+        console.log("Unable to retrieve location");
+      }
+
+      /*navigator.geolocation.getCurrentPosition(function(position) {
         console.log("Latitude is :", position.coords.latitude);
         console.log("Longitude is :", position.coords.longitude);
         latitude = position.coords.latitude;
         longitude = position.coords.longitude
-      });
+      });*/
       return [latitude, longitude]
     }
 

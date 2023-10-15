@@ -19,7 +19,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import Button from '@mui/material/Button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
 import { ReportController } from "../classes/ReportController";
@@ -98,15 +98,31 @@ export default function ReportIncident() {
 
   const navigate = useNavigate();
   const reportController = new ReportController();
+  const date = new Date();
 
   const [incidentType, setIncidentType] = useState('');
   const [incidentLocation, setIncidentLocation] = useState('');
+  const [latitude, setLatitude] = useState(1000)
+  const [longitude, setLongitude] = useState(1000)
+  const [locationDetected, setLocationDetected] = useState(false);
   const [incidentDescription, setIncidentDescription] = useState('')
   const [locationPermission, setLocationPermission] = useState(false);
-  const [validLocation, setValidLocation] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState(false);
   const [validSubmission, setValidSubmission] = useState(false);
-  const [locationResponse, setLocationResponse] = useState('')
+
+  useEffect(() => {
+    let lat = 1000//= 1.326104 //PIE address
+    let long = 1000//= 103.90571 //PIE address
+
+    navigator.geolocation.getCurrentPosition(function(position) {
+      console.log("Latitude is :", position.coords.latitude);
+      console.log("Longitude is :", position.coords.longitude);
+      lat = position.coords.latitude;
+      long = position.coords.longitude;
+      setLatitude(lat)
+      setLongitude(long)
+    })
+  }, []);
 
   const LocationMessage = () => {
     if (!submissionStatus && incidentType!=''){
@@ -132,7 +148,7 @@ export default function ReportIncident() {
                 </Stack>
                 </Box>
                 </Alert>
-      } else if (validLocation){
+      } else if (locationDetected){
         return <Box sx={{ pl: 3, pt: 3 }}>
               <Typography
                 component="h1"
@@ -146,7 +162,7 @@ export default function ReportIncident() {
         return <Alert 
                   severity="info"
                 >
-                  Location is invalid. Redetect current location?
+                  Failed to detect location. Redetect current location?
                 <Box sx={{ pt: 3 }}>
                 <Stack spacing={2} direction="row">
                   <Button 
@@ -168,26 +184,20 @@ export default function ReportIncident() {
     }
     return null;
   }
-
-  const setUserAddress = () => {
-    let coordinatesList = reportController.getUserLocation();
-    //let latitude = coordinatesList[0]
-    //let longitude = coordinatesList[1]
-    let latitude = 1.326104; // PIE address
-    let longitude = 103.90571; // PIE address
-    axios.get(`https://eu1.locationiq.com/v1/reverse?key=pk.565aea3b0b4252d7587da4689cd6869e&lat=${latitude}&lon=${longitude}&format=json`)
-        .then((res)=> setIncidentLocation(res.data['display_name']))
-        .catch(function(error) {
-            console.log(error);
-    });
-  }
+  
 
   const handleLocationAccess = () => {
-    setLocationPermission(true);
-    setUserAddress();
-    if (incidentLocation !== ''){
-      setValidLocation(true);
-    } 
+
+    axios.get(`https://eu1.locationiq.com/v1/reverse?key=pk.565aea3b0b4252d7587da4689cd6869e&lat=${latitude}&lon=${longitude}&format=json`)
+    .then((res)=> setIncidentLocation(res.data['display_name']))
+    .then ((res)=> setLocationDetected(true))
+    .then((res)=> setLocationPermission(true))
+    .catch(function(error) {
+        console.log(error);
+        setLocationDetected(false)
+        setLocationPermission(true)
+    });
+    
   }
 
   const IncidentTypeSelection = () => {
@@ -202,10 +212,10 @@ export default function ReportIncident() {
                 label="Incident Type"
                 onChange={(e) => setIncidentType(e.target.value)}
                 >
-                <MenuItem value={"Accidents"}>Accidents</MenuItem>
-                <MenuItem value={"Roadworks"}>Roadworks</MenuItem>
-                <MenuItem value={"Closure"}>Closure</MenuItem>
-                <MenuItem value={"Slow Traffic"}>Slow Traffic</MenuItem>
+                <MenuItem value={"Accident"}>Accidents</MenuItem>
+                <MenuItem value={"RoadWork"}>Roadworks</MenuItem>
+                <MenuItem value={"RoadClosure"}>Closure</MenuItem>
+                <MenuItem value={"SlowTraffic"}>Slow Traffic</MenuItem>
                 </Select>
                 </FormControl>
                 </Box>
@@ -216,7 +226,7 @@ export default function ReportIncident() {
 
   const IncidentDescriptionInput= () => {
     if (!submissionStatus){
-      if (validLocation){
+      if (locationDetected){
         return  <Box sx={{ width: 360, pl: 3, pt: 3 }}>
                   <Typography
                   component="h1"
@@ -259,15 +269,21 @@ export default function ReportIncident() {
 
   const handleSubmission = async(e: MouseEvent<HTMLButtonElement>) =>{
     setSubmissionStatus(true);
-    /*let result = await fetch(
-      'http://localhost:2000/report/', {
-          method: "post",
-          body: JSON.stringify({ incidentType, incidentLocation, incidentDescription }),
-          headers: {
-              'Content-Type': 'application/json'
-          }
-      })*/
-      setValidSubmission(true);
+    axios.post('http://localhost:2000/reports', {
+            incident: incidentType,
+            description: incidentDescription,
+            location: {
+                lat: latitude,
+                long: longitude
+            },
+            duration_hours: date.getHours()
+        })
+        .then((res)=> console.log(res.data))
+        .then ((res)=> setValidSubmission(true))
+        .catch(function(error) {
+            console.log(error)
+            setValidSubmission(false)
+        });
   }
 
   const SubmissionMessage = () => {
@@ -312,7 +328,7 @@ export default function ReportIncident() {
   const handleReenter = () => {
     setIncidentLocation('');
     setLocationPermission(false);
-    setValidLocation(false);
+    setLocationDetected(false);
     setIncidentType('');
     setIncidentDescription('');
     setSubmissionStatus(false);

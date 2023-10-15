@@ -12,14 +12,26 @@ function Landing() {
     const [email, setEmail] = useState('qwe@ymail.com')
 
     function testBackend() {
-        axios.post('http://localhost:2000/users/forget-password',{
+
+         axios.get('http://localhost:2000/reports/')
+        .then((res)=> console.log(res.data))
+        .catch(function(error) {
+            console.log(error);
+        });
+
+        /*axios.post('http://localhost:2000/users/forget-password',{
             username: "hii",
             email: "p90027408@gmail.com",
         })
         .then((res)=> console.log(res.data))
         .catch(function(error) {
-            console.log(error);
-        });
+            console.log(error.message);
+            if (error.message === "Request failed with status code 404"){
+                console.log(true)
+            }else{
+                console.log(false)
+            }
+        });*/
 
         /*axios.post('http://localhost:2000/users/register',{
             username: "hii",

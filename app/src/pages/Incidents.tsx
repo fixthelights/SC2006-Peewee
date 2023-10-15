@@ -21,7 +21,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import FmdGoodOutlinedIcon from '@mui/icons-material/FmdGoodOutlined';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
 // import IncidentListItem from '../components/IncidentListItem';
 
@@ -86,6 +86,16 @@ export default function Incidents() {
 
   const navigate = useNavigate();
   const [reportList, setReportList] = useState([])
+
+  const getReportList = async () => {
+    const { data } = await axios.get('http://localhost:2000/reports');
+    setReportList(data);
+  };
+
+  useEffect(() => {
+    getReportList();
+
+  }, []);
 
   /*useEffect(()=> {  
       axios.get('http://localhost:2000/') 
@@ -222,7 +232,57 @@ export default function Incidents() {
                   Report Incident
               </Button> 
               </Grid>
-              {/*Change to displayReport*/}
+
+              {/*{reportList.map((report: Object) => (
+              <Grid item xs={12} md={12} lg={12}>
+                <Paper
+                  sx={{
+                    p: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: 240,
+                    overflow: 'auto'
+                  }}
+                >
+                  <Stack spacing={2} direction="row" paddingX={2} paddingY={2}>
+                  <Typography
+                    component="h1"
+                    variant="body1"
+                    color="inherit"
+                    noWrap
+                  >
+                    {report["incident"]}
+                  </Typography>
+                  <AccessTimeIcon />
+                    <Typography
+                      component="h1"
+                      variant="body1"
+                      color="inherit"
+                      noWrap
+                    >
+                    Time
+                  </Typography>
+                  <FmdGoodOutlinedIcon />
+                    <Typography
+                      component="h1"
+                      variant="body1"
+                      color="inherit"
+                      noWrap
+                    >
+                    Location
+                  </Typography>
+                  </Stack>
+                  <Typography
+                      component="h1"
+                      variant="body1"
+                      color="inherit"
+                      paddingX={2}
+                      paddingY={2}
+                    >
+                   -
+                  </Typography>
+                </Paper>
+              </Grid>))}
               <Grid item xs={12} md={12} lg={12}>
                 <Paper
                   sx={{
@@ -268,10 +328,11 @@ export default function Incidents() {
                       paddingX={2}
                       paddingY={2}
                     >
-                    Hello, everyone! This is the LONGEST TEXT EVER! I was inspired by the various other "longest texts ever" on the internet, and I wanted to make my own. So here it is! This is going to be a WORLD RECORD! This is actually my third attempt at doing this. The first time, I didn't save it. The second time, the Neocities editor crashed. Now I'm writing this in Notepad, then copying it into the Neocities editor instead of typing it directly in the Neocities editor to avoid crashing. It sucks that my past two attempts are gone now. Those actually got pretty long. Not the longest, but still pretty long. I hope this one won't get lost somehow. Anyways, let's talk about WAFFLES! I like waffles. Waffles are cool. Waffles is a funny word. There's a Teen Titans Go episode called "Waffles" where the word "Waffles" is said a hundred-something times. It's pretty annoying. There's also a Teen Titans Go episode about Pig Latin. Don't know what Pig Latin is? It's a language where you take all the consonants before the first vowel, move them to the end, and add '-ay' to the end. If the word begins with a vowel, you just add '-way' to the end. For example, "Waffles" becomes "Afflesway". I've been speaking Pig Latin fluently since the fourth grade, so it surprised me when I saw the episode for the first time. I speak Pig Latin with my sister sometimes. It's pretty fun. I like speaking it in public so that everyone around us gets confused. That's never actually happened before, but if it ever does, 'twill be pretty funny. 
+                   -
                   </Typography>
                 </Paper>
-              </Grid>
+                </Grid>*/}
+              
               <Grid item xs={12} md={12} lg={12}>
                 <Paper
                   sx={{

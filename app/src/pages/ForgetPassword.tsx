@@ -13,6 +13,7 @@ import { ForgetPasswordController } from '../classes/ForgetPasswordController';
 import Alert from '@mui/material/Alert';
 import Link from '@mui/material/Link';
 import { AuthController } from '../classes/AuthController';
+import axios from 'axios'
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
@@ -39,18 +40,6 @@ export default function ForgetPassword() {
   
   const [userList, setUserList] = useState([])
 
-  /*useEffect(()=> {  
-      axios.get('http://localhost:2000/') 
-      .then((res)=> setUserList(res.data));
-  }, []);*/
-
-  /*let checkMatchingEmail = userList.map((user)=>{
-    if (user.email == email){
-      return true;
-    }
-    return false;
-  });*/
-
   const handleOTP = (event: React.ChangeEvent<HTMLInputElement>) => {
     setOTP(event.target.value);
   };
@@ -72,27 +61,32 @@ export default function ForgetPassword() {
 
     event.preventDefault()
 
+    //let otpGenerated = forgetPasswordController.generateOTP()
+    let otpGenerated = 12345678
+
+    /*axios.post('http://localhost:2000/users/forget-password',{
+      username: "hiiii",
+      email: email,
+      otp: otpGenerated
+      })
+      .then((res)=> console.log(res.data))
+      .then ((res) => setIsOTPSent(true))
+      .then ((res)=>setIsEmailSubmitted(true))
+      .catch(function(error) {
+          console.log(error);
+          if (error.message === "Request failed with status code 404"){
+            setIsEmailValid(false)
+          }else{
+            etIsEmailValid(false)
+          }
+          setIsOTPSent(false);
+          setIsEmailSubmitted(true)
+    })*/
+
+    setIsEmailValid(true)
+    setIsOTPSent(true);
     setIsEmailSubmitted(true)
 
-    let validEmail = false
-    let otpGenerated = ''
-    let otpSent = false
-
-    //validEmail = checkMatchingEmail 
-    //otp = sendOTP(email);
-    /*if (otp!==''){
-      otpSent = true
-    } else {
-      otpSent = false
-    }*/
-
-    validEmail = true
-    otpGenerated = '12345678'
-    otpSent=true
-
-    setGeneratedOTP(otpGenerated)
-    setIsEmailValid(validEmail)
-    setIsOTPSent(otpSent)
   };
 
   const OtpMessage = () => {
@@ -124,17 +118,25 @@ export default function ForgetPassword() {
     if (generatedOTP!=='' && OTP===generatedOTP){
       validOTP = true
     }
-    if (authController.checkPasswordValidity(password)){ //and that it's different from current password
-
+    if (authController.checkPasswordValidity(password)){ 
       validPassword = true
-      savedNewPassword = true
-      /*axios.put('http://localhost:2000/', newUser)
-      .then(res => {
-        console.log(res.data)
-      })*/
     } 
     if (validPassword && password===retypedPassword){
       validRetypedPassword = true
+    }
+    if (validOTP && validPassword && validRetypedPassword){
+      /*axios.put('http://localhost:2000/users/reset-password', {
+        email: email,
+        newPassword: password
+      })
+      .then(res => console.log(res.data))
+      .then(res => isPasswordUpdated(true))
+      .then(res => isPasswordSubmitted(true))
+      .catchcatch(function(error) {
+          console.log(error);
+          setIsPasswordUpdated(false);
+          setIsPasswordSubmitted(true)
+        })*/
     }
 
     setIsOTPValid(validOTP)
