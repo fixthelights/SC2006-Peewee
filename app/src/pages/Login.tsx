@@ -31,21 +31,7 @@ export default function Login() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [userList, setUserList] = useState([])
 
-  async function checkValidUser () {
-    let validUser = false
-    try{
-      const response = await axios.get('http://localhost:2000/users') 
-      if (response.data["message"] != "Username/Password is invalid"){
-        validUser = true;
-      }
-    }
-    catch(error){
-      console.log(error)
-    }
-    return validUser
-  };
-
-  const getUserList = async () => {
+  /*const getUserList = async () => {
     const { data } = await axios.get('http://localhost:2000/users');
     setUserList(data);
   };
@@ -64,7 +50,7 @@ export default function Login() {
       i++;
     }
     return foundMatching;
-  };
+  };*/
 
   // Handling the email change
   const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,16 +66,19 @@ export default function Login() {
 
     event.preventDefault()
 
-    setIsSubmitted(true)
-
-    let userValid = checkMatchingUser()
-    console.log(userList)
-
-    if (userValid){
-      {navigate("/dashboard")}
-    }
-
-    setIsValidUser(userValid);
+    axios.post('http://localhost:2000/users/login',{
+            username: "hiiii",
+            password: password
+        })
+        .then((res)=> console.log(res.data))
+        .then((res)=>{navigate("/dashboard")})
+        .then ((res) => setIsValidUser(true))
+        .then ((res)=>setIsSubmitted(true))
+        .catch(function(error) {
+            console.log(error);
+            setIsValidUser(false);
+            setIsSubmitted(true)
+        })
 
   }
 

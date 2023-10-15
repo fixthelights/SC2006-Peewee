@@ -12,16 +12,36 @@ function Landing() {
     const [email, setEmail] = useState('qwe@ymail.com')
 
     function testBackend() {
-        let message = ''
-
-        axios.post('http://localhost:2000/users/login',{
-            username: "hiiii",
-            password: "testing1234",
+        axios.post('http://localhost:2000/users/forget-password',{
+            username: "hii",
+            email: "p90027408@gmail.com",
         })
         .then((res)=> console.log(res.data))
         .catch(function(error) {
-            console.log(error)
+            console.log(error);
         });
+
+        /*axios.post('http://localhost:2000/users/register',{
+            username: "hii",
+            email: "p90027408@gmail.com",
+            password: "12345testing",
+            firstName: "1123hiiii",
+            lastName: "123hiiii",
+            phone: "123hiiiii"
+        })
+        .then((res)=> console.log(res.data))
+        .catch(function(error) {
+            console.log(error);
+        });*/
+
+        /*axios.post('http://localhost:2000/users/login',{
+            username: "hiiii",
+            password: "testing123",
+        })
+        .then((res)=> console.log(res.data))
+        .catch(function(error) {
+            console.log(error.message)
+        });*/
 
         /*axios.get('http://localhost:2000/users')
         .then((res)=> console.log(res.data))
