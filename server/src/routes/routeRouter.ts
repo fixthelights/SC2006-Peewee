@@ -2,7 +2,6 @@ import express, { Request, Response } from 'express';
 const router = express.Router();
 const routeController = require('../controllers/routeController');
 
-
 //implement CRUD operations for routes
 router.post('/', routeController.createRoutes);
     
@@ -18,3 +17,4 @@ router.put('/:id', routeController.updateRoutes);
     //delete(DELETE BY ID)
 router.delete('/:id',routeController.deleteRoutes);
     
+module.exports = router;
