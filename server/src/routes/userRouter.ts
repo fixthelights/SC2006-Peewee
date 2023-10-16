@@ -7,7 +7,7 @@ const userController = require('../controllers/userController');
 // GET request for a list of all users
 router.get('/', userController.getAllUsers);
 
-// GET request for a specific student
+// GET request for a specific user
 router.get('/:userId',userController.getOneUser);
 
 // POST request for registration
@@ -22,10 +22,10 @@ router.post('/forget-password', userController.forgetPassword);
 // POST request for forget password - Change password
 router.post('/forget-password/:userId/:passwordToken', userController.validatePasswordToken);
 
-// PUT request to update student details
+// PUT request to update user details
 router.put('/:userId', userController.updateUser);
 
-// DELETE request to delete the students
+// DELETE request to delete the users
 router.delete('/:userId', userController.deleteUser);
 
 module.exports = router;

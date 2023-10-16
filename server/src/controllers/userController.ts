@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import { AppError } from '../config/AppError';
 import crypto from 'crypto';
 
 const User = require("../models/user");
@@ -13,9 +14,14 @@ exports.getAllUsers = async (req :Request, res :Response) => {
     try {
         const users = await User.find();
         return res.json(users);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).send('Internal Server Error');
+    }catch(error: any){
+        if (error instanceof AppError) throw error;
+        throw new AppError({
+            type: "GetAllUsersError",
+            statusCode: 500,
+            description: 'Error loading users.',
+            error: error
+        });
     }
     // return res.status(200).send(User.getAll());
 };
@@ -26,13 +32,22 @@ exports.getOneUser = async (req :Request, res :Response) => {
         const user = await User.findById({userId : userId});
 
         if (!user) {
-            return res.status(404).send('User not found');
+            throw new AppError({
+                type: "UserNotFoundError",
+                statusCode: 404,
+                description: 'User not found.',
+            });
         }
 
         res.json(user);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Internal Server Error');
+    } catch(error: any){
+        if (error instanceof AppError) throw error;
+        throw new AppError({
+            type: "GetUserError",
+            statusCode: 500,
+            description: 'Error getting user.',
+            error: error
+        });
     }
     return res.status(200).send(User.findOne(1));
 };
@@ -51,7 +66,11 @@ exports.createUser = async (req :Request, res :Response) => {
         if (username && password) {
             // Check if user already exists
             if (!!await User.findOne({ username : username })) {
-                return res.status(404).json({message:"User already exists"})
+                throw new AppError({
+                    type: "UserExistsError",
+                    statusCode: 404,
+                    description: 'User already exists.',
+                });
             }
             // Create a new user instance
             const newUser = new User({ username, password, email, firstName, lastName, phone});
@@ -61,9 +80,14 @@ exports.createUser = async (req :Request, res :Response) => {
 
             res.status(201).send("User registered successfully");
         }
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Internal Server Error")
+    } catch(error: any){
+        if (error instanceof AppError) throw error;
+        throw new AppError({
+            type: "CreateUserError",
+            statusCode: 500,
+            description: 'Error creating account.',
+            error: error
+        });
     }
 };
 
@@ -76,18 +100,31 @@ exports.login = async (req : Request,res : Response) => {
 
         // If missing username or password
         if (!username || !password) {
-            return res.status(404).json({message : "Username/Password is invalid"});
+            throw new AppError({
+                type: "MissingLoginError",
+                statusCode: 404,
+                description: 'Username/Password is not entered.',
+            });
         }
 
         // If username & password match
         if (await authenticatedUser( username , password )) {
             return res.status(200).send("User successfully logged in");
         } else {
-            return res.status(404).json({message:"Username/Password is invalid"})
+            throw new AppError({
+                type: "UserVerificationError",
+                statusCode: 404,
+                description: 'Username/Password is invalid.',
+            });
         }
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Internal Server Error")
+    } catch(error: any){
+        if (error instanceof AppError) throw error;
+        throw new AppError({
+            type: "LoginError",
+            statusCode: 500,
+            description: 'Error loggin in.',
+            error: error
+        });
     }
 };
 
@@ -97,9 +134,21 @@ exports.forgetPassword = async ( req: Request, res: Response ) => {
         const username = req.body.username;
         const email = req.body.email;
 
+        
         const verifiedUser = await User.findOne({username : username});
+        if (!verifiedUser) {
+            throw new AppError({
+                type: "UserNotFoundError",
+                statusCode: 404,
+                description: 'User not found.',
+            });
+        }
         if (verifiedUser.email !== email) {
-            return res.status(404).json({message:"Email does not match username"})
+            throw new AppError({
+                type: "UserVerificationError",
+                statusCode: 404,
+                description: 'Email does not match username.',
+            });
         }
 
         let token = await PasswordToken.findOne({ userId: verifiedUser._id });
@@ -112,35 +161,57 @@ exports.forgetPassword = async ( req: Request, res: Response ) => {
 
         const link = req.protocol + "://" + req.get('host') + req.originalUrl + "/" + verifiedUser._id + "/" + token.token;
         console.log(link);
-        // await sendForgetEmail(verifiedUser.email, "Password reset", link);
+        await sendForgetEmail(verifiedUser, link);
 
         return res.status(200).send("Password reset link sent to your email account");
-    } catch (error) {
-        console.log(error);
-        return res.status(500).send("Internal Server Error")
+    } catch(error: any){
+        if (error instanceof AppError) throw error;
+        throw new AppError({
+            type: "ForgetPasswordError",
+            statusCode: 500,
+            description: 'Error validating user.',
+            error: error
+        });
     }
 };
+
 
 // POST request for forget password - Change password
 exports.validatePasswordToken = async (req: Request, res: Response) => {
     try {
         const verifiedUser = await User.findById(req.params.userId);
-        if (!verifiedUser) return res.status(400).send("Invalid or expired link");
-
+        if (!verifiedUser) {
+            throw new AppError({
+                type: "InvalidResetTokenError",
+                statusCode: 400,
+                description: 'Invalid or expired link.',
+            });
+        }
         const token = await PasswordToken.findOne({
             userId: verifiedUser.userId,
             token: req.params.token,
         });
-        if (!token) return res.status(400).send("Invalid or expired link");
-
+        if (!token) {
+            throw new AppError({
+                type: "InvalidResetTokenError",
+                statusCode: 400,
+                description: 'Invalid or expired link.',
+            });
+        }
         verifiedUser.password = req.body.password;
         await verifiedUser.save();
         await token.delete();
 
         return res.status(200).send("Password reset sucessfully");
-    } catch (error) {
-        console.log(error);
-        return res.status(500).send("Internal Server Error")
+    } catch(error: any){
+        if (error instanceof AppError) throw error;
+        throw new AppError({
+            type: "PasswordTokenValidationError",
+            statusCode: 500,
+            description: 'Error validating password reset token.',
+            error: error
+        });
+        
     }
 };
 
@@ -153,7 +224,11 @@ exports.updateUser = async (req :Request, res :Response) => {
         const user = await User.findById({userId : userId});
 
         if (!user) {
-            return res.status(404).send('User not found');
+            throw new AppError({
+                type: "UserNotFoundError",
+                statusCode: 404,
+                description: 'User not found.',
+            });
         }
 
         // Update user properties
@@ -164,10 +239,15 @@ exports.updateUser = async (req :Request, res :Response) => {
         await user.save();
 
         res.json(user);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Internal Server Error');
-  }
+    } catch(error: any){
+        if (error instanceof AppError) throw error;
+        throw new AppError({
+            type: "UpdateUserError",
+            statusCode: 500,
+            description: 'Error updating user.',
+            error: error
+        });
+    }
     return res.status(200).send("User's information has been updated");
 };
 
@@ -178,13 +258,22 @@ exports.deleteUser = async (req :Request, res :Response) => {
         const user = await User.findByIdAndDelete({userId : userId});
 
         if (!user) {
-            return res.status(404).send('User not found');
+            throw new AppError({
+                type: "UserNotFoundError",
+                statusCode: 404,
+                description: 'User not found.',
+            });
         }
 
         res.json(user);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Internal Server Error');
+    } catch(error: any){
+        if (error instanceof AppError) throw error;
+        throw new AppError({
+            type: "DeleteUserError",
+            statusCode: 500,
+            description: 'Error deleting user.',
+            error: error
+        });
     }
     return res.status(200).send("User has been deleted");
 };
@@ -216,8 +305,12 @@ const verifyPassword = async (inputPassword : String, hashedPassword : String) =
     try {    
         const match = await bcrypt.compare(inputPassword, hashedPassword);
         return match; // Returns true if the passwords match, false otherwise
-    } catch(error) {
-        console.log(error);
-        throw error;
+    } catch(error : any) {
+        throw new AppError({
+            type: "PasswordVerificationError",
+            statusCode: 500,
+            description: 'Error deleting user.',
+            error: error
+        });
     };
 };
