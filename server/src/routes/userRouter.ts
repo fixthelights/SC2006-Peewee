@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import { auth } from '../middlewares/auth';
 const router = express.Router();
 const userController = require('../controllers/userController');
 // const jwt = require("jwt");
@@ -17,13 +18,13 @@ router.post('/register', userController.createUser);
 router.post('/login', userController.login);
 
 // POST request for forget password - Request change password
-router.post('/forget-password', userController.forgetPassword);
+router.post('/forget-password', auth, userController.forgetPassword);
 
 // POST request for forget password - Change password
-router.post('/forget-password/:userId/:passwordToken', userController.validatePasswordToken);
+router.post('/forget-password/:userId/:passwordToken', auth, userController.validatePasswordToken);
 
 // PUT request to update user details
-router.put('/:userId', userController.updateUser);
+router.put('/:userId', auth, userController.updateUser);
 
 // DELETE request to delete the users
 router.delete('/:userId', userController.deleteUser);

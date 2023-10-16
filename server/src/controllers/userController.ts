@@ -1,6 +1,8 @@
 import express, { Request, Response } from 'express';
 import { AppError } from '../config/AppError';
 import crypto from 'crypto';
+import jwt from "jsonwebtoken";
+import { SECRET_KEY } from '../middlewares/auth';
 
 const User = require("../models/user");
 const PasswordToken = require("../models/passwordToken");
@@ -108,7 +110,13 @@ exports.login = async (req : Request,res : Response) => {
         }
 
         // If username & password match
-        if (await authenticatedUser( username , password )) {
+        const verifiedUser = await authenticatedUser( username , password )
+        if (verifiedUser) {
+            const token = jwt.sign({ _id: verifiedUser._id?.toString(), name: verifiedUser.name }, SECRET_KEY, {
+                expiresIn: '2 days',
+              });
+            res.cookie('jwt', token, { httpOnly: true, secure: true });
+            res.json({ success: true, token });
             return res.status(200).send("User successfully logged in");
         } else {
             throw new AppError({
@@ -297,7 +305,7 @@ exports.deleteUser = async (req :Request, res :Response) => {
 // Check if username and password match our DB
 const authenticatedUser = async ( username : String, password : String ) => {
     const verifiedUser = await User.findOne({username : username});
-    return (verifiedUser.username === username && await verifyPassword(password,verifiedUser.password));
+    return (verifiedUser.username === username && await verifyPassword(password,verifiedUser.password))? verifiedUser : false;
 }
 
 // Verifying Password during Login
