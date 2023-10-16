@@ -1,0 +1,39 @@
+.container-fluid {
+    margin: 20px;
+  }
+  
+  .input {
+    margin: 20px 0;
+  }
+  
+  .form-control-sm {
+    width: 60%;
+  }
+  
+  .btn {
+    padding: 10px 20px;
+    border-radius: 5px;
+  }
+  
+  .img-fluid {
+    max-width: 100%;
+    height: auto;
+    margin: 10px;
+  }
+  
+  .img-thumbnail {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+  }
+  
+  .error {
+    color: red;
+  }
+ 
+  
+  
+  
+  
+  
+  
