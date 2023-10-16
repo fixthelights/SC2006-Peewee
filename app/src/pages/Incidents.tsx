@@ -103,7 +103,7 @@ export default function Incidents() {
   const [reportList, setReportList] = useState([])
 
   const getReportList = () => {
-    axios.get('http://localhost:2000/reports/all/today')
+    axios.get('http://localhost:2000/reports/today/all')
     .then((res)=> setReportList(res.data))
     .catch(function(error) {
             console.log(error)

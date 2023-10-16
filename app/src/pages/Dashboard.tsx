@@ -15,13 +15,37 @@ import Paper from '@mui/material/Paper';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import {Deposits} from '../components/Deposits';
-import Orders from '../components/Orders';
+import {FavouriteRoutesList} from '../components/FavouriteRoutesList';
 import {ListItemButton, ListItemIcon, ListItemText, DashboardIcon, CarCrashOutlinedIcon, MapOutlinedIcon, TrafficOutlinedIcon , LogoutOutlinedIcon} from '../components/ListButtonIndex'
 import { useNavigate } from "react-router-dom";
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import Chart from '../components/Chart';
+import Link from '@mui/material/Link';
+import {RecentIncidentList} from '../components/RecentIncidentList';
+import axios from 'axios'
+import {useState, useEffect} from 'react'
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Title from '../components/Title';
 
 const drawerWidth: number = 240;
+
+interface Report {
+  incident: String,
+  location: {
+    long: Number
+    lat: Number
+  },
+  address: String
+  duration_hours: Number
+  description: String
+  time: String
+  timestamp: Date
+  reported_by: String
+}
 
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean;
@@ -75,12 +99,36 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const defaultTheme = createTheme();
 
 export default function Dashboard() {
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = useState(true);
+  const [routeList, setRouteList] = useState([]);
+  const [incidentList, setIncidentList] = useState([]);
+
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
   const navigate = useNavigate();
+
+  const getFavouriteRouteList = () => {
+    axios.get('http://localhost:2000/routes')
+    .then((res)=> setRouteList(res.data))
+    .catch(function(error) {
+            console.log(error)
+        });
+  };
+
+  const getRecentIncidentList = () => {
+    axios.get('http://localhost:2000/reports/today/recent')
+    .then((res)=> setIncidentList(res.data))
+    .catch(function(error) {
+            console.log(error)
+        });
+  };
+
+  useEffect(() => {
+    getFavouriteRouteList();
+    getRecentIncidentList()
+  }, []);
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -218,29 +266,54 @@ export default function Dashboard() {
                   <Deposits title="Maps" />
                 </Paper>
               </Grid>
-              <Grid item xs={12} md={6} lg={6}>
+              <Grid item xs={12} md={6} lg={8}>
                 <Paper
                   sx={{
                     p: 2,
                     display: 'flex',
                     flexDirection: 'column',
-                    height: 240,
+                    height: 320,
+                    overflow: 'auto'
                   }}
                 >
-                  <Deposits title="Recents"/>
+                  <Title>Recent Incidents</Title>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Incident</TableCell>
+                        <TableCell>Time</TableCell>
+                        <TableCell>Address</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {incidentList.map((report: Report) => (
+                        <TableRow>
+                          <TableCell>{report.incident}</TableCell>
+                          <TableCell>{report.time}</TableCell>
+                          <TableCell>{report.address}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  <Link color="primary" href="#" onClick={() => navigate("/incidents")} sx={{ mt: 3 } }>
+                    See all incidents
+                  </Link>
                 </Paper>
               </Grid>
               {/* Recent Deposits */}
-              <Grid item xs={12} md={6} lg={6}>
+              <Grid item xs={12} md={6} lg={4}>
                 <Paper
                   sx={{
                     p: 2,
                     display: 'flex',
                     flexDirection: 'column',
-                    height: 240,
+                    height: 320,
                   }}
                 >
-                  <Deposits title="Favourites"/>
+                  <FavouriteRoutesList list={routeList}/>
+                  <Link color="primary" href="#" sx={{ mt: 3 }}>
+                    See all routes
+                  </Link>
                 </Paper>
               </Grid>
             </Grid>

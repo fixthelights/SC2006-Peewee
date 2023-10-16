@@ -13,19 +13,19 @@ function Landing() {
 
     function testBackend() {
 
-        /*axios.delete('http://localhost:2000/reports/652d077816ca556d380b8580')
+        axios.delete('http://localhost:2000/reports/652d17fc4c366326759ebfbe')
+        .then ((res) => console.log(res.data))
+        .catch(function(error) {
+            console.log(error);
+        });
+
+        /*axios.get('http://localhost:2000/routes/')
         .then ((res) => console.log(res.data))
         .catch(function(error) {
             console.log(error);
         });*/
 
-        /*axios.get('http://localhost:2000/reports')
-        .then ((res) => console.log(res.data))
-        .catch(function(error) {
-            console.log(error);
-        });*/
-
-        axios.post('http://localhost:2000/reports/', {
+        /*axios.post('http://localhost:2000/reports/', {
             incident: "Accident",
             description: "Accident at Jurong West St 64",
             address : "daNDJK",
@@ -38,7 +38,7 @@ function Landing() {
         .then((res)=> console.log(res.data))
         .catch(function(error) {
             console.log(error);
-        })
+        })*/
 
         /*axios.post('http://localhost:2000/users/forget-password',{
             username: "hii",
