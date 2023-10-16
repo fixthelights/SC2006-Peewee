@@ -16,7 +16,8 @@ const ReportSchema = new Schema({
   address: {type: String, required: true},
   duration_hours: { type: Number, required: true },
   description: { type: String, required: true },
-  timestamp: { type: Date, default: Date.now() },
+  time : {type: String, required: true},
+  timestamp: { type: Date, default: new Date() },
   reported_by: {
     type: Schema.Types.ObjectId,
     ref: "User",

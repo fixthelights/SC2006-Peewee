@@ -8,6 +8,9 @@ router.get('/', reportController.getAllReports);
 // GET request for a specific report
 router.get('/:reportId',reportController.getOneReport);
 
+// GET request for the current day's report
+router.get('/all/today', reportController.getTodayReports);
+
 // POST request to submit a new report
 router.post('/', reportController.submitReport);
 

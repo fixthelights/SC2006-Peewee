@@ -13,12 +13,32 @@ function Landing() {
 
     function testBackend() {
 
-         axios.get('http://localhost:2000/reports/')
-        .then((res)=> setUserList(res.data))
-        .then (() => console.log(userList))
+        /*axios.delete('http://localhost:2000/reports/652d077816ca556d380b8580')
+        .then ((res) => console.log(res.data))
         .catch(function(error) {
             console.log(error);
-        });
+        });*/
+
+        /*axios.get('http://localhost:2000/reports')
+        .then ((res) => console.log(res.data))
+        .catch(function(error) {
+            console.log(error);
+        });*/
+
+        axios.post('http://localhost:2000/reports/', {
+            incident: "Accident",
+            description: "Accident at Jurong West St 64",
+            address : "daNDJK",
+            location: {
+                lat: 1.339808,
+                long: 103.704116
+            },
+            duration_hours: "12"
+        })
+        .then((res)=> console.log(res.data))
+        .catch(function(error) {
+            console.log(error);
+        })
 
         /*axios.post('http://localhost:2000/users/forget-password',{
             username: "hii",

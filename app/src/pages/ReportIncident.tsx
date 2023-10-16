@@ -98,7 +98,6 @@ export default function ReportIncident() {
 
   const navigate = useNavigate();
   const reportController = new ReportController();
-  const date = new Date();
 
   const [incidentType, setIncidentType] = useState('');
   const [incidentLocation, setIncidentLocation] = useState('');
@@ -111,8 +110,11 @@ export default function ReportIncident() {
   const [validSubmission, setValidSubmission] = useState(false);
 
   useEffect(() => {
-    let lat = 1000//= 1.326104 //PIE address
-    let long = 1000//= 103.90571 //PIE address
+    let lat = 1000
+    let long = 1000
+
+    //setLatitude(1.3456) //Jurong West Address 
+    //setLongitude(103.704116) /Jurong West Address 
 
     navigator.geolocation.getCurrentPosition(function(position) {
       console.log("Latitude is :", position.coords.latitude);
@@ -268,6 +270,7 @@ export default function ReportIncident() {
   }
 
   const handleSubmission = async(e: MouseEvent<HTMLButtonElement>) =>{
+    const date = new Date();
     setSubmissionStatus(true);
     axios.post('http://localhost:2000/reports', {
             incident: incidentType,
@@ -277,6 +280,7 @@ export default function ReportIncident() {
             },
             address : incidentLocation,
             description: incidentDescription,
+            time: date.toLocaleTimeString(),
             duration_hours: date.getHours()
         })
         .then((res)=> console.log(res.data))

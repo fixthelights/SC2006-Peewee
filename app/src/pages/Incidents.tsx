@@ -34,6 +34,7 @@ interface Report {
   address: String
   duration_hours: Number
   description: String
+  time: String
   timestamp: Date
   reported_by: String
 }
@@ -92,6 +93,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const defaultTheme = createTheme();
 
 export default function Incidents() {
+  let listOfReports: Array<Report> = [];
   const [open, setOpen] = useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
@@ -100,32 +102,30 @@ export default function Incidents() {
   const navigate = useNavigate();
   const [reportList, setReportList] = useState([])
 
-  const getReportList = async () => {
-    const { data } = await axios.get('http://localhost:2000/reports');
-    setReportList(data);
+  const getReportList = () => {
+    axios.get('http://localhost:2000/reports/all/today')
+    .then((res)=> setReportList(res.data))
+    .catch(function(error) {
+            console.log(error)
+        });
   };
 
   useEffect(() => {
     getReportList();
-
   }, []);
 
-  /*useEffect(()=> {  
-      axios.get('http://localhost:2000/') 
-      .then((res)=> setReportList(res.data));
-  }, []);*/
-
-  /* let displayReport(){ reportList.map((report)=>{
-      if (report.time === today){
-        return <IncidentListItem
-                incidentType: report.incident
-                incidentTime: kiv
-                incidentLocation: kiv
-                incidentDescription: report.description
-              />
-      }
+  /*const getTodayList = () => {
+    let i;
+    console.log(reportList[0])
+    if (listOfReports.length!=0){
+        for (i=0; i<listOfReports.length; i++){
+            if (listOfReports[i].date !== Date.now().toString().substring(0,9)){
+              listOfReports.splice(i, 1)
+            }
+        }
     }
-  });*/
+    setReportList(listOfReports)
+  }*/
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -245,15 +245,14 @@ export default function Incidents() {
                   Report Incident
               </Button> 
               </Grid>
-
              {reportList.map((report: Report) => (
               <IncidentListItem 
-                incidentType={report.incident}
-                incidentTime={report.timestamp.toString()}
+                incidentType={report.incident.toUpperCase()}
+                incidentTime={report.time}
                 incidentLocation={report.address}
                 incidentDescription={report.description}
                 />
-              ))}
+                ))}
 
             </Grid>
           </Container>
