@@ -7,10 +7,10 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import FmdGoodOutlinedIcon from '@mui/icons-material/FmdGoodOutlined';
 
 interface IncidentListItemProps {
-    incidentType: string
-    incidentTime: string
-    incidentLocation: string
-    incidentDescription: string 
+    incidentType: String
+    incidentTime: String
+    incidentLocation: String
+    incidentDescription: String 
 }
   
 const IncidentListItem: FC<IncidentListItemProps> = ({incidentType, incidentTime, incidentLocation, incidentDescription}) => {

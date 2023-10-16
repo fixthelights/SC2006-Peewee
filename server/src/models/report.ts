@@ -13,6 +13,7 @@ const ReportSchema = new Schema({
     long: { type: Schema.Types.Decimal128, required: true },
     lat: { type: Schema.Types.Decimal128, required: true }
   },
+  address: {type: String, required: true},
   duration_hours: { type: Number, required: true },
   description: { type: String, required: true },
   timestamp: { type: Date, default: Date.now() },

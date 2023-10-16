@@ -14,7 +14,6 @@ var forgetPasswordEmail = new SibApiV3Sdk.SendSmtpEmail(); // SendSmtpEmail | Va
 
 export async function sendForgetEmail(to : UserDocument, link : String) {
     try {
-
         forgetPasswordEmail = {
             to: [{
                 email: to.email,

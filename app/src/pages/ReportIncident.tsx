@@ -271,11 +271,12 @@ export default function ReportIncident() {
     setSubmissionStatus(true);
     axios.post('http://localhost:2000/reports', {
             incident: incidentType,
-            description: incidentDescription,
             location: {
-                lat: latitude,
-                long: longitude
+              lat: latitude,
+              long: longitude
             },
+            address : incidentLocation,
+            description: incidentDescription,
             duration_hours: date.getHours()
         })
         .then((res)=> console.log(res.data))

@@ -40,6 +40,7 @@ exports.submitReport = async (req :Request, res :Response) => {
     const report = new Report;
     report.incident = json.incident;
     report.location = json.location;
+    report.address = json.address;
     report.duration_hours = json.duration_hours;
     report.description = json.description;
 

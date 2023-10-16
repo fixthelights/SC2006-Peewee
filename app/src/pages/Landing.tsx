@@ -14,7 +14,8 @@ function Landing() {
     function testBackend() {
 
          axios.get('http://localhost:2000/reports/')
-        .then((res)=> console.log(res.data))
+        .then((res)=> setUserList(res.data))
+        .then (() => console.log(userList))
         .catch(function(error) {
             console.log(error);
         });
@@ -26,11 +27,6 @@ function Landing() {
         .then((res)=> console.log(res.data))
         .catch(function(error) {
             console.log(error.message);
-            if (error.message === "Request failed with status code 404"){
-                console.log(true)
-            }else{
-                console.log(false)
-            }
         });*/
 
         /*axios.post('http://localhost:2000/users/register',{

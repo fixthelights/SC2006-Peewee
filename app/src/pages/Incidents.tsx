@@ -23,7 +23,20 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-// import IncidentListItem from '../components/IncidentListItem';
+import {IncidentListItem} from '../components/IncidentListItem';
+
+interface Report {
+  incident: String,
+  location: {
+    long: Number
+    lat: Number
+  },
+  address: String
+  duration_hours: Number
+  description: String
+  timestamp: Date
+  reported_by: String
+}
 
 const drawerWidth: number = 240;
 
@@ -233,166 +246,15 @@ export default function Incidents() {
               </Button> 
               </Grid>
 
-              {/*{reportList.map((report: Object) => (
-              <Grid item xs={12} md={12} lg={12}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 240,
-                    overflow: 'auto'
-                  }}
-                >
-                  <Stack spacing={2} direction="row" paddingX={2} paddingY={2}>
-                  <Typography
-                    component="h1"
-                    variant="body1"
-                    color="inherit"
-                    noWrap
-                  >
-                    {report["incident"]}
-                  </Typography>
-                  <AccessTimeIcon />
-                    <Typography
-                      component="h1"
-                      variant="body1"
-                      color="inherit"
-                      noWrap
-                    >
-                    Time
-                  </Typography>
-                  <FmdGoodOutlinedIcon />
-                    <Typography
-                      component="h1"
-                      variant="body1"
-                      color="inherit"
-                      noWrap
-                    >
-                    Location
-                  </Typography>
-                  </Stack>
-                  <Typography
-                      component="h1"
-                      variant="body1"
-                      color="inherit"
-                      paddingX={2}
-                      paddingY={2}
-                    >
-                   -
-                  </Typography>
-                </Paper>
-              </Grid>))}
-              <Grid item xs={12} md={12} lg={12}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 240,
-                    overflow: 'auto'
-                  }}
-                >
-                  <Stack spacing={2} direction="row" paddingX={2} paddingY={2}>
-                  <Typography
-                    component="h1"
-                    variant="body1"
-                    color="inherit"
-                    noWrap
-                  >
-                    INCIDENT TYPE
-                  </Typography>
-                  <AccessTimeIcon />
-                    <Typography
-                      component="h1"
-                      variant="body1"
-                      color="inherit"
-                      noWrap
-                    >
-                    Time
-                  </Typography>
-                  <FmdGoodOutlinedIcon />
-                    <Typography
-                      component="h1"
-                      variant="body1"
-                      color="inherit"
-                      noWrap
-                    >
-                    Location
-                  </Typography>
-                  </Stack>
-                  <Typography
-                      component="h1"
-                      variant="body1"
-                      color="inherit"
-                      paddingX={2}
-                      paddingY={2}
-                    >
-                   -
-                  </Typography>
-                </Paper>
-                </Grid>*/}
-              
-              <Grid item xs={12} md={12} lg={12}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 240,
-                  }}
-                >
-                  <Typography
-                    component="h1"
-                    variant="h6"
-                    color="inherit"
-                    noWrap
-                    sx={{ flexGrow: 1 }}
-                  >
-                    PEEWEE
-                  </Typography>
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={12} lg={12}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 240,
-                  }}
-                >
-                  <Typography
-                    component="h1"
-                    variant="h6"
-                    color="inherit"
-                    noWrap
-                    sx={{ flexGrow: 1 }}
-                  >
-                    PEEWEE
-                  </Typography>
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={12} lg={12}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 240,
-                  }}
-                >
-                  <Typography
-                    component="h1"
-                    variant="h6"
-                    color="inherit"
-                    noWrap
-                    sx={{ flexGrow: 1 }}
-                  >
-                    PEEWEE
-                  </Typography>
-                </Paper>
-              </Grid>
+             {reportList.map((report: Report) => (
+              <IncidentListItem 
+                incidentType={report.incident}
+                incidentTime={report.timestamp.toString()}
+                incidentLocation={report.address}
+                incidentDescription={report.description}
+                />
+              ))}
+
             </Grid>
           </Container>
         </Box>
