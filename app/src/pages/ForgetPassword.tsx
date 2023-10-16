@@ -9,16 +9,13 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from 'react'
-import { ForgetPasswordController } from '../classes/ForgetPasswordController';
 import Alert from '@mui/material/Alert';
 import Link from '@mui/material/Link';
-import { AuthController } from '../classes/AuthController';
-import axios from 'axios'
+import { AuthManager} from '../classes/AuthManager';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
-const forgetPasswordController = new ForgetPasswordController()
-const authController = new AuthController()
+const authController = new AuthManager()
 
 export default function ForgetPassword() {
   const navigate = useNavigate();
@@ -61,7 +58,7 @@ export default function ForgetPassword() {
 
     event.preventDefault()
 
-    //let otpGenerated = forgetPasswordController.generateOTP()
+    //let otpGenerated = authManager.generateOTP()
     let otpGenerated = 12345678
 
     /*axios.post('http://localhost:2000/users/forget-password',{

@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from "react-router-dom";
-import {AuthController} from "../classes/AuthController"
+import {AuthManager} from "../classes/AuthManager"
 import Alert from '@mui/material/Alert';
 import 'reactjs-popup/dist/index.css';
 import { useState, useEffect } from 'react';
@@ -20,7 +20,7 @@ import axios from 'axios'
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
-const authController = new AuthController()
+const authManager = new AuthManager()
 
 export default function Register() {
   
@@ -76,8 +76,8 @@ export default function Register() {
     setIsSubmitted(true);
 
     let userExists = false;
-    let emailFormatValid = authController.validateEmailAddressFormat(email)
-    let passwordValid = authController.checkPasswordValidity(password)
+    let emailFormatValid = authManager.validateEmailAddressFormat(email)
+    let passwordValid = authManager.checkPasswordValidity(password)
 
     if (emailFormatValid){
       userExists = checkMatchingEmail()

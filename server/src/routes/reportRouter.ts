@@ -11,7 +11,7 @@ router.get('/:reportId',reportController.getOneReport);
 // GET request for the current day's report
 router.get('/today/all', reportController.getTodayReports);
 
-// GET request for the most recent 5 reporrts
+// GET request for the most recent 3 reporrts
 router.get('/today/recent', reportController.getRecentReports);
 
 // POST request to submit a new report

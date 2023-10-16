@@ -21,7 +21,6 @@ import { useNavigate } from "react-router-dom";
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import Chart from '../components/Chart';
 import Link from '@mui/material/Link';
-import {RecentIncidentList} from '../components/RecentIncidentList';
 import axios from 'axios'
 import {useState, useEffect} from 'react'
 import Table from '@mui/material/Table';

@@ -114,14 +114,6 @@ function Landing() {
             console.log(error);
         });*/
 
-    const testRG = () => {
-        axios.get("https://eu1.locationiq.com/v1/reverse?key=pk.565aea3b0b4252d7587da4689cd6869e&lat=1.3483&lon=103.6831&format=json")
-        .then((res)=> console.log(res.data['display_name']))
-        .catch(function(error) {
-            console.log(error);
-        });
-    }
-
     return (
         <div className='Landing'>
             <h1>Take Control of Your Journey</h1>
@@ -144,12 +136,6 @@ function Landing() {
                     onClick={testBackend}
                 >
                     Test Backend 
-                </Button>
-                <Button 
-                    variant="contained" 
-                    onClick={testRG}
-                >
-                    Test Reverse Geolocation
                 </Button>
             </Stack>
         </div>

@@ -22,7 +22,6 @@ import Button from '@mui/material/Button';
 import { useState, useEffect } from 'react';
 import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
-import { ReportController } from "../classes/ReportController";
 import axios from 'axios'
 import {MouseEvent} from 'react'
 
@@ -97,7 +96,6 @@ export default function ReportIncident() {
   };
 
   const navigate = useNavigate();
-  const reportController = new ReportController();
 
   const [incidentType, setIncidentType] = useState('');
   const [incidentLocation, setIncidentLocation] = useState('');
