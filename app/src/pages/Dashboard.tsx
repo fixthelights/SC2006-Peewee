@@ -162,7 +162,7 @@ export default function Dashboard() {
                 </ListItemIcon>
                 <ListItemText primary="Map" />
               </ListItemButton>
-              <ListItemButton>
+              <ListItemButton onClick={() => navigate("/roadconditions")}>
                 <ListItemIcon>
                   <TrafficOutlinedIcon />
                 </ListItemIcon>

@@ -1,4 +1,3 @@
-export {};
 import React from 'react';
 import { FC } from 'react';
 import ImageAPI from '../components/ImageAPI'; // Import the ImageAPI component
