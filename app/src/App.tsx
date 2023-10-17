@@ -1,5 +1,6 @@
 import React from 'react';
 import {Landing, Login, Register, ForgetPassword, SetNewPassword, Dashboard, Incidents, ReportIncident} from './pages/PageIndex'
+
 import {
   BrowserRouter as Router,
   Routes,
@@ -8,10 +9,10 @@ import {
 import axios from 'axios'
 import RoadConditions from './pages/RoadConditions';
 
-import MapSection from './components/Map' // import the map here
+//import MapSection from './components/Map' // import the map here
 
 
-import './app.css'
+import './App.css'
   
 function App() {
   return (
@@ -35,4 +36,4 @@ function App() {
 
 
 
-export default App;
+export default App
