@@ -19,7 +19,7 @@ function Landing() {
             console.log(error);
         });*/
 
-        axios.get('http://localhost:2000/routes')
+        axios.get('http://localhost:2000/reports')
         .then ((res) => console.log(res.data))
         .catch(function(error) {
             console.log(error);

@@ -46,6 +46,18 @@ interface Report {
   reported_by: String
 }
 
+interface Route {
+  source: {
+    longitude: Number,
+    latitude: Number
+  },
+  destination: {
+    longitude: Number, 
+    latitude: Number
+  },
+  description: String
+}
+
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean;
 }
@@ -287,7 +299,7 @@ export default function Dashboard() {
                     <TableBody>
                       {incidentList.map((report: Report) => (
                         <TableRow>
-                          <TableCell>{report.incident}</TableCell>
+                          <TableCell>{report.incident.toUpperCase()}</TableCell>
                           <TableCell>{report.time}</TableCell>
                           <TableCell>{report.address}</TableCell>
                         </TableRow>
@@ -309,7 +321,23 @@ export default function Dashboard() {
                     height: 320,
                   }}
                 >
-                  <FavouriteRoutesList list={routeList}/>
+                  <Title>Favorite routes</Title>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>From</TableCell>
+                        <TableCell>To</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {routeList.map((route: Route) => (
+                        <TableRow>
+                          <TableCell>{route.source.latitude.toString() + "," + route.source.longitude.toString()}</TableCell> 
+                          <TableCell>{route.destination.latitude.toString() + "," + route.destination.longitude.toString()}</TableCell> 
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                   <Link color="primary" href="#" sx={{ mt: 3 }}>
                     See all routes
                   </Link>
