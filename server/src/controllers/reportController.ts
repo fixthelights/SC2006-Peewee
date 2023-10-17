@@ -4,7 +4,7 @@ import Report from '../models/report';
 
 exports.getAllReports = async (req :Request, res :Response) => {
     try{
-        const reports = await Report.find().exec();
+        const reports = await Report.find();
         return res.status(200).send(reports)
     }catch(error: any){
         throw new AppError({

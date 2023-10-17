@@ -13,17 +13,17 @@ function Landing() {
 
     function testBackend() {
 
-        axios.delete('http://localhost:2000/reports/652d17fc4c366326759ebfbe')
-        .then ((res) => console.log(res.data))
-        .catch(function(error) {
-            console.log(error);
-        });
-
-        /*axios.get('http://localhost:2000/routes/')
+        /*axios.delete('http://localhost:2000/reports/652d17fc4c366326759ebfbe')
         .then ((res) => console.log(res.data))
         .catch(function(error) {
             console.log(error);
         });*/
+
+        axios.get('http://localhost:2000/routes')
+        .then ((res) => console.log(res.data))
+        .catch(function(error) {
+            console.log(error);
+        });
 
         /*axios.post('http://localhost:2000/reports/', {
             incident: "Accident",

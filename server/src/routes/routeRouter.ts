@@ -17,4 +17,5 @@ router.put('/:id', routeController.updateRoutes);
     
     //delete(DELETE BY ID)
 router.delete('/:id',routeController.deleteRoutes);
-    
+
+module.exports = router;
