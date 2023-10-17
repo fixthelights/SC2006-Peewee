@@ -8,6 +8,7 @@ import {
 } from 'react-router-dom';
 import axios from 'axios'
 import RoadConditions from './pages/RoadConditions';
+import Map from './pages/Map';
 
 //import MapSection from './components/Map' // import the map here
 
@@ -26,6 +27,7 @@ function App() {
           <Route path="/forgetpassword" element={<ForgetPassword/>} />
           <Route path="/setnewpassword" element={<SetNewPassword />} />
           <Route path="/incidents" element={<Incidents />} />
+          <Route path="/map" element={<Map />} />
           <Route path="/reportincident" element={<ReportIncident />} />
           <Route path="/roadconditions" element={<RoadConditions />} />
         </Routes>

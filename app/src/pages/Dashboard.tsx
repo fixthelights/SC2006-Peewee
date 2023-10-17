@@ -156,7 +156,7 @@ export default function Dashboard() {
                 </ListItemIcon>
                 <ListItemText primary="Incidents" />
               </ListItemButton>
-              <ListItemButton onClick={() => navigate("/Map")}>
+              <ListItemButton onClick={() => navigate("/map")}>
                 <ListItemIcon>
                  <MapOutlinedIcon />
                 </ListItemIcon>
