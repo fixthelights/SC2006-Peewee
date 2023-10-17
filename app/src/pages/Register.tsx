@@ -34,6 +34,7 @@ export default function Register() {
   const [isExistingUser, setIsExistingUser] = useState(false);
   const [isInvalidPassword, setIsInvalidPssword] = useState(true);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSuccessfulRegister, setIsSuccessfulRegister] = useState(false)
   const [userList, setUserList] = useState([])
 
   const getUserList = async () => {
@@ -55,10 +56,6 @@ export default function Register() {
       i++;
     }
     return foundMatching;
-  };
-
-  const handleUsername = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(event.target.value);
   };
 
   const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,16 +83,14 @@ export default function Register() {
     // save user in database
     if (!userExists && passwordValid){
       axios.post('http://localhost:2000/users/register', {
-        username : "b",
         email: email,
         password: password,
-        firstName: "b",
-        lastName: "b",
-        phone: "b"
       })
       .then((res)=> console.log(res.data))
+      .then ((res) => setIsSuccessfulRegister(true))
       .catch(function(error) {
         console.log(error);
+        setIsSuccessfulRegister(false)
       })
     }
 
@@ -115,7 +110,7 @@ export default function Register() {
       if (isExistingUser){
         return <Alert severity="info"> Existing user. </Alert>
       }
-      return null;
+      return null
     }
     return null; 
   }
@@ -134,6 +129,9 @@ export default function Register() {
     if (isSubmitted){
       if (!isExistingUser && !isInvalidPassword) {
         return <Alert severity="info">Registration is successful.</Alert>
+      }
+      if (!isExistingUser && !isInvalidPassword && !isSuccessfulRegister){
+        return <Alert severity="info">Error in Registration</Alert>
       }
      return null;
     }
@@ -160,16 +158,6 @@ export default function Register() {
           </Typography>
           <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="email"
-                  label="Username"
-                  name="email"
-                  onChange={handleUsername}
-                />
-              </Grid>
               <Grid item xs={12}>
                 <TextField
                   required

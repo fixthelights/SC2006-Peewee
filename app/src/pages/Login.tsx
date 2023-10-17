@@ -43,7 +43,7 @@ export default function Login() {
     event.preventDefault()
 
     axios.post('http://localhost:2000/users/login',{
-            username: "hiiii",
+            email: email,
             password: password
         })
         .then((res)=> console.log(res.data))

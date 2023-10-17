@@ -111,17 +111,17 @@ export default function ReportIncident() {
     let lat = 1000
     let long = 1000
 
-    //setLatitude(1.3456) //Jurong West Address 
-    //setLongitude(103.704116) /Jurong West Address 
+    setLatitude(1.3456) //Jurong West Address 
+    setLongitude(103.704116) //Jurong West Address 
 
-    navigator.geolocation.getCurrentPosition(function(position) {
+    /*navigator.geolocation.getCurrentPosition(function(position) {
       console.log("Latitude is :", position.coords.latitude);
       console.log("Longitude is :", position.coords.longitude);
       lat = position.coords.latitude;
       long = position.coords.longitude;
       setLatitude(lat)
       setLongitude(long)
-    })
+    })*/
   }, []);
 
   const LocationMessage = () => {

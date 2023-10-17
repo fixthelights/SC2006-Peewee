@@ -112,7 +112,7 @@ exports.forgetPassword = async ( req: Request, res: Response ) => {
 
         const link = req.protocol + "://" + req.get('host') + req.originalUrl + "/" + verifiedUser._id + "/" + token.token;
         console.log(link);
-        await sendForgetEmail(verifiedUser.email, link);
+        // await sendForgetEmail(verifiedUser.email, "Password reset", link);
 
         return res.status(200).send("Password reset link sent to your email account");
     } catch (error) {

@@ -15,11 +15,9 @@ import Paper from '@mui/material/Paper';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import {Deposits} from '../components/Deposits';
-import {FavouriteRoutesList} from '../components/FavouriteRoutesList';
 import {ListItemButton, ListItemIcon, ListItemText, DashboardIcon, CarCrashOutlinedIcon, MapOutlinedIcon, TrafficOutlinedIcon , LogoutOutlinedIcon} from '../components/ListButtonIndex'
 import { useNavigate } from "react-router-dom";
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
-import Chart from '../components/Chart';
 import Link from '@mui/material/Link';
 import axios from 'axios'
 import {useState, useEffect} from 'react'
@@ -29,6 +27,9 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Title from '../components/Title';
+import { LineChart, Line, XAxis, YAxis, Label, ResponsiveContainer } from 'recharts';
+import { useTheme } from '@mui/material/styles';
+
 
 const drawerWidth: number = 240;
 
@@ -49,13 +50,21 @@ interface Report {
 interface Route {
   source: {
     longitude: Number,
-    latitude: Number
+    latitude: Number,
+    address: String
   },
   destination: {
     longitude: Number, 
-    latitude: Number
+    latitude: Number,
+    address: String
   },
   description: String
+}
+
+interface Traffic{
+    vehicle_avg: number,
+    vehicle_total: number,
+    time_of_day: string
 }
 
 interface AppBarProps extends MuiAppBarProps {
@@ -110,9 +119,16 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const defaultTheme = createTheme();
 
 export default function Dashboard() {
+
+  const theme = useTheme();
+
   const [open, setOpen] = useState(true);
   const [routeList, setRouteList] = useState([]);
   const [incidentList, setIncidentList] = useState([]);
+  const [trafficData, setTrafficData] = useState([])
+  const [isRouteLoaded, setIsRouteLoaded] = useState(false)
+  const [isIncidentLoaded, setIsIncidentLoaded] = useState(false)
+  const [isTrafficLoaded, setIsTrafficLoaded] = useState(false)
 
   const toggleDrawer = () => {
     setOpen(!open);
@@ -120,26 +136,164 @@ export default function Dashboard() {
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    getFavouriteRouteList();
+    getRecentIncidentList();
+    getTrafficData();
+  }, []);
+
   const getFavouriteRouteList = () => {
     axios.get('http://localhost:2000/routes')
     .then((res)=> setRouteList(res.data))
+    .then ((res)=> setIsRouteLoaded(true))
     .catch(function(error) {
             console.log(error)
+            setIsRouteLoaded(false)
         });
   };
 
   const getRecentIncidentList = () => {
     axios.get('http://localhost:2000/reports/today/recent')
     .then((res)=> setIncidentList(res.data))
+    .then ((res)=> setIsIncidentLoaded(true))
     .catch(function(error) {
             console.log(error)
+            setIsIncidentLoaded(false)
         });
   };
 
-  useEffect(() => {
-    getFavouriteRouteList();
-    getRecentIncidentList()
-  }, []);
+  const getTrafficData = () => {
+    axios.get('http://localhost:2000/traffic/combined-trends') 
+    .then ((res)=> setTrafficData(res.data.hourly_counts))
+    .then ((res)=> setIsTrafficLoaded(true))
+    .catch(function(error){
+      console.log(error)
+      setIsTrafficLoaded(false)
+    })
+  }
+
+  const TrafficTrend = () => {
+    if (isTrafficLoaded){
+        let data: Array<{time: string, amount: number}>= []
+        trafficData.forEach((traffic: Traffic) => {
+          if (parseInt(traffic["time_of_day"])<10){
+            data.push(createData("0"+traffic["time_of_day"]+":00", traffic["vehicle_total"]))
+          } else {
+            data.push(createData(traffic["time_of_day"]+":00", traffic["vehicle_total"]))
+          }
+        })
+        return <React.Fragment>
+                <Title>Past Traffic Trend</Title>
+                <ResponsiveContainer>
+                  <LineChart
+                    data={data}
+                    margin={{
+                      top: 16,
+                      right: 16,
+                      bottom: 0,
+                      left: 24,
+                    }}
+                  >
+                    <XAxis
+                      dataKey="time"
+                      stroke={theme.palette.text.secondary}
+                      style={theme.typography.body2}
+                      tickCount={5}
+                    />
+                    <YAxis
+                      stroke={theme.palette.text.secondary}
+                      style={theme.typography.body2}
+                    >
+                      <Label
+                        angle={270}
+                        position="left"
+                        style={{
+                          textAnchor: 'middle',
+                          fill: theme.palette.text.primary,
+                          ...theme.typography.body1,
+                        }}
+                      >
+                        Total cars 
+                      </Label>
+                    </YAxis>
+                    <Line
+                      isAnimationActive={false}
+                      type="monotone"
+                      dataKey="amount"
+                      stroke={theme.palette.primary.main}
+                      dot={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </React.Fragment>
+    }else{
+      return <Title>Error in loading. Please refresh the page.</Title>
+    }
+  }
+
+  const IncidentList = () => {
+    if (isIncidentLoaded){
+      return    <React.Fragment>
+                <Title>Recent Incidents</Title>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Incident</TableCell>
+                        <TableCell>Time</TableCell>
+                        <TableCell>Address</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {incidentList.map((report: Report) => (
+                        <TableRow>
+                          <TableCell>{report.incident.toUpperCase()}</TableCell>
+                          <TableCell>{report.time}</TableCell>
+                          <TableCell>{report.address}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  <Link color="primary" href="#" onClick={() => navigate("/incidents")} sx={{ mt: 3 } }>
+                    See all incidents
+                  </Link>
+                  </React.Fragment>
+    } else {
+      return <Title>Error in loading. Please refresh the page.</Title>
+    }
+  }
+
+  const FavouriteRouteList = () => {
+    if (isRouteLoaded){
+      return  <React.Fragment>
+              <Title>Favorite routes</Title>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>From</TableCell>
+                    <TableCell>To</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {routeList.map((route: Route) => (
+                    <TableRow>
+                      <TableCell>{route.source.address}</TableCell> 
+                      <TableCell>{route.destination.address}</TableCell> 
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <Link color="primary" href="#" sx={{ mt: 3 }}>
+                See all routes
+              </Link>
+              </React.Fragment>
+    } else {
+      return <Title>Error in loading. Please refresh the page.</Title>
+    }
+  }
+
+  function createData(time: string, amount: number) {
+    return { time, amount };
+  }
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -261,10 +415,9 @@ export default function Dashboard() {
                     height: 360,
                   }}
                 >
-                  <Chart />
+                <TrafficTrend />
                 </Paper>
-              </Grid>
-              {/* Recent Deposits */}
+                    </Grid>
               <Grid item xs={12} md={6} lg={6}>
                 <Paper
                   sx={{
@@ -287,31 +440,9 @@ export default function Dashboard() {
                     overflow: 'auto'
                   }}
                 >
-                  <Title>Recent Incidents</Title>
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Incident</TableCell>
-                        <TableCell>Time</TableCell>
-                        <TableCell>Address</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {incidentList.map((report: Report) => (
-                        <TableRow>
-                          <TableCell>{report.incident.toUpperCase()}</TableCell>
-                          <TableCell>{report.time}</TableCell>
-                          <TableCell>{report.address}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                  <Link color="primary" href="#" onClick={() => navigate("/incidents")} sx={{ mt: 3 } }>
-                    See all incidents
-                  </Link>
+                <IncidentList />
                 </Paper>
               </Grid>
-              {/* Recent Deposits */}
               <Grid item xs={12} md={6} lg={4}>
                 <Paper
                   sx={{
@@ -321,26 +452,7 @@ export default function Dashboard() {
                     height: 320,
                   }}
                 >
-                  <Title>Favorite routes</Title>
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>From</TableCell>
-                        <TableCell>To</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {routeList.map((route: Route) => (
-                        <TableRow>
-                          <TableCell>{route.source.latitude.toString() + "," + route.source.longitude.toString()}</TableCell> 
-                          <TableCell>{route.destination.latitude.toString() + "," + route.destination.longitude.toString()}</TableCell> 
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                  <Link color="primary" href="#" sx={{ mt: 3 }}>
-                    See all routes
-                  </Link>
+                <FavouriteRouteList />
                 </Paper>
               </Grid>
             </Grid>

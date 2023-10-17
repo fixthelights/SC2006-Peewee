@@ -121,35 +121,136 @@ More Information [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
 Maybe Route can just include source and destination.
 
 ## Traffic
-> Current Conjestion levels, History of Car counts
+The traffic API endpoint has 2 collection of resources: `conditions` and `trends`.
 
-`/traffic-conditions` 
-- Return all traffic camera locations and car counts
+Do **note** that the following endpoints **may not return data on all 90 traffic cameras**. It depends on LTA's data and our AI's error rate.
 
-```javascript
+### Traffic Conditions
+
+#### `GET` `/traffic/combined-conditions`
+> Returns the latest, information on traffic conditions by consolidating all processed traffic cameras.
+```json
 {
-    camera1:{
-        location: {
-            long: 1.021201,
-            lat: 1.212121
-        },
-    car-count-history:[
-        {
-            timestamp: 1pm,
-            car-count: 100
-        },
-        {
-            timestamp: 2pm,
-            car-count: 120
-        },
-        {
-            timestamp: 3pm,
-            car-count: 140
-        }
-    ]
-    }
+    "camera_count": 89,
+    "vehicle_total": 167,
+    "vehicle_avg": 2,
+    "taken_at": "10/16/2023, 2:57:23 AM"
 }
 ```
+---
+#### `GET` `/traffic/conditions`
+> Returns the latest information on traffic conditions of all processed traffic cameras.
+```json
+{
+    "date": "10/16/2023, 2:57:23 AM",
+    "camera_count": 89,
+    "cameras": [
+        {
+            "camera_name": "1001",
+            "camera_id": "6529c77c46a5bed4455082dc",
+            "location": {
+                "long": 103.871146,
+                "lat": 1.29531332
+            },
+            "url": "https://images.data.gov.sg/api/traffic-images/2023/10/e461432d-7643-4735-9504-86048e8af35d.jpg",
+            "vehicle_count": 0
+        },
+        {
+            "camera_name": "1002",
+            "camera_id": "6529c74146a5bed445508171",
+            "location": {
+                "long": 103.8785627,
+                "lat": 1.319541067
+            },
+            "url": "https://images.data.gov.sg/api/traffic-images/2023/10/c12fe59e-5106-4d94-b0e7-7d9536ef9acb.jpg",
+            "vehicle_count": 3
+        }
+        ...
+    ]
+}
+```
+---
+#### `GET` `/traffic/conditions/:cameraId`
+> Returns the latest information on traffic conditions of one processed traffic camera.
+```json
+{
+    "date": "10/16/2023, 2:57:23 AM",
+    "camera_name": "1001",
+    "camera_id": "6529c77c46a5bed4455082dc",
+    "location": {
+        "long": 103.871146,
+        "lat": 1.29531332
+    },
+    "url": "https://images.data.gov.sg/api/traffic-images/2023/10/e461432d-7643-4735-9504-86048e8af35d.jpg",
+    "vehicle_count": 0
+}
+```
+**Defined Error Types**
+> Check with error.type === "MyErrorType"
+
+`CameraNotFoundError`
+
+### Traffic Trends
+
+#### `GET` `/traffic/combined-trends`
+> Returns traffic trends by consolidating all processed traffic cameras.
+- time_of_day ranges from 0 to 23
+
+```json
+{
+    "generated_at": "10/14/2023, 11:52:33 AM",
+    "hourly_counts": [
+        {
+            "time_of_day": 0,
+            "vehicle_avg": 5,
+            "vehicle_total": 416
+        },
+        {
+            "time_of_day": 1,
+            "vehicle_avg": 4,
+            "vehicle_total": 344
+        },
+        ...
+        {
+            "time_of_day": 23,
+            "vehicle_avg": 5,
+            "vehicle_total": 444
+        }
+    ]
+}
+```
+---
+#### `GET` `/traffic/trends/:cameraId`
+> Returns the traffic trends of one processed traffic camera.
+```json
+{
+    "camera_id": "6529c77c46a5bed4455082dc",
+    "last_updated": "10/14/2023, 11:52:33 AM",
+    "location": {
+        "long": 103.871146,
+        "lat": 1.29531332
+    },
+    "hourly_counts": [
+        {
+            "time_of_day": 0,
+            "vehicle_count": 0
+        },
+        {
+            "time_of_day": 1,
+            "vehicle_count": 0
+        },
+        ...
+        {
+            "time_of_day": 23,
+            "vehicle_count": 0
+        }
+    ]
+}
+```
+**Defined Error Types**
+> Check with error.type === "MyErrorType"
+
+`CameraNotFoundError`
 
 ## Cameras
 > Picture, Location, Time, Car Count

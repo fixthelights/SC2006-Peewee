@@ -32,8 +32,9 @@ app.use(cors());
 // Define API Routes
 app.use('/users',userRouter);
 app.use('/reports',reportRouter);
-app.use('/traffic-condition', trafficRouter);
+app.use('/traffic', trafficRouter);
 app.use('/routes',routeRouter);
+
 
 // Catch 404 and forward to error handler
 app.use((req: Request, res: Response) => {

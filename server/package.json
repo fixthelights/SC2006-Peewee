@@ -26,6 +26,8 @@
     "sib-api-v3-sdk": "^8.5.0",
     "node-cron": "^3.0.2",
     "nodemon": "^3.0.1",
+    "onnxruntime-node": "^1.16.1",
+    "sharp": "^0.32.6",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   },

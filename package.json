@@ -1,5 +1,7 @@
 {
   "dependencies": {
-    "@mui/x-charts": "^6.0.0-alpha.15"
+    "@mui/x-charts": "^6.0.0-alpha.15",
+    "mdbreact": "^5.2.0",
+    "react-chartjs-2": "^5.2.0"
   }
 }

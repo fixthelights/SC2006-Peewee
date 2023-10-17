@@ -20,6 +20,8 @@ import Button from '@mui/material/Button';
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import {IncidentListItem} from '../components/IncidentListItem';
+import Title from '../components/Title';
+import Alert from '@mui/material/Alert';
 
 interface Report {
   incident: String,
@@ -97,12 +99,15 @@ export default function Incidents() {
 
   const navigate = useNavigate();
   const [reportList, setReportList] = useState([])
+  const [isReportLoaded, setIsReportLoaded] = useState(false)
 
   const getReportList = () => {
     axios.get('http://localhost:2000/reports/today/all')
     .then((res)=> setReportList(res.data))
+    .then ((res)=> setIsReportLoaded(true))
     .catch(function(error) {
             console.log(error)
+            setIsReportLoaded(false)
         });
   };
 
@@ -110,18 +115,15 @@ export default function Incidents() {
     getReportList();
   }, []);
 
-  /*const getTodayList = () => {
-    let i;
-    console.log(reportList[0])
-    if (listOfReports.length!=0){
-        for (i=0; i<listOfReports.length; i++){
-            if (listOfReports[i].date !== Date.now().toString().substring(0,9)){
-              listOfReports.splice(i, 1)
-            }
-        }
+  const Message = () => {
+    if (isReportLoaded && reportList.length===0){
+      return <Alert severity="info">There are no incidents reported today.</Alert>
     }
-    setReportList(listOfReports)
-  }*/
+    if (!isReportLoaded){
+      return <Alert severity="info">Error in loading. Please refresh the page again.</Alert>
+    }
+    return null;
+  }
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -241,7 +243,7 @@ export default function Incidents() {
                   Report Incident
               </Button> 
               </Grid>
-             {reportList.map((report: Report) => (
+              {reportList.map((report: Report) => (
               <IncidentListItem 
                 incidentType={report.incident.toUpperCase()}
                 incidentTime={report.time}
@@ -249,7 +251,9 @@ export default function Incidents() {
                 incidentDescription={report.description}
                 />
                 ))}
-
+                <Grid item sx={{pt:2}}>
+                  <Message/>
+                </Grid>
             </Grid>
           </Container>
         </Box>

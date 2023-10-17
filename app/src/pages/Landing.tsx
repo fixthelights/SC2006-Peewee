@@ -19,7 +19,7 @@ function Landing() {
             console.log(error);
         });*/
 
-        axios.get('http://localhost:2000/reports')
+        axios.delete('http://localhost:2000/users/652a30ccb065a813578057d9')
         .then ((res) => console.log(res.data))
         .catch(function(error) {
             console.log(error);
