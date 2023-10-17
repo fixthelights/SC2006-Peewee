@@ -6,7 +6,7 @@ const routeSchema = new mongoose.Schema({
     source: {
         longitude: Number,
         latitude: Number,
-        address: String
+        address: String 
     },
     destination: {
         longitude: Number, 
