@@ -18,12 +18,9 @@ export async function sendForgetEmail(to : UserDocument, otp : String) {
         forgetPasswordEmail = {
             to: [{
                 email: to.email,
-                name: to.firstName + " " + to.lastName
             }],
             templateId: 1,
             params: {
-                firstName: to.firstName,
-                lastName: to.lastName,
                 otp: otp
             },
             headers: {

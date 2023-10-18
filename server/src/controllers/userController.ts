@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import jwt from "jsonwebtoken";
 import { SECRET_KEY } from '../middlewares/auth';
 
+
 const User = require("../models/user");
 const PasswordToken = require("../models/passwordToken");
 const userRouter = require("../routes/userRouter");
@@ -57,17 +58,17 @@ exports.getOneUser = async (req :Request, res :Response) => {
 // Create user with POST request
 exports.createUser = async (req :Request, res :Response) => {
     try{ 
-        const username = req.body.username;
+        // const email = req.body.email;
         const password = req.body.password;
         const email = req.body.email;
-        const firstName = req.body.firstName;
-        const lastName = req.body.lastName;
-        const phone = req.body.phone;
+        // const firstName = req.body.firstName;
+        // const lastName = req.body.lastName;
+        // const phone = req.body.phone;
 
         
-        if (username && password) {
+        if (email && password) {
             // Check if user already exists
-            if (!!await User.findOne({ username : username })) {
+            if (!!await User.findOne({ email : email })) {
                 throw new AppError({
                     type: "UserExistsError",
                     statusCode: 404,
@@ -75,7 +76,7 @@ exports.createUser = async (req :Request, res :Response) => {
                 });
             }
             // Create a new user instance
-            const newUser = new User({ username, password, email, firstName, lastName, phone});
+            const newUser = new User({ email, password});
 
             // Save the new user to the database
             await newUser.save();
@@ -97,34 +98,32 @@ exports.createUser = async (req :Request, res :Response) => {
 // Login with POST request
 exports.login = async (req : Request,res : Response) => {
     try {
-        const username = req.body.username;
+        const email = req.body.email;
         const password = req.body.password;
 
-        // If missing username or password
-        if (!username || !password) {
+        // If missing email or password
+        if (!email || !password) {
             throw new AppError({
                 type: "MissingLoginError",
                 statusCode: 404,
-                description: 'Username/Password is not entered.',
+                description: 'Email/Password is not entered.',
             });
         }
 
-        // If username & password match
-        const verifiedUser = await authenticatedUser( username , password )
+        // If email & password match
+        const verifiedUser = await authenticatedUser( email , password )
         if (verifiedUser) {
             const token = jwt.sign({ _id: verifiedUser._id?.toString(), name: verifiedUser.name }, SECRET_KEY, {
                 expiresIn: '2 days',
               });
-            res.cookie('jwt', token, { httpOnly: true, secure: true });
-            // res.json({ success: true, token });
-            console.log(res.cookie);
+
             console.log("User logged in successfully");
-            return res.status(200).json( {_id: verifiedUser._id, username: username, token: token} );
+            return res.status(200).json( {_id: verifiedUser._id, email: email, token: token} ); // Returns JWT for frontend to store
         } else {
             throw new AppError({
                 type: "UserVerificationError",
                 statusCode: 404,
-                description: 'Username/Password is invalid.',
+                description: 'Email/Password is invalid.',
             });
         }
     } catch(error: any){
@@ -141,11 +140,10 @@ exports.login = async (req : Request,res : Response) => {
 // POST request for forget password - Request change password
 exports.forgetPassword = async ( req: Request, res: Response ) => {
     try {
-        const username = req.body.username;
         const email = req.body.email;
-        const otp = generateOTP();
+        const email = req.body.email;
         
-        const verifiedUser = await User.findOne({username : username});
+        const verifiedUser = await User.findOne({email : email});
         if (!verifiedUser) {
             throw new AppError({
                 type: "UserNotFoundError",
@@ -157,9 +155,17 @@ exports.forgetPassword = async ( req: Request, res: Response ) => {
             throw new AppError({
                 type: "UserVerificationError",
                 statusCode: 404,
-                description: 'Email does not match username.',
+                description: 'Email does not match email.',
             });
         }
+        
+        // Check if token exists, if not, create a new password token
+        let token = await PasswordToken.findOne({ userId: verifiedUser._id });
+        // Generate 6 digit OTP for password reset token
+        token = await new PasswordToken({
+                userId: verifiedUser._id,
+                token: generateOTP(6),  
+            }).save();
 
         // Send email to user with reset link
         // let token = await PasswordToken.findOne({ userId: verifiedUser._id });
@@ -174,7 +180,7 @@ exports.forgetPassword = async ( req: Request, res: Response ) => {
         // await sendForgetEmail(verifiedUser, link);
 
         // Send email to user with OTP
-        await sendForgetEmail(verifiedUser, otp);
+        await sendForgetEmail(verifiedUser, token.token);
 
         return res.status(200).send("Password reset code sent to your email account");
     } catch(error: any){
@@ -192,8 +198,8 @@ exports.forgetPassword = async ( req: Request, res: Response ) => {
 // POST request for forget password - Change password
 exports.validatePasswordToken = async (req: Request, res: Response) => {
     try {
-        // Get user by searching with username
-        const verifiedUser = await User.findOne({username: req.body.username});
+        // Get user by searching with email
+        const verifiedUser = await User.findOne({email: req.body.email});
 
         // If user not found
         // if (!verifiedUser) {
@@ -209,6 +215,7 @@ exports.validatePasswordToken = async (req: Request, res: Response) => {
             userId: verifiedUser.userId,
             token: req.params.token,
         });
+
         if (!token) {
             throw new AppError({
                 type: "InvalidResetTokenError",
@@ -238,7 +245,7 @@ exports.validatePasswordToken = async (req: Request, res: Response) => {
 exports.updateUser = async (req :Request, res :Response) => {
     try {
         const userId = req.params.userId;
-        const { username, password } = req.body;
+        const { email, password } = req.body;
 
         const user = await User.findById({userId : userId});
 
@@ -251,7 +258,7 @@ exports.updateUser = async (req :Request, res :Response) => {
         }
 
         // Update user properties
-        user.username = username;
+        user.email = email;
         user.password = password;
 
         // Save the updated user to the database
@@ -301,22 +308,10 @@ exports.deleteUser = async (req :Request, res :Response) => {
 
 ////////////////// Helper functions //////////////////
 
-// // Check if the user exists in our DB
-// const userExists = async (username : String) => {    
-//     try {
-//         const queriedUser = await User.findOne({ username : username });
-
-//         return !!queriedUser; // Returns true if the user exists, false otherwise
-//     } catch (error) {
-//         console.log(error);
-//         return false;
-//     }
-// };
-
-// Check if username and password match our DB
-const authenticatedUser = async ( username : String, password : String ) => {
-    const verifiedUser = await User.findOne({username : username});
-    return (verifiedUser.username === username && await verifyPassword(password,verifiedUser.password))? verifiedUser : false;
+// Check if email and password match our DB
+const authenticatedUser = async ( email : String, password : String ) => {
+    const verifiedUser = await User.findOne({email : email});
+    return (verifiedUser.email === email && await verifyPassword(password,verifiedUser.password))? verifiedUser : false;
 }
 
 // Verifying Password during Login
@@ -335,13 +330,12 @@ const verifyPassword = async (inputPassword : String, hashedPassword : String) =
 };
 
 
-const generateOTP = () => new Promise(res =>
-	// Uses Node Crypto to genarate cryptographically strong pseudo-random data
-	// crypto.randomBytes(size[, callback])
-	crypto.randomBytes(6, (err, buffer) => {
-		res(
-			parseInt(buffer.toString("hex"), 16)
-				.toString()
-		);
-	})
-);
+
+const generateOTP = (otpLen: number) => {
+    const permissableCharacters = '0123456789';
+    let OTP = '';
+    for (let i = 0; i < otpLen; i++) {
+        OTP += permissableCharacters[Math.floor(Math.random() * permissableCharacters.length)];
+    }
+    return OTP;
+}

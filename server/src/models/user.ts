@@ -3,17 +3,22 @@ const bcrypt = require('bcrypt');
 
 
 export interface UserDocument extends Document {
-    username: String;
-    password: String;
+    // username: String;
     email: String;
-    firstName: String;
-    lastName: String;
-    phone: String;
+    password: String;
+    // firstName: String;
+    // lastName: String;
+    // phone: String;
     createdAt: Date;
 }
 
 const UserSchema: Schema<UserDocument> = new Schema({
-    username: { 
+    // username: { 
+    //     type: String, 
+    //     required: true, 
+    //     unique: true
+    // },
+    email: { 
         type: String, 
         required: true, 
         unique: true
@@ -22,24 +27,20 @@ const UserSchema: Schema<UserDocument> = new Schema({
         type: String, 
         required: true
     },
-    email: { 
-        type: String, 
-        required: true, 
-        unique: true
-    },
-    firstName: { 
-        type: String, 
-        required: true
-    },
-    lastName: { 
-        type: String,
-        required: true,
-    },
-    phone: { 
-        type: String, 
-        required: true,
-        unique: true
-    },
+    
+    // firstName: { 
+    //     type: String, 
+    //     required: true
+    // },
+    // lastName: { 
+    //     type: String,
+    //     required: true,
+    // },
+    // phone: { 
+    //     type: String, 
+    //     required: true,
+    //     unique: true
+    // },
     createdAt: { 
         type: Date, 
         default: Date.now 

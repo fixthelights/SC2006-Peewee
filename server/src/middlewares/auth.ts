@@ -16,6 +16,7 @@ export interface CustomRequest extends Request {
 
 export const auth = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        // Get token from header - Need to create header when requesting
         const token = req.header("Authorisation")?.replace("Bearer ", "");
         
         if (!token) {
