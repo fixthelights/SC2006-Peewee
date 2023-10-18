@@ -39,7 +39,6 @@ export default function Login() {
     
     if (isSubmitted){   
 
-      // localStorage.removeItem('token');
       // // Check if JWT exists in local storage
       // let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
       // // userJwt = "null";
@@ -64,7 +63,6 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-
       isUserLoggedIn();
       
       // Make login request to server
@@ -122,7 +120,6 @@ export default function Login() {
   });*/
 
   async function isUserLoggedIn() {
-    localStorage.removeItem('token');
     // Check if JWT exists in local storage
     let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
     // userJwt = "";
