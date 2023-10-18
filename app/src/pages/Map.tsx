@@ -37,9 +37,10 @@ import {
   useMediaQuery,
   TextField,
   Button,
-  Stack
+  Stack,
 } from "@mui/material";
 import MapComponent from "../components/Map";
+import axios from "axios";
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
@@ -47,13 +48,15 @@ const defaultTheme = createTheme();
 export default function Map() {
   const [trafficFilters, setTrafficFilters] = React.useState([""]);
   const [incidentFilters, setIncidentFilters] = React.useState([""]);
+  const [cameras, setCameras] = React.useState<Array<CameraArray>>([]);
 
   const handleTrafficFilters = (
     event: React.MouseEvent<HTMLElement>,
     newFilters: string[]
   ) => {
-    if (newFilters.includes('show-all')) newFilters = ["accidents","city-cams","highway-cams"];
-    if (newFilters.includes('hide-all')) newFilters = [];
+    if (newFilters.includes("show-all"))
+      newFilters = ["accidents", "city-cams", "highway-cams"];
+    if (newFilters.includes("hide-all")) newFilters = [];
 
     setTrafficFilters(newFilters);
   };
@@ -62,11 +65,59 @@ export default function Map() {
     event: React.MouseEvent<HTMLElement>,
     newFilters: string[]
   ) => {
-    if (newFilters.includes('show-all')) newFilters = ["accidents","roadworks","closures"];
-    if (newFilters.includes('hide-all')) newFilters = [];
+    if (newFilters.includes("show-all"))
+      newFilters = ["accidents", "roadworks", "closures"];
+    if (newFilters.includes("hide-all")) newFilters = [];
 
     setIncidentFilters(newFilters);
   };
+
+  interface Camera{
+    camera_name: string,
+    location: {
+      long: number,
+      lat: number
+    },
+    vehicle_count: number
+  }
+
+  interface CameraArray{
+    cameraName: string,
+    lng: number,
+    lat: number,
+    vehicleCount: number
+  }
+
+  React.useEffect(() => {
+    const getData = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:2000/traffic/conditions"
+        );
+        console.log(response.data);
+        const allCameras = response.data.cameras;
+
+        let cameraArray: Array<CameraArray>= [];
+
+        allCameras.forEach(({ camera_name, location, vehicle_count} : Camera)=> {
+          cameraArray.push({
+            cameraName: camera_name,
+            lng: location.long,
+            lat: location.lat,
+            vehicleCount: vehicle_count
+          })
+        });
+
+        setCameras(cameraArray);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    getData();
+
+    return () => {};
+  });
 
   const theme = useTheme();
   const isScreenSmall = useMediaQuery(theme.breakpoints.down("sm"));
@@ -75,8 +126,10 @@ export default function Map() {
     <ThemeProvider theme={defaultTheme}>
       <CssBaseline />
       <AppFrame pageName="Map">
-        <Container sx={{ my: 3}}>
-          <Typography fontWeight="Bold" sx={{ my: 2 }}>Traffic Camera Filters</Typography>
+        <Container sx={{ my: 3 }}>
+          <Typography fontWeight="Bold" sx={{ my: 2 }}>
+            Traffic Camera Filters
+          </Typography>
           <ToggleButtonGroup
             value={trafficFilters}
             onChange={handleTrafficFilters}
@@ -90,8 +143,10 @@ export default function Map() {
             <ToggleButton value="hide-all">Hide all</ToggleButton>
           </ToggleButtonGroup>
         </Container>
-        <Container sx={{ my: 3}}>
-          <Typography fontWeight="Bold" sx={{ my: 2 }}>Incidents Filters</Typography>
+        <Container sx={{ my: 3 }}>
+          <Typography fontWeight="Bold" sx={{ my: 2 }}>
+            Incidents Filters
+          </Typography>
           <ToggleButtonGroup
             value={incidentFilters}
             onChange={handleIncidentFilters}
@@ -105,11 +160,17 @@ export default function Map() {
             <ToggleButton value="hide-all">Hide all</ToggleButton>
           </ToggleButtonGroup>
         </Container>
-        <Container sx={{ my: 3}}>
-          <Typography fontWeight="Bold" sx={{ my: 2 }}>Search Route</Typography>
-          <Stack direction="row" spacing={2} sx={{'& > :not(style)': {width: '35ch' }, my:2}}>
-            <TextField  label="Source" variant="outlined"/>
-            <TextField  label="Destination" variant="outlined" />
+        <Container sx={{ my: 3 }}>
+          <Typography fontWeight="Bold" sx={{ my: 2 }}>
+            Search Route
+          </Typography>
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{ "& > :not(style)": { width: "35ch" }, my: 2 }}
+          >
+            <TextField label="Source" variant="outlined" />
+            <TextField label="Destination" variant="outlined" />
           </Stack>
           <Stack direction="row" spacing={2}>
             <Button variant="contained">Search</Button>
@@ -118,7 +179,11 @@ export default function Map() {
           </Stack>
         </Container>
         <Container>
-          <MapComponent location={{lng: 103.851959, lat: 1.290270, address:"Singapore"}} zoomLevel={12}/>
+          <MapComponent
+            location={{ lng: 103.7992246, lat: 1.3687004, address: "Singapore" }}
+            zoomLevel={12}
+            cameras={cameras}
+          />
         </Container>
       </AppFrame>
     </ThemeProvider>
