@@ -141,7 +141,6 @@ exports.login = async (req : Request,res : Response) => {
 exports.forgetPassword = async ( req: Request, res: Response ) => {
     try {
         const email = req.body.email;
-        const email = req.body.email;
         
         const verifiedUser = await User.findOne({email : email});
         if (!verifiedUser) {
