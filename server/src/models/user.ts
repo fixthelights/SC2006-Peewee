@@ -4,8 +4,8 @@ const bcrypt = require('bcrypt');
 
 export interface UserDocument extends Document {
     // username: String;
-    email: String;
-    password: String;
+    email: string; 
+    password: string;
     // firstName: String;
     // lastName: String;
     // phone: String;

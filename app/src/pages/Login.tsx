@@ -14,8 +14,10 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from "react-router-dom";
 import {AuthController} from "../classes/AuthController"
-import { useState } from 'react';
+import { useState , useEffect } from 'react';
+import axios from 'axios';
 import Alert from '@mui/material/Alert';
+import { LegendToggleRounded } from '@mui/icons-material';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
@@ -31,11 +33,80 @@ export default function Login() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [userList, setUserList] = useState([])
 
-  /*useEffect(()=> {  
-      axios.get('http://localhost:2000/') 
-      .then((res)=> setUserList(res.data));
-  }, []);*/
+  useEffect( () => {
+    handleLogin();
+    console.log("Use effect");
+    
+    if (isSubmitted){   
 
+      // localStorage.removeItem('token');
+      // // Check if JWT exists in local storage
+      // let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
+      // // userJwt = "null";
+      // // Validate JWT with backend - Check if token still valid
+      // let loggedIn;
+      // const loggedInPromise = axios.post(`http://localhost:2000/users/${userJwt}`);
+
+      // loggedInPromise.then((response) => {
+      //   loggedIn = response.data;
+      // });
+ 
+      // // Validate user login
+      // if (loggedIn === true) {
+      //   {navigate("/dashboard")};
+      // } else {
+      //   // display message for invalid user
+      //   setIsInvalidEmail(false);
+      //   setIsInvalidPssword(false);
+      // }
+    }
+  }, [isSubmitted]);
+
+  const handleLogin = async () => {
+    try {
+
+      isUserLoggedIn();
+      
+      // Make login request to server
+      const response = await axios.post('http://localhost:2000/users/login', {
+        email: email,
+        password: password
+      });
+
+      // Get JWT from backend
+      const userJwt = JSON.parse(JSON.stringify(response.data.token));
+
+      // Store User JWT into local storage
+      localStorage.setItem('token', JSON.stringify(userJwt));
+
+      console.log(userJwt);
+      // Validate JWT with backend - Check if token still valid
+      const loggedIn = await axios.post(`http://localhost:2000/users/${userJwt}`);
+
+      // Redirect to dashboard
+      if (loggedIn.data === true) {
+        {navigate("/dashboard")};
+      } else {
+        // display message for invalid user
+        setIsInvalidEmail(false);
+        setIsInvalidPssword(false);
+      }
+
+    } catch (error) {
+      setIsInvalidEmail(true);
+      setIsInvalidPssword(true);  
+      console.log("Invalid login");
+    }
+  }
+  
+  const handleSubmit = (event : any) => {
+    event.preventDefault(); // Prevents page from refreshing on submit
+    setIsSubmitted(true);
+    handleLogin();
+  };
+
+
+  // Checks can be done backend
   /*let checkMatchingEmail = userList.map((user)=>{
     if (user.email === email){
       return true;
@@ -50,36 +121,44 @@ export default function Login() {
     return false;
   });*/
 
+  async function isUserLoggedIn() {
+    localStorage.removeItem('token');
+    // Check if JWT exists in local storage
+    let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
+    // userJwt = "";
+    // Validate JWT with backend - Check if token still valid
+    const loggedIn = await axios.post(`http://localhost:2000/users/${userJwt}`);
+    
+    console.log(userJwt);
+    
+    // If already logged in, redirect to next page
+    if (loggedIn.data === true) {
+      {navigate("/dashboard")};
+    }
+  }
   // Handling the email change
-  const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
+  function handleEmail(event: React.ChangeEvent<HTMLInputElement>) {
     setEmail(event.target.value);
-  };
+  }
 
   // Handling the password change
   const handlePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(event.target.value);
   };
 
-  const handleSubmit = () => {
-    setIsSubmitted(true);
+    // // to be removed
+    // let emailValid = true;
+    // let passwordValid = true;
+  
+    // // redirect valid user
+    // if (emailValid && passwordValid){
+    //   {navigate("/dashboard")};
+    // }
 
-    // to be removed
-    let emailValid = true;
-    let passwordValid = true;
-
-    // validate user
+    // User validation can be done backend
     /*let emailValid = checkMatchingEmail;*/
     /*let passwordValid = checkMatchingPassword; // would check for empty string*/
-
-    // redirect valid user
-    if (emailValid && passwordValid){
-      {navigate("/dashboard")};
-    }
-
-    // display message for invalid user
-    setIsInvalidEmail(!emailValid);
-    setIsInvalidPssword(!passwordValid);
-  }
+    
 
   const handleInput = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();

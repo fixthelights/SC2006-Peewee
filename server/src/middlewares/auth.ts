@@ -42,3 +42,12 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
     }
 
 }
+
+export const authJwt = (token : string) => {
+    try {
+        const decoded = jwt.verify(token, SECRET_KEY);
+        return true;
+    } catch (error : any) {
+        return false;
+    }
+}

@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import { AppError } from '../config/AppError';
 import crypto from 'crypto';
 import jwt from "jsonwebtoken";
-import { SECRET_KEY } from '../middlewares/auth';
+import { SECRET_KEY, authJwt } from '../middlewares/auth';
 
 
 const User = require("../models/user");
@@ -137,6 +137,11 @@ exports.login = async (req : Request,res : Response) => {
     }
 };
 
+// POST request to check if user is logged in
+exports.loggedIn = async (req : Request,res : Response) => {
+    res.json(authJwt(req.params.jwt));
+};
+
 // POST request for forget password - Request change password
 exports.forgetPassword = async ( req: Request, res: Response ) => {
     try {
@@ -163,7 +168,7 @@ exports.forgetPassword = async ( req: Request, res: Response ) => {
         // Generate 6 digit OTP for password reset token
         token = await new PasswordToken({
                 userId: verifiedUser._id,
-                token: generateOTP(6),  
+                token: generateOTP(8),  
             }).save();
 
         // Send email to user with reset link

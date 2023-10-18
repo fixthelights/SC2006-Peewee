@@ -17,6 +17,9 @@ router.post('/register', userController.createUser);
 // POST request for login
 router.post('/login', userController.login);
 
+// POST request to check for active login
+router.post('/:jwt', userController.loggedIn);
+
 // POST request for forget password - Request change password
 router.post('/forget-password', auth, userController.forgetPassword);
 
