@@ -116,8 +116,10 @@ exports.login = async (req : Request,res : Response) => {
                 expiresIn: '2 days',
               });
             res.cookie('jwt', token, { httpOnly: true, secure: true });
-            res.json({ success: true, token });
-            return res.status(200).send("User successfully logged in");
+            // res.json({ success: true, token });
+            console.log(res.cookie);
+            console.log("User logged in successfully");
+            return res.status(200).json( {_id: verifiedUser._id, username: username, token: token} );
         } else {
             throw new AppError({
                 type: "UserVerificationError",
@@ -141,7 +143,7 @@ exports.forgetPassword = async ( req: Request, res: Response ) => {
     try {
         const username = req.body.username;
         const email = req.body.email;
-
+        const otp = generateOTP();
         
         const verifiedUser = await User.findOne({username : username});
         if (!verifiedUser) {
@@ -159,19 +161,22 @@ exports.forgetPassword = async ( req: Request, res: Response ) => {
             });
         }
 
-        let token = await PasswordToken.findOne({ userId: verifiedUser._id });
-        if (!token) {
-            token = await new PasswordToken({
-                userId: verifiedUser._id,
-                token: crypto.randomBytes(32).toString("hex"),
-            }).save();
-        }
+        // Send email to user with reset link
+        // let token = await PasswordToken.findOne({ userId: verifiedUser._id });
+        // if (!token) {
+        //     token = await new PasswordToken({
+        //         userId: verifiedUser._id,
+        //         token: crypto.randomBytes(32).toString("hex"),
+        //     }).save();
+        // }
+        // const link = req.protocol + "://" + req.get('host') + req.originalUrl + "/" + verifiedUser._id + "/" + token.token;
+        // console.log(link);
+        // await sendForgetEmail(verifiedUser, link);
 
-        const link = req.protocol + "://" + req.get('host') + req.originalUrl + "/" + verifiedUser._id + "/" + token.token;
-        console.log(link);
-        await sendForgetEmail(verifiedUser, link);
+        // Send email to user with OTP
+        await sendForgetEmail(verifiedUser, otp);
 
-        return res.status(200).send("Password reset link sent to your email account");
+        return res.status(200).send("Password reset code sent to your email account");
     } catch(error: any){
         if (error instanceof AppError) throw error;
         throw new AppError({
@@ -187,14 +192,19 @@ exports.forgetPassword = async ( req: Request, res: Response ) => {
 // POST request for forget password - Change password
 exports.validatePasswordToken = async (req: Request, res: Response) => {
     try {
-        const verifiedUser = await User.findById(req.params.userId);
-        if (!verifiedUser) {
-            throw new AppError({
-                type: "InvalidResetTokenError",
-                statusCode: 400,
-                description: 'Invalid or expired link.',
-            });
-        }
+        // Get user by searching with username
+        const verifiedUser = await User.findOne({username: req.body.username});
+
+        // If user not found
+        // if (!verifiedUser) {
+        //     throw new AppError({
+        //         type: "InvalidResetTokenError",
+        //         statusCode: 400,
+        //         description: 'Invalid or expired link.',
+        //     });
+        // }
+
+        // Search for active password reset token
         const token = await PasswordToken.findOne({
             userId: verifiedUser.userId,
             token: req.params.token,
@@ -203,9 +213,10 @@ exports.validatePasswordToken = async (req: Request, res: Response) => {
             throw new AppError({
                 type: "InvalidResetTokenError",
                 statusCode: 400,
-                description: 'Invalid or expired link.',
+                description: 'Invalid or expired OTP.',
             });
         }
+        
         verifiedUser.password = req.body.password;
         await verifiedUser.save();
         await token.delete();
@@ -322,3 +333,15 @@ const verifyPassword = async (inputPassword : String, hashedPassword : String) =
         });
     };
 };
+
+
+const generateOTP = () => new Promise(res =>
+	// Uses Node Crypto to genarate cryptographically strong pseudo-random data
+	// crypto.randomBytes(size[, callback])
+	crypto.randomBytes(6, (err, buffer) => {
+		res(
+			parseInt(buffer.toString("hex"), 16)
+				.toString()
+		);
+	})
+);

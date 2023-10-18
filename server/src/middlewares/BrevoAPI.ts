@@ -12,7 +12,7 @@ var apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
 var forgetPasswordEmail = new SibApiV3Sdk.SendSmtpEmail(); // SendSmtpEmail | Values to send a transactional email
 
-export async function sendForgetEmail(to : UserDocument, link : String) {
+export async function sendForgetEmail(to : UserDocument, otp : String) {
     try {
 
         forgetPasswordEmail = {
@@ -23,7 +23,8 @@ export async function sendForgetEmail(to : UserDocument, link : String) {
             templateId: 1,
             params: {
                 firstName: to.firstName,
-                lastName: to.lastName
+                lastName: to.lastName,
+                otp: otp
             },
             headers: {
                 'X-Mailin-custom': 'custom_header_1:custom_value_1|custom_header_2:custom_value_2'
