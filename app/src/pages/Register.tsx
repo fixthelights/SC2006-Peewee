@@ -34,7 +34,7 @@ export default function Register() {
   const [isExistingUser, setIsExistingUser] = useState(false);
   const [isInvalidPassword, setIsInvalidPssword] = useState(true);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isSuccessfulRegister, setIsSuccessfulRegister] = useState(false)
+  const [isRegistrationSuccessful, setIsRegistrationSuccessful] = useState(false)
   const [userList, setUserList] = useState([])
 
   const getUserList = async () => {
@@ -87,10 +87,10 @@ export default function Register() {
         password: password,
       })
       .then((res)=> console.log(res.data))
-      .then ((res) => setIsSuccessfulRegister(true))
+      .then ((res) => setIsRegistrationSuccessful(true))
       .catch(function(error) {
         console.log(error);
-        setIsSuccessfulRegister(false)
+        setIsRegistrationSuccessful(false)
       })
     }
 
@@ -127,10 +127,10 @@ export default function Register() {
 
   const RegistrationStatusMessage = () => {
     if (isSubmitted){
-      if (!isExistingUser && !isInvalidPassword) {
+      if (!isExistingUser && !isInvalidPassword && isRegistrationSuccessful) {
         return <Alert severity="info">Registration is successful.</Alert>
       }
-      if (!isExistingUser && !isInvalidPassword && !isSuccessfulRegister){
+      if (!isExistingUser && !isInvalidPassword && !isRegistrationSuccessful){
         return <Alert severity="info">Error in Registration</Alert>
       }
      return null;
