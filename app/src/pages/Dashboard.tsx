@@ -29,7 +29,8 @@ import TableRow from '@mui/material/TableRow';
 import Title from '../components/Title';
 import { LineChart, Line, XAxis, YAxis, Label, ResponsiveContainer } from 'recharts';
 import { useTheme } from '@mui/material/styles';
-
+import MapComponent from "../components/Map";
+import Stack from '@mui/material/Stack';
 
 const drawerWidth: number = 240;
 
@@ -65,6 +66,22 @@ interface Traffic{
     vehicle_avg: number,
     vehicle_total: number,
     time_of_day: string
+}
+
+interface Camera{
+  camera_name: string,
+  location: {
+    long: number,
+    lat: number
+  },
+  vehicle_count: number
+}
+
+interface CameraArray{
+  cameraName: string,
+  lng: number,
+  lat: number,
+  vehicleCount: number
 }
 
 interface AppBarProps extends MuiAppBarProps {
@@ -129,6 +146,7 @@ export default function Dashboard() {
   const [isRouteLoaded, setIsRouteLoaded] = useState(false)
   const [isIncidentLoaded, setIsIncidentLoaded] = useState(false)
   const [isTrafficLoaded, setIsTrafficLoaded] = useState(false)
+  const [cameras, setCameras] = React.useState<Array<CameraArray>>([]);
 
   const toggleDrawer = () => {
     setOpen(!open);
@@ -140,6 +158,7 @@ export default function Dashboard() {
     getFavouriteRouteList();
     getRecentIncidentList();
     getTrafficData();
+    getTrafficCameraData();
   }, []);
 
   const getFavouriteRouteList = () => {
@@ -172,18 +191,75 @@ export default function Dashboard() {
     })
   }
 
+  const getTrafficCameraData = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:2000/traffic/conditions"
+      );
+      console.log(response.data);
+      const allCameras = response.data.cameras;
+
+      let cameraArray: Array<CameraArray>= [];
+
+      allCameras.forEach(({ camera_name, location, vehicle_count} : Camera)=> {
+        cameraArray.push({
+          cameraName: camera_name,
+          lng: location.long,
+          lat: location.lat,
+          vehicleCount: vehicle_count
+        })
+      });
+
+      setCameras(cameraArray);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   const TrafficTrend = () => {
     if (isTrafficLoaded){
         let data: Array<{time: string, amount: number}>= []
+        let average = 0
+        let carsNow = 0
+        let date = new Date
+        let expectedTraffic = ""
         trafficData.forEach((traffic: Traffic) => {
           if (parseInt(traffic["time_of_day"])<10){
             data.push(createData("0"+traffic["time_of_day"]+":00", traffic["vehicle_total"]))
           } else {
             data.push(createData(traffic["time_of_day"]+":00", traffic["vehicle_total"]))
           }
+          if (parseInt(traffic["time_of_day"])===date.getHours()){
+            carsNow = traffic["vehicle_total"]
+          }
+          average += traffic["vehicle_total"]
         })
+        average /= 23
+
+        const DisplayExpectedTraffic = () => {
+          if (carsNow > average) {
+            return <Typography component="h2" variant="h6" color="red" gutterBottom>
+                     High
+                   </Typography>
+          } else if (carsNow < average){
+            return <Typography component="h2" variant="h6" color="green" gutterBottom>
+                     Low
+                   </Typography>
+          } else {
+            return <Typography component="h2" variant="h6" color="yellow" gutterBottom>
+                     Moderate
+                   </Typography>
+          }
+  
+        }
         return <React.Fragment>
                 <Title>Past Traffic Trend</Title>
+                <Stack spacing={1} direction="row">
+                <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                  Current expected traffic:
+                </Typography>
+                <DisplayExpectedTraffic />
+                </Stack>
                 <ResponsiveContainer>
                   <LineChart
                     data={data}
@@ -198,7 +274,7 @@ export default function Dashboard() {
                       dataKey="time"
                       stroke={theme.palette.text.secondary}
                       style={theme.typography.body2}
-                      tickCount={5}
+                      tickCount={23}
                     />
                     <YAxis
                       stroke={theme.palette.text.secondary}
@@ -217,14 +293,17 @@ export default function Dashboard() {
                       </Label>
                     </YAxis>
                     <Line
-                      isAnimationActive={false}
+                      isAnimationActive={true}
                       type="monotone"
                       dataKey="amount"
                       stroke={theme.palette.primary.main}
-                      dot={false}
+                      dot={true}
                     />
                   </LineChart>
                 </ResponsiveContainer>
+                <Link color="primary" href="#" sx={{ mt: 3 } }>
+                  See specific camera trends
+                </Link>
               </React.Fragment>
     }else{
       return <Title>Error in loading. Please refresh the page.</Title>
@@ -257,9 +336,14 @@ export default function Dashboard() {
                     See all incidents
                   </Link>
                   </React.Fragment>
-    } else {
+    }
+    if (isIncidentLoaded && incidentList.length==0){
+      return <Title>There are no incidents reported today</Title>
+    }
+    if (!isIncidentLoaded){
       return <Title>Error in loading. Please refresh the page.</Title>
     }
+    return null
   }
 
   const FavouriteRouteList = () => {
@@ -286,9 +370,14 @@ export default function Dashboard() {
                 See all routes
               </Link>
               </React.Fragment>
-    } else {
+    } 
+    if (isRouteLoaded && routeList.length===0) {
+      return <Title>There are no favourite routes saved.</Title>
+    }
+    if (!isRouteLoaded){
       return <Title>Error in loading. Please refresh the page.</Title>
     }
+    return null
   }
 
   function createData(time: string, amount: number) {
@@ -369,13 +458,13 @@ export default function Dashboard() {
                 </ListItemIcon>
                 <ListItemText primary="Incidents" />
               </ListItemButton>
-              <ListItemButton>
+              <ListItemButton onClick={() => navigate("/map")}>
                 <ListItemIcon>
                  <MapOutlinedIcon />
                 </ListItemIcon>
                 <ListItemText primary="Map" />
               </ListItemButton>
-              <ListItemButton>
+              <ListItemButton onClick={() => navigate("/roadconditions")}>
                 <ListItemIcon>
                   <TrafficOutlinedIcon />
                 </ListItemIcon>
@@ -412,7 +501,7 @@ export default function Dashboard() {
                     p: 2,
                     display: 'flex',
                     flexDirection: 'column',
-                    height: 360,
+                    height: 450,
                   }}
                 >
                 <TrafficTrend />
@@ -424,10 +513,21 @@ export default function Dashboard() {
                     p: 2,
                     display: 'flex',
                     flexDirection: 'column',
-                    height: 360,
+                    height: 450,
+                    overflow: 'auto'
                   }}
                 >
-                  <Deposits title="Maps" />
+                  <Stack spacing={20} direction="row">
+                  <Title>Current Traffic Conditions</Title>
+                  <Link color="primary" href="#" onClick={() => navigate("/map")} sx={{ mt: 3 }} >
+                        Go to map page
+                  </Link>
+                  </Stack>
+                    <MapComponent
+                      location={{ lng: 103.7992246, lat: 1.3687004, address: "Singapore" }}
+                      zoomLevel={12}
+                      cameras={cameras}
+                    />
                 </Paper>
               </Grid>
               <Grid item xs={12} md={6} lg={8}>
