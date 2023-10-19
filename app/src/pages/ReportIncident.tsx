@@ -24,6 +24,9 @@ import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
 import axios from 'axios'
 import {MouseEvent} from 'react'
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import Container from '@mui/material/Container';
 
 const drawerWidth: number = 240;
 
@@ -127,7 +130,9 @@ export default function ReportIncident() {
   const LocationMessage = () => {
     if (!submissionStatus && incidentType!=''){
       if (!locationPermission){
-        return <Alert 
+        return <Box sx={{ pl: 3, pt: 3 }}>
+                <Grid item xs={12} md={6} lg={5}>
+                <Alert 
                   severity="info"
                 >
                   Grant location access to PEEWEE?
@@ -148,14 +153,15 @@ export default function ReportIncident() {
                 </Stack>
                 </Box>
                 </Alert>
+              </Grid>
+              </Box>
       } else if (locationDetected){
         return <Box sx={{ pl: 3, pt: 3 }}>
               <Typography
                 component="h1"
                 variant="body1"
               >
-              Incident Location:
-              {incidentLocation}
+              Incident Location: {incidentLocation}
               </Typography>
               </Box>
       } else {
@@ -215,7 +221,6 @@ export default function ReportIncident() {
                 <MenuItem value={"Accident"}>Accidents</MenuItem>
                 <MenuItem value={"RoadWork"}>Roadworks</MenuItem>
                 <MenuItem value={"RoadClosure"}>Closure</MenuItem>
-                <MenuItem value={"SlowTraffic"}>Slow Traffic</MenuItem>
                 </Select>
                 </FormControl>
                 </Box>
@@ -234,7 +239,7 @@ export default function ReportIncident() {
                   >
                   Incident Description:
                   </Typography>
-                  <Box>
+                  <Box sx={{pt: 3}}>
                   <textarea 
                   name="Text1" 
                   cols={100} 
@@ -445,11 +450,27 @@ export default function ReportIncident() {
           }}
         >
        <Toolbar />
-       <IncidentTypeSelection />
-       <LocationMessage />
-       <IncidentDescriptionInput />
-       <SubmitButton />
-       <SubmissionMessage />
+       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+            <Grid container spacing={3}>
+              {/* Chart */}
+              <Grid item xs={12} md={6} lg={12}>
+              <Paper
+                    sx={{
+                        p: 2,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        height: 500,
+                        overflow: 'auto'
+                    }}>
+                  <IncidentTypeSelection />
+                  <LocationMessage />
+                  <IncidentDescriptionInput />
+                  <SubmitButton />
+                  <SubmissionMessage />
+                  </Paper>
+              </Grid>
+            </Grid>
+        </Container>
       </Box>
       </Box>
     </ThemeProvider>

@@ -246,9 +246,9 @@ export default function Dashboard() {
                     <TableBody>
                       {incidentList.map((report: Report) => (
                         <TableRow>
-                          <TableCell>{report.incident.toUpperCase()}</TableCell>
-                          <TableCell>{report.time}</TableCell>
-                          <TableCell>{report.address}</TableCell>
+                          <TableCell width="20%">{report.incident.toUpperCase()}</TableCell>
+                          <TableCell width="10%">{report.time}</TableCell>
+                          <TableCell width="70%">{report.address}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -276,8 +276,8 @@ export default function Dashboard() {
                 <TableBody>
                   {routeList.map((route: Route) => (
                     <TableRow>
-                      <TableCell>{route.source.address}</TableCell> 
-                      <TableCell>{route.destination.address}</TableCell> 
+                      <TableCell>jurong</TableCell> 
+                      <TableCell>changi</TableCell> 
                     </TableRow>
                   ))}
                 </TableBody>
@@ -450,6 +450,7 @@ export default function Dashboard() {
                     display: 'flex',
                     flexDirection: 'column',
                     height: 320,
+                    overflow: 'auto'
                   }}
                 >
                 <FavouriteRouteList />
