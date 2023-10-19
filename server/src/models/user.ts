@@ -9,7 +9,7 @@ export interface UserDocument extends Document {
     // lastName: String;
     // phone: String;
     createdAt: Date;
-    favoriteRoutes: string[];
+    //favoriteRoutes: string[];
 }
 
 const UserSchema: Schema<UserDocument> = new Schema({
@@ -45,10 +45,10 @@ const UserSchema: Schema<UserDocument> = new Schema({
         type: Date, 
         default: Date.now 
     },
-    favoriteRoutes: {
+    /*favoriteRoutes: {
         type:[String],
         default: []
-    }
+    }*/
 });
 
 // Encrypt new password if password is changed before saving
@@ -69,7 +69,6 @@ UserSchema.pre('save', async function (next) {
 
 // Compile model from schema
 const User = mongoose.model<UserDocument>('User',UserSchema);
-export default User; 
 
 // Export model
 module.exports = User;

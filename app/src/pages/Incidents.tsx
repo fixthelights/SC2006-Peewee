@@ -199,7 +199,7 @@ export default function Incidents() {
                 </ListItemIcon>
                 <ListItemText primary="Incidents" />
               </ListItemButton>
-              <ListItemButton>
+              <ListItemButton onClick={() => navigate("/map")}>
                 <ListItemIcon>
                  <MapOutlinedIcon />
                 </ListItemIcon>
