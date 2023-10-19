@@ -14,8 +14,9 @@ import { useNavigate } from "react-router-dom";
 import { useState , useEffect } from 'react';
 import axios from 'axios';
 import Alert from '@mui/material/Alert';
+// import { LegendToggleRounded } from '@mui/icons-material';
 import { LegendToggleRounded } from '@mui/icons-material';
-import Photo from '../assets/LoginBackground.jpg'
+import Photo from '../assets/LoginBackground.jpg';
 import Paper from '@mui/material/Paper';
 
 // TODO remove, this demo shouldn't need to reset the theme.
@@ -29,38 +30,17 @@ export default function Login() {
   // States for checking the errors
   const [isValidUser, setIsValidUser] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [userList, setUserList] = useState([])
 
   useEffect( () => {
-    // handleLogin();
-    console.log("Use effect");
-    
-    if (isSubmitted){   
-
-      // // Check if JWT exists in local storage
-      // let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
-      // // userJwt = "null";
-      // // Validate JWT with backend - Check if token still valid
-      // let loggedIn;
-      // const loggedInPromise = axios.post(`http://localhost:2000/users/${userJwt}`);
-
-      // loggedInPromise.then((response) => {
-      //   loggedIn = response.data;
-      // });
- 
-      // // Validate user login
-      // if (loggedIn === true) {
-      //   {navigate("/dashboard")};
-      // } else {
-      //   // display message for invalid user
-      //   setIsValidUser(false)
-      // }
-    }
-  }, [isSubmitted]);
+    handleLogin();
+  });
 
   const handleLogin = async () => {
     try {
-      isUserLoggedIn();
+      // If user logged in, redirect to next page and end function call
+      if (await isUserLoggedIn()) {
+        return;
+      };
       
       // Make login request to server
       const response = await axios.post('http://localhost:2000/users/login', {
@@ -80,7 +60,7 @@ export default function Login() {
 
       // Redirect to dashboard
       if (loggedIn.data === true) {
-        {navigate("/dashboard")};
+        navigate("/dashboard");
       } else {
         // display message for invalid user
        setIsValidUser(true)
@@ -109,9 +89,12 @@ export default function Login() {
     
     // If already logged in, redirect to next page
     if (loggedIn.data === true) {
-      {navigate("/dashboard")};
+      navigate("/dashboard");
+      return true;
     }
+    return false;
   }
+
   // Handling the email change
   function handleEmail(event: React.ChangeEvent<HTMLInputElement>) {
     setEmail(event.target.value);
@@ -121,26 +104,15 @@ export default function Login() {
   const handlePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(event.target.value);
   };
-
-  /*const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-
-    event.preventDefault()
-
-    axios.post('http://localhost:2000/users/login',{
-            email: email,
-            password: password
-        })
-        .then((res)=> console.log(res.data))
-        .then((res)=>{navigate("/dashboard")})
-        .then ((res) => setIsValidUser(true))
-        .then ((res)=>setIsSubmitted(true))
-        .catch(function(error) {
-            console.log(error);
-            setIsValidUser(false);
-            setIsSubmitted(true)
-        })
-
-  }*/
+    
+  const handleInput = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    console.log({
+      email: data.get('email'),
+      password: data.get('password'),
+    });
+  };
 
   const Message = () => {
     if (isSubmitted){

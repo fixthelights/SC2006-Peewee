@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import { AppError } from '../config/AppError';
 import crypto from 'crypto';
 import jwt from "jsonwebtoken";
-import { SECRET_KEY, authJwt } from '../middlewares/auth';
+import { signToken, authJwt } from '../middlewares/auth';
 
 
 const User = require("../models/user");
@@ -113,9 +113,7 @@ exports.login = async (req : Request,res : Response) => {
         // If email & password match
         const verifiedUser = await authenticatedUser( email , password )
         if (verifiedUser) {
-            const token = jwt.sign({ _id: verifiedUser._id?.toString(), name: verifiedUser.name }, SECRET_KEY, {
-                expiresIn: '2 days',
-              });
+            const token = signToken(verifiedUser._id, verifiedUser.email);
 
             console.log("User logged in successfully");
             return res.status(200).json( {_id: verifiedUser._id, email: email, token: token} ); // Returns JWT for frontend to store
@@ -143,7 +141,7 @@ exports.loggedIn = async (req : Request,res : Response) => {
 };
 
 // POST request for forget password - Request change password
-exports.forgetPassword = async ( req: Request, res: Response ) => {
+exports.forgetPassword =  async ( req: Request, res: Response ) => {
     try {
         const email = req.body.email;
         
@@ -165,11 +163,15 @@ exports.forgetPassword = async ( req: Request, res: Response ) => {
         
         // Check if token exists, if not, create a new password token
         let token = await PasswordToken.findOne({ userId: verifiedUser._id });
-        // Generate 6 digit OTP for password reset token
-        token = await new PasswordToken({
+        if (!token) {
+            // Generate 6 digit OTP for password reset token
+            token = await new PasswordToken({
                 userId: verifiedUser._id,
-                token: generateOTP(8),  
+                token: crypto.randomBytes(32).toString("hex"),
             }).save();
+        }
+        
+        console.log(token);
 
         // Send email to user with reset link
         // let token = await PasswordToken.findOne({ userId: verifiedUser._id });
@@ -186,7 +188,7 @@ exports.forgetPassword = async ( req: Request, res: Response ) => {
         // Send email to user with OTP
         await sendForgetEmail(verifiedUser, token.token);
 
-        return res.status(200).send("Password reset code sent to your email account");
+        return res.status(200).json({otp: token, message:"Password reset code sent to your email account"});
     } catch(error: any){
         if (error instanceof AppError) throw error;
         throw new AppError({
@@ -248,8 +250,9 @@ exports.validatePasswordToken = async (req: Request, res: Response) => {
 // Update a user's information by ID
 exports.updateUser = async (req :Request, res :Response) => {
     try {
-        const userId = req.params.userId;
-        const { email, password } = req.body;
+        const userId = req.body.userId;
+        const email = req.body.email;
+        const password = req.body.password;
 
         const user = await User.findById({userId : userId});
 
@@ -284,7 +287,7 @@ exports.updateUser = async (req :Request, res :Response) => {
 // Delete a user by ID
 exports.deleteUser = async (req :Request, res :Response) => {
     try {
-        const userId = req.params.userId;
+        const userId = req.body.userId;
         const user = await User.findByIdAndDelete({userId : userId});
 
         if (!user) {
