@@ -1,4 +1,4 @@
-class AuthController{
+class AuthManager{
 
      // check if email is in the correct format
      validateEmailAddressFormat(email: string): boolean { 
@@ -44,17 +44,10 @@ class AuthController{
 
     }
 
-    // check if there is an existing pair of email and password in database
-    checkMatchingPassword(email: string, password: string): boolean{
-        // call api/function to find if there is a matching email & password
-        // if matches return true
-        // else return false 
-        return true;
-    }
-
-    saveUser(email: string, password: string): void{
-        
+    generateOTP() : string{
+        let otp = Math.floor(Math.random() * 89999999 + 10000000)
+        return otp.toString() // generate integer in the range of 10000000 to 99999999 ( 8 digit OTP )
     }
 }
 
-export {AuthController}
+export {AuthManager}

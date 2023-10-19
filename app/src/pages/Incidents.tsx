@@ -11,19 +11,31 @@ import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import {ListItemButton, ListItemIcon, ListItemText, DashboardIcon, CarCrashOutlinedIcon, MapOutlinedIcon, TrafficOutlinedIcon , LogoutOutlinedIcon} from '../components/ListButtonIndex'
 import { useNavigate } from "react-router-dom";
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import FmdGoodOutlinedIcon from '@mui/icons-material/FmdGoodOutlined';
-import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
-// import IncidentListItem from '../components/IncidentListItem';
+import {IncidentListItem} from '../components/IncidentListItem';
+import Title from '../components/Title';
+import Alert from '@mui/material/Alert';
+
+interface Report {
+  incident: String,
+  location: {
+    long: Number
+    lat: Number
+  },
+  address: String
+  duration_hours: Number
+  description: String
+  time: String
+  timestamp: Date
+  reported_by: String
+}
 
 const drawerWidth: number = 240;
 
@@ -79,6 +91,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const defaultTheme = createTheme();
 
 export default function Incidents() {
+  let listOfReports: Array<Report> = [];
   const [open, setOpen] = useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
@@ -86,23 +99,31 @@ export default function Incidents() {
 
   const navigate = useNavigate();
   const [reportList, setReportList] = useState([])
+  const [isReportLoaded, setIsReportLoaded] = useState(false)
 
-  /*useEffect(()=> {  
-      axios.get('http://localhost:2000/') 
-      .then((res)=> setReportList(res.data));
-  }, []);*/
+  const getReportList = () => {
+    axios.get('http://localhost:2000/reports/today/all')
+    .then((res)=> setReportList(res.data))
+    .then ((res)=> setIsReportLoaded(true))
+    .catch(function(error) {
+            console.log(error)
+            setIsReportLoaded(false)
+        });
+  };
 
-  /* let displayReport(){ reportList.map((report)=>{
-      if (report.time === today){
-        return <IncidentListItem
-                incidentType: report.incident
-                incidentTime: kiv
-                incidentLocation: kiv
-                incidentDescription: report.description
-              />
-      }
+  useEffect(() => {
+    getReportList();
+  }, []);
+
+  const Message = () => {
+    if (isReportLoaded && reportList.length===0){
+      return <Alert severity="info">There are no incidents reported today.</Alert>
     }
-  });*/
+    if (!isReportLoaded){
+      return <Alert severity="info">Error in loading. Please refresh the page again.</Alert>
+    }
+    return null;
+  }
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -178,7 +199,7 @@ export default function Incidents() {
                 </ListItemIcon>
                 <ListItemText primary="Incidents" />
               </ListItemButton>
-              <ListItemButton>
+              <ListItemButton onClick={() => navigate("/map")}>
                 <ListItemIcon>
                  <MapOutlinedIcon />
                 </ListItemIcon>
@@ -222,116 +243,17 @@ export default function Incidents() {
                   Report Incident
               </Button> 
               </Grid>
-              {/*Change to displayReport*/}
-              <Grid item xs={12} md={12} lg={12}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 240,
-                    overflow: 'auto'
-                  }}
-                >
-                  <Stack spacing={2} direction="row" paddingX={2} paddingY={2}>
-                  <Typography
-                    component="h1"
-                    variant="body1"
-                    color="inherit"
-                    noWrap
-                  >
-                    INCIDENT TYPE
-                  </Typography>
-                  <AccessTimeIcon />
-                    <Typography
-                      component="h1"
-                      variant="body1"
-                      color="inherit"
-                      noWrap
-                    >
-                    Time
-                  </Typography>
-                  <FmdGoodOutlinedIcon />
-                    <Typography
-                      component="h1"
-                      variant="body1"
-                      color="inherit"
-                      noWrap
-                    >
-                    Location
-                  </Typography>
-                  </Stack>
-                  <Typography
-                      component="h1"
-                      variant="body1"
-                      color="inherit"
-                      paddingX={2}
-                      paddingY={2}
-                    >
-                    Hello, everyone! This is the LONGEST TEXT EVER! I was inspired by the various other "longest texts ever" on the internet, and I wanted to make my own. So here it is! This is going to be a WORLD RECORD! This is actually my third attempt at doing this. The first time, I didn't save it. The second time, the Neocities editor crashed. Now I'm writing this in Notepad, then copying it into the Neocities editor instead of typing it directly in the Neocities editor to avoid crashing. It sucks that my past two attempts are gone now. Those actually got pretty long. Not the longest, but still pretty long. I hope this one won't get lost somehow. Anyways, let's talk about WAFFLES! I like waffles. Waffles are cool. Waffles is a funny word. There's a Teen Titans Go episode called "Waffles" where the word "Waffles" is said a hundred-something times. It's pretty annoying. There's also a Teen Titans Go episode about Pig Latin. Don't know what Pig Latin is? It's a language where you take all the consonants before the first vowel, move them to the end, and add '-ay' to the end. If the word begins with a vowel, you just add '-way' to the end. For example, "Waffles" becomes "Afflesway". I've been speaking Pig Latin fluently since the fourth grade, so it surprised me when I saw the episode for the first time. I speak Pig Latin with my sister sometimes. It's pretty fun. I like speaking it in public so that everyone around us gets confused. That's never actually happened before, but if it ever does, 'twill be pretty funny. 
-                  </Typography>
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={12} lg={12}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 240,
-                  }}
-                >
-                  <Typography
-                    component="h1"
-                    variant="h6"
-                    color="inherit"
-                    noWrap
-                    sx={{ flexGrow: 1 }}
-                  >
-                    PEEWEE
-                  </Typography>
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={12} lg={12}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 240,
-                  }}
-                >
-                  <Typography
-                    component="h1"
-                    variant="h6"
-                    color="inherit"
-                    noWrap
-                    sx={{ flexGrow: 1 }}
-                  >
-                    PEEWEE
-                  </Typography>
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={12} lg={12}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 240,
-                  }}
-                >
-                  <Typography
-                    component="h1"
-                    variant="h6"
-                    color="inherit"
-                    noWrap
-                    sx={{ flexGrow: 1 }}
-                  >
-                    PEEWEE
-                  </Typography>
-                </Paper>
-              </Grid>
+              {reportList.map((report: Report) => (
+              <IncidentListItem 
+                incidentType={report.incident.toUpperCase()}
+                incidentTime={report.time}
+                incidentLocation={report.address}
+                incidentDescription={report.description}
+                />
+                ))}
+                <Grid item sx={{pt:2}}>
+                  <Message/>
+                </Grid>
             </Grid>
           </Container>
         </Box>

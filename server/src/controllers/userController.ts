@@ -1,5 +1,9 @@
 import express, { Request, Response } from 'express';
+import { AppError } from '../config/AppError';
 import crypto from 'crypto';
+import jwt from "jsonwebtoken";
+import { SECRET_KEY, authJwt } from '../middlewares/auth';
+
 
 const User = require("../models/user");
 const PasswordToken = require("../models/passwordToken");
@@ -13,9 +17,14 @@ exports.getAllUsers = async (req :Request, res :Response) => {
     try {
         const users = await User.find();
         return res.json(users);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).send('Internal Server Error');
+    }catch(error: any){
+        if (error instanceof AppError) throw error;
+        throw new AppError({
+            type: "GetAllUsersError",
+            statusCode: 500,
+            description: 'Error loading users.',
+            error: error
+        });
     }
     // return res.status(200).send(User.getAll());
 };
@@ -26,13 +35,22 @@ exports.getOneUser = async (req :Request, res :Response) => {
         const user = await User.findById({userId : userId});
 
         if (!user) {
-            return res.status(404).send('User not found');
+            throw new AppError({
+                type: "UserNotFoundError",
+                statusCode: 404,
+                description: 'User not found.',
+            });
         }
 
         res.json(user);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Internal Server Error');
+    } catch(error: any){
+        if (error instanceof AppError) throw error;
+        throw new AppError({
+            type: "GetUserError",
+            statusCode: 500,
+            description: 'Error getting user.',
+            error: error
+        });
     }
     return res.status(200).send(User.findOne(1));
 };
@@ -40,30 +58,39 @@ exports.getOneUser = async (req :Request, res :Response) => {
 // Create user with POST request
 exports.createUser = async (req :Request, res :Response) => {
     try{ 
-        const username = req.body.username;
+        // const email = req.body.email;
         const password = req.body.password;
         const email = req.body.email;
-        const firstName = req.body.firstName;
-        const lastName = req.body.lastName;
-        const phone = req.body.phone;
+        // const firstName = req.body.firstName;
+        // const lastName = req.body.lastName;
+        // const phone = req.body.phone;
 
         
-        if (username && password) {
+        if (email && password) {
             // Check if user already exists
-            if (!!await User.findOne({ username : username })) {
-                return res.status(404).json({message:"User already exists"})
+            if (!!await User.findOne({ email : email })) {
+                throw new AppError({
+                    type: "UserExistsError",
+                    statusCode: 404,
+                    description: 'User already exists.',
+                });
             }
             // Create a new user instance
-            const newUser = new User({ username, password, email, firstName, lastName, phone});
+            const newUser = new User({ email, password});
 
             // Save the new user to the database
             await newUser.save();
 
             res.status(201).send("User registered successfully");
         }
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Internal Server Error")
+    } catch(error: any){
+        if (error instanceof AppError) throw error;
+        throw new AppError({
+            type: "CreateUserError",
+            statusCode: 500,
+            description: 'Error creating account.',
+            error: error
+        });
     }
 };
 
@@ -71,76 +98,150 @@ exports.createUser = async (req :Request, res :Response) => {
 // Login with POST request
 exports.login = async (req : Request,res : Response) => {
     try {
-        const username = req.body.username;
+        const email = req.body.email;
         const password = req.body.password;
 
-        // If missing username or password
-        if (!username || !password) {
-            return res.status(404).json({message : "Username/Password is invalid"});
+        // If missing email or password
+        if (!email || !password) {
+            throw new AppError({
+                type: "MissingLoginError",
+                statusCode: 404,
+                description: 'Email/Password is not entered.',
+            });
         }
 
-        // If username & password match
-        if (await authenticatedUser( username , password )) {
-            return res.status(200).send("User successfully logged in");
+        // If email & password match
+        const verifiedUser = await authenticatedUser( email , password )
+        if (verifiedUser) {
+            const token = jwt.sign({ _id: verifiedUser._id?.toString(), name: verifiedUser.name }, SECRET_KEY, {
+                expiresIn: '2 days',
+              });
+
+            console.log("User logged in successfully");
+            return res.status(200).json( {_id: verifiedUser._id, email: email, token: token} ); // Returns JWT for frontend to store
         } else {
-            return res.status(404).json({message:"Username/Password is invalid"})
+            throw new AppError({
+                type: "UserVerificationError",
+                statusCode: 404,
+                description: 'Email/Password is invalid.',
+            });
         }
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Internal Server Error")
+    } catch(error: any){
+        if (error instanceof AppError) throw error;
+        throw new AppError({
+            type: "LoginError",
+            statusCode: 500,
+            description: 'Error loggin in.',
+            error: error
+        });
     }
+};
+
+// POST request to check if user is logged in
+exports.loggedIn = async (req : Request,res : Response) => {
+    res.json(authJwt(req.params.jwt));
 };
 
 // POST request for forget password - Request change password
 exports.forgetPassword = async ( req: Request, res: Response ) => {
     try {
-        const username = req.body.username;
         const email = req.body.email;
-
-        const verifiedUser = await User.findOne({username : username});
+        
+        const verifiedUser = await User.findOne({email : email});
+        if (!verifiedUser) {
+            throw new AppError({
+                type: "UserNotFoundError",
+                statusCode: 404,
+                description: 'User not found.',
+            });
+        }
         if (verifiedUser.email !== email) {
-            return res.status(404).json({message:"Email does not match username"})
+            throw new AppError({
+                type: "UserVerificationError",
+                statusCode: 404,
+                description: 'Email does not match email.',
+            });
         }
-
+        
+        // Check if token exists, if not, create a new password token
         let token = await PasswordToken.findOne({ userId: verifiedUser._id });
-        if (!token) {
-            token = await new PasswordToken({
+        // Generate 6 digit OTP for password reset token
+        token = await new PasswordToken({
                 userId: verifiedUser._id,
-                token: crypto.randomBytes(32).toString("hex"),
+                token: generateOTP(8),  
             }).save();
-        }
 
-        const link = req.protocol + "://" + req.get('host') + req.originalUrl + "/" + verifiedUser._id + "/" + token.token;
-        console.log(link);
-        // await sendForgetEmail(verifiedUser.email, "Password reset", link);
+        // Send email to user with reset link
+        // let token = await PasswordToken.findOne({ userId: verifiedUser._id });
+        // if (!token) {
+        //     token = await new PasswordToken({
+        //         userId: verifiedUser._id,
+        //         token: crypto.randomBytes(32).toString("hex"),
+        //     }).save();
+        // }
+        // const link = req.protocol + "://" + req.get('host') + req.originalUrl + "/" + verifiedUser._id + "/" + token.token;
+        // console.log(link);
+        // await sendForgetEmail(verifiedUser, link);
 
-        return res.status(200).send("Password reset link sent to your email account");
-    } catch (error) {
-        console.log(error);
-        return res.status(500).send("Internal Server Error")
+        // Send email to user with OTP
+        await sendForgetEmail(verifiedUser, token.token);
+
+        return res.status(200).send("Password reset code sent to your email account");
+    } catch(error: any){
+        if (error instanceof AppError) throw error;
+        throw new AppError({
+            type: "ForgetPasswordError",
+            statusCode: 500,
+            description: 'Error validating user.',
+            error: error
+        });
     }
 };
+
 
 // POST request for forget password - Change password
 exports.validatePasswordToken = async (req: Request, res: Response) => {
     try {
-        const verifiedUser = await User.findById(req.params.userId);
-        if (!verifiedUser) return res.status(400).send("Invalid or expired link");
+        // Get user by searching with email
+        const verifiedUser = await User.findOne({email: req.body.email});
 
+        // If user not found
+        // if (!verifiedUser) {
+        //     throw new AppError({
+        //         type: "InvalidResetTokenError",
+        //         statusCode: 400,
+        //         description: 'Invalid or expired link.',
+        //     });
+        // }
+
+        // Search for active password reset token
         const token = await PasswordToken.findOne({
             userId: verifiedUser.userId,
             token: req.params.token,
         });
-        if (!token) return res.status(400).send("Invalid or expired link");
 
+        if (!token) {
+            throw new AppError({
+                type: "InvalidResetTokenError",
+                statusCode: 400,
+                description: 'Invalid or expired OTP.',
+            });
+        }
+        
         verifiedUser.password = req.body.password;
         await verifiedUser.save();
         await token.delete();
 
         return res.status(200).send("Password reset sucessfully");
-    } catch (error) {
-        console.log(error);
-        return res.status(500).send("Internal Server Error")
+    } catch(error: any){
+        if (error instanceof AppError) throw error;
+        throw new AppError({
+            type: "PasswordTokenValidationError",
+            statusCode: 500,
+            description: 'Error validating password reset token.',
+            error: error
+        });
+        
     }
 };
 
@@ -148,26 +249,35 @@ exports.validatePasswordToken = async (req: Request, res: Response) => {
 exports.updateUser = async (req :Request, res :Response) => {
     try {
         const userId = req.params.userId;
-        const { username, password } = req.body;
+        const { email, password } = req.body;
 
         const user = await User.findById({userId : userId});
 
         if (!user) {
-            return res.status(404).send('User not found');
+            throw new AppError({
+                type: "UserNotFoundError",
+                statusCode: 404,
+                description: 'User not found.',
+            });
         }
 
         // Update user properties
-        user.username = username;
+        user.email = email;
         user.password = password;
 
         // Save the updated user to the database
         await user.save();
 
         res.json(user);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Internal Server Error');
-  }
+    } catch(error: any){
+        if (error instanceof AppError) throw error;
+        throw new AppError({
+            type: "UpdateUserError",
+            statusCode: 500,
+            description: 'Error updating user.',
+            error: error
+        });
+    }
     return res.status(200).send("User's information has been updated");
 };
 
@@ -178,13 +288,22 @@ exports.deleteUser = async (req :Request, res :Response) => {
         const user = await User.findByIdAndDelete({userId : userId});
 
         if (!user) {
-            return res.status(404).send('User not found');
+            throw new AppError({
+                type: "UserNotFoundError",
+                statusCode: 404,
+                description: 'User not found.',
+            });
         }
 
         res.json(user);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Internal Server Error');
+    } catch(error: any){
+        if (error instanceof AppError) throw error;
+        throw new AppError({
+            type: "DeleteUserError",
+            statusCode: 500,
+            description: 'Error deleting user.',
+            error: error
+        });
     }
     return res.status(200).send("User has been deleted");
 };
@@ -193,22 +312,10 @@ exports.deleteUser = async (req :Request, res :Response) => {
 
 ////////////////// Helper functions //////////////////
 
-// // Check if the user exists in our DB
-// const userExists = async (username : String) => {    
-//     try {
-//         const queriedUser = await User.findOne({ username : username });
-
-//         return !!queriedUser; // Returns true if the user exists, false otherwise
-//     } catch (error) {
-//         console.log(error);
-//         return false;
-//     }
-// };
-
-// Check if username and password match our DB
-const authenticatedUser = async ( username : String, password : String ) => {
-    const verifiedUser = await User.findOne({username : username});
-    return (verifiedUser.username === username && await verifyPassword(password,verifiedUser.password));
+// Check if email and password match our DB
+const authenticatedUser = async ( email : String, password : String ) => {
+    const verifiedUser = await User.findOne({email : email});
+    return (verifiedUser.email === email && await verifyPassword(password,verifiedUser.password))? verifiedUser : false;
 }
 
 // Verifying Password during Login
@@ -216,8 +323,21 @@ const verifyPassword = async (inputPassword : String, hashedPassword : String) =
     try {    
         const match = await bcrypt.compare(inputPassword, hashedPassword);
         return match; // Returns true if the passwords match, false otherwise
-    } catch(error) {
-        console.log(error);
-        throw error;
+    } catch(error : any) {
+        throw new AppError({
+            type: "PasswordVerificationError",
+            statusCode: 500,
+            description: 'Error deleting user.',
+            error: error
+        });
     };
 };
+
+const generateOTP = (otpLen: number) => {
+    const permissableCharacters = '0123456789';
+    let OTP = '';
+    for (let i = 0; i < otpLen; i++) {
+        OTP += permissableCharacters[Math.floor(Math.random() * permissableCharacters.length)];
+    }
+    return OTP;
+}

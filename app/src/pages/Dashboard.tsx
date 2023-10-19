@@ -15,13 +15,74 @@ import Paper from '@mui/material/Paper';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import {Deposits} from '../components/Deposits';
-import Orders from '../components/Orders';
 import {ListItemButton, ListItemIcon, ListItemText, DashboardIcon, CarCrashOutlinedIcon, MapOutlinedIcon, TrafficOutlinedIcon , LogoutOutlinedIcon} from '../components/ListButtonIndex'
 import { useNavigate } from "react-router-dom";
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
-import Chart from '../components/Chart';
+import Link from '@mui/material/Link';
+import axios from 'axios'
+import {useState, useEffect} from 'react'
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Title from '../components/Title';
+import { LineChart, Line, XAxis, YAxis, Label, ResponsiveContainer } from 'recharts';
+import { useTheme } from '@mui/material/styles';
+import MapComponent from "../components/Map";
+import Stack from '@mui/material/Stack';
 
 const drawerWidth: number = 240;
+
+interface Report {
+  incident: String,
+  location: {
+    long: Number
+    lat: Number
+  },
+  address: String
+  duration_hours: Number
+  description: String
+  time: String
+  timestamp: Date
+  reported_by: String
+}
+
+interface Route {
+  source: {
+    longitude: Number,
+    latitude: Number,
+    address: String
+  },
+  destination: {
+    longitude: Number, 
+    latitude: Number,
+    address: String
+  },
+  description: String
+}
+
+interface Traffic{
+    vehicle_avg: number,
+    vehicle_total: number,
+    time_of_day: string
+}
+
+interface Camera{
+  camera_name: string,
+  location: {
+    long: number,
+    lat: number
+  },
+  vehicle_count: number
+}
+
+interface CameraArray{
+  cameraName: string,
+  lng: number,
+  lat: number,
+  vehicleCount: number
+}
 
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean;
@@ -75,12 +136,253 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const defaultTheme = createTheme();
 
 export default function Dashboard() {
-  const [open, setOpen] = React.useState(true);
+
+  const theme = useTheme();
+
+  const [open, setOpen] = useState(true);
+  const [routeList, setRouteList] = useState([]);
+  const [incidentList, setIncidentList] = useState([]);
+  const [trafficData, setTrafficData] = useState([])
+  const [isRouteLoaded, setIsRouteLoaded] = useState(false)
+  const [isIncidentLoaded, setIsIncidentLoaded] = useState(false)
+  const [isTrafficLoaded, setIsTrafficLoaded] = useState(false)
+  const [cameras, setCameras] = React.useState<Array<CameraArray>>([]);
+
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    getFavouriteRouteList();
+    getRecentIncidentList();
+    getTrafficData();
+    getTrafficCameraData();
+  }, []);
+
+  const getFavouriteRouteList = () => {
+    axios.get('http://localhost:2000/routes')
+    .then((res)=> setRouteList(res.data))
+    .then ((res)=> setIsRouteLoaded(true))
+    .catch(function(error) {
+            console.log(error)
+            setIsRouteLoaded(false)
+        });
+  };
+
+  const getRecentIncidentList = () => {
+    axios.get('http://localhost:2000/reports/today/recent')
+    .then((res)=> setIncidentList(res.data))
+    .then ((res)=> setIsIncidentLoaded(true))
+    .catch(function(error) {
+            console.log(error)
+            setIsIncidentLoaded(false)
+        });
+  };
+
+  const getTrafficData = () => {
+    axios.get('http://localhost:2000/traffic/combined-trends') 
+    .then ((res)=> setTrafficData(res.data.hourly_counts))
+    .then ((res)=> setIsTrafficLoaded(true))
+    .catch(function(error){
+      console.log(error)
+      setIsTrafficLoaded(false)
+    })
+  }
+
+  const getTrafficCameraData = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:2000/traffic/conditions"
+      );
+      console.log(response.data);
+      const allCameras = response.data.cameras;
+
+      let cameraArray: Array<CameraArray>= [];
+
+      allCameras.forEach(({ camera_name, location, vehicle_count} : Camera)=> {
+        cameraArray.push({
+          cameraName: camera_name,
+          lng: location.long,
+          lat: location.lat,
+          vehicleCount: vehicle_count
+        })
+      });
+
+      setCameras(cameraArray);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const TrafficTrend = () => {
+    if (isTrafficLoaded){
+        let data: Array<{time: string, amount: number}>= []
+        let average = 0
+        let carsNow = 0
+        let date = new Date
+        let expectedTraffic = ""
+        trafficData.forEach((traffic: Traffic) => {
+          if (parseInt(traffic["time_of_day"])<10){
+            data.push(createData("0"+traffic["time_of_day"]+":00", traffic["vehicle_total"]))
+          } else {
+            data.push(createData(traffic["time_of_day"]+":00", traffic["vehicle_total"]))
+          }
+          if (parseInt(traffic["time_of_day"])===date.getHours()){
+            carsNow = traffic["vehicle_total"]
+          }
+          average += traffic["vehicle_total"]
+        })
+        average /= 24
+
+        const DisplayExpectedTraffic = () => {
+          if (carsNow > average) {
+            return <Typography component="h2" variant="h6" color="red" gutterBottom>
+                     High
+                   </Typography>
+          } else if (carsNow < average){
+            return <Typography component="h2" variant="h6" color="green" gutterBottom>
+                     Low
+                   </Typography>
+          } else {
+            return <Typography component="h2" variant="h6" color="yellow" gutterBottom>
+                     Moderate
+                   </Typography>
+          }
+  
+        }
+        return <React.Fragment>
+                <Title>Past Traffic Trend</Title>
+                <Stack spacing={1} direction="row">
+                <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                  Current expected traffic:
+                </Typography>
+                <DisplayExpectedTraffic />
+                </Stack>
+                <ResponsiveContainer>
+                  <LineChart
+                    data={data}
+                    margin={{
+                      top: 16,
+                      right: 16,
+                      bottom: 0,
+                      left: 24,
+                    }}
+                  >
+                    <XAxis
+                      dataKey="time"
+                      stroke={theme.palette.text.secondary}
+                      style={theme.typography.body2}
+                      tickCount={23}
+                    />
+                    <YAxis
+                      stroke={theme.palette.text.secondary}
+                      style={theme.typography.body2}
+                    >
+                      <Label
+                        angle={270}
+                        position="left"
+                        style={{
+                          textAnchor: 'middle',
+                          fill: theme.palette.text.primary,
+                          ...theme.typography.body1,
+                        }}
+                      >
+                        Total cars 
+                      </Label>
+                    </YAxis>
+                    <Line
+                      isAnimationActive={true}
+                      type="monotone"
+                      dataKey="amount"
+                      stroke={theme.palette.primary.main}
+                      dot={true}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+                <Link color="primary" href="#" sx={{ mt: 3 } }>
+                  See specific camera trends
+                </Link>
+              </React.Fragment>
+    }else{
+      return <Title>Error in loading. Please refresh the page.</Title>
+    }
+  }
+
+  const IncidentList = () => {
+    if (isIncidentLoaded){
+      return    <React.Fragment>
+                <Title>Recent Incidents</Title>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Incident</TableCell>
+                        <TableCell>Time</TableCell>
+                        <TableCell>Address</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {incidentList.map((report: Report) => (
+                        <TableRow>
+                          <TableCell width="20%">{report.incident.toUpperCase()}</TableCell>
+                          <TableCell width="15%">{report.time}</TableCell>
+                          <TableCell width="65%">{report.address}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  <Link color="primary" href="#" onClick={() => navigate("/incidents")} sx={{ mt: 3 } }>
+                    See all incidents
+                  </Link>
+                  </React.Fragment>
+    }
+    if (isIncidentLoaded && incidentList.length==0){
+      return <Title>There are no incidents reported today</Title>
+    }
+    if (!isIncidentLoaded){
+      return <Title>Error in loading. Please refresh the page.</Title>
+    }
+    return null
+  }
+
+  const FavouriteRouteList = () => {
+    if (isRouteLoaded){
+      return  <React.Fragment>
+              <Title>Favorite routes</Title>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>From</TableCell>
+                    <TableCell>To</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {routeList.map((route: Route) => (
+                    <TableRow>
+                      <TableCell>jurong</TableCell> 
+                      <TableCell>changi</TableCell> 
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <Link color="primary" href="#" sx={{ mt: 3 }}>
+                See all routes
+              </Link>
+              </React.Fragment>
+    } 
+    if (isRouteLoaded && routeList.length===0) {
+      return <Title>There are no favourite routes saved.</Title>
+    }
+    if (!isRouteLoaded){
+      return <Title>Error in loading. Please refresh the page.</Title>
+    }
+    return null
+  }
+
+  function createData(time: string, amount: number) {
+    return { time, amount };
+  }
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -156,13 +458,13 @@ export default function Dashboard() {
                 </ListItemIcon>
                 <ListItemText primary="Incidents" />
               </ListItemButton>
-              <ListItemButton>
+              <ListItemButton onClick={() => navigate("/map")}>
                 <ListItemIcon>
                  <MapOutlinedIcon />
                 </ListItemIcon>
                 <ListItemText primary="Map" />
               </ListItemButton>
-              <ListItemButton>
+              <ListItemButton onClick={() => navigate("/roadconditions")}>
                 <ListItemIcon>
                   <TrafficOutlinedIcon />
                 </ListItemIcon>
@@ -199,48 +501,59 @@ export default function Dashboard() {
                     p: 2,
                     display: 'flex',
                     flexDirection: 'column',
-                    height: 360,
+                    height: 450,
                   }}
                 >
-                  <Chart />
+                <TrafficTrend />
                 </Paper>
-              </Grid>
-              {/* Recent Deposits */}
+                    </Grid>
               <Grid item xs={12} md={6} lg={6}>
                 <Paper
                   sx={{
                     p: 2,
                     display: 'flex',
                     flexDirection: 'column',
-                    height: 360,
+                    height: 450,
+                    overflow: 'auto'
                   }}
                 >
-                  <Deposits title="Maps" />
+                  <Stack spacing={20} direction="row">
+                  <Title>Current Traffic Conditions</Title>
+                  <Link color="primary" href="#" onClick={() => navigate("/map")} sx={{ mt: 3 }} >
+                        Go to map page
+                  </Link>
+                  </Stack>
+                    <MapComponent
+                      location={{ lng: 103.7992246, lat: 1.3687004, address: "Singapore" }}
+                      zoomLevel={12}
+                      cameras={cameras}
+                    />
                 </Paper>
               </Grid>
-              <Grid item xs={12} md={6} lg={6}>
+              <Grid item xs={12} md={6} lg={8}>
                 <Paper
                   sx={{
                     p: 2,
                     display: 'flex',
                     flexDirection: 'column',
-                    height: 240,
+                    height: 320,
+                    overflow: 'auto'
                   }}
                 >
-                  <Deposits title="Recents"/>
+                <IncidentList />
                 </Paper>
               </Grid>
-              {/* Recent Deposits */}
-              <Grid item xs={12} md={6} lg={6}>
+              <Grid item xs={12} md={6} lg={4}>
                 <Paper
                   sx={{
                     p: 2,
                     display: 'flex',
                     flexDirection: 'column',
-                    height: 240,
+                    height: 320,
+                    overflow: 'auto'
                   }}
                 >
-                  <Deposits title="Favourites"/>
+                <FavouriteRouteList />
                 </Paper>
               </Grid>
             </Grid>
