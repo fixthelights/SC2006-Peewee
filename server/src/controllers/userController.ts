@@ -137,7 +137,7 @@ exports.login = async (req : Request,res : Response) => {
 
 // POST request to check if user is logged in
 exports.loggedIn = async (req : Request,res : Response) => {
-    res.json(authJwt(req.params.jwt));
+    res.json(authJwt(req.body.jwt));
 };
 
 // POST request for forget password - Request change password
