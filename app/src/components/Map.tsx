@@ -34,13 +34,8 @@ interface MapProps {
     address: string;
   };
   zoomLevel: number;
-<<<<<<< Updated upstream
   cameras: Camera[]
-=======
-  cameras: Camera[];
   directionsResponse: google.maps.DirectionsResult | null;
-  
->>>>>>> Stashed changes
 }
 
 const Map: FC<MapProps> = ({ location, zoomLevel, cameras, directionsResponse }) => {
@@ -72,10 +67,7 @@ const Map: FC<MapProps> = ({ location, zoomLevel, cameras, directionsResponse })
     setIsOpen(true);
   }
 
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
   const peaknessIcon = (peakedness: number | null) => {
     let url;
 
@@ -100,10 +92,6 @@ const Map: FC<MapProps> = ({ location, zoomLevel, cameras, directionsResponse })
     }
   }
 
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
   return (
     <div className="map">
     {!isLoaded ? (
