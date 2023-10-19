@@ -48,7 +48,7 @@ const defaultTheme = createTheme();
 export default function Map() {
   const [trafficFilters, setTrafficFilters] = React.useState([""]);
   const [incidentFilters, setIncidentFilters] = React.useState([""]);
-  const [cameras, setCameras] = React.useState<Array<CameraArray>>([]);
+  const [cameras, setCameras] = React.useState<Array<Camera>>([]);
 
   const handleTrafficFilters = (
     event: React.MouseEvent<HTMLElement>,
@@ -72,20 +72,22 @@ export default function Map() {
     setIncidentFilters(newFilters);
   };
 
-  interface Camera{
+  interface CameraFromAPI{
     camera_name: string,
     location: {
       long: number,
       lat: number
     },
     vehicle_count: number
+    peakedness: number | null
   }
 
-  interface CameraArray{
+  interface Camera{
     cameraName: string,
     lng: number,
     lat: number,
     vehicleCount: number
+    peakedness: number | null
   }
 
   React.useEffect(() => {
@@ -97,14 +99,15 @@ export default function Map() {
         console.log(response.data);
         const allCameras = response.data.cameras;
 
-        let cameraArray: Array<CameraArray>= [];
+        let cameraArray: Array<Camera>= [];
 
-        allCameras.forEach(({ camera_name, location, vehicle_count} : Camera)=> {
+        allCameras.forEach(({ camera_name, location, vehicle_count, peakedness} : CameraFromAPI)=> {
           cameraArray.push({
             cameraName: camera_name,
             lng: location.long,
             lat: location.lat,
-            vehicleCount: vehicle_count
+            vehicleCount: vehicle_count,
+            peakedness: peakedness
           })
         });
 
