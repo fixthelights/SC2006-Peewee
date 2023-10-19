@@ -1,5 +1,5 @@
 import React, { FC, useState } from 'react';
-import {GoogleMap, Marker, InfoWindowF, useLoadScript} from '@react-google-maps/api';
+import {GoogleMap, Marker, InfoWindowF, useLoadScript, DirectionsRenderer} from '@react-google-maps/api';
 import { useMemo } from "react";
 import { Icon } from '@iconify/react';
 import locationIcon from '@iconify/icons-mdi/map-marker';
@@ -34,16 +34,23 @@ interface MapProps {
     address: string;
   };
   zoomLevel: number;
+<<<<<<< Updated upstream
   cameras: Camera[]
+=======
+  cameras: Camera[];
+  directionsResponse: google.maps.DirectionsResult | null;
+  
+>>>>>>> Stashed changes
 }
 
-const Map: FC<MapProps> = ({ location, zoomLevel, cameras }) => {
+const Map: FC<MapProps> = ({ location, zoomLevel, cameras, directionsResponse }) => {
   const [mapRef, setMapRef] = useState<google.maps.Map>();
   const [isOpen, setIsOpen] = useState(false);
   const [infoWindowData, setInfoWindowData] = useState<{id: number, camera: Camera}>();
 
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: 'AIzaSyDm-rTxw55HDBTGxVL5kbYVtQjqHVIiPCE',
+    googleMapsApiKey: 'AIzaSyCn6_wKG_mP0YI_eVctQ5zB50VuwMmzoWQ',
+    libraries: ['places']
   });
 
   const onMapLoad = (map : google.maps.Map) => {
@@ -65,6 +72,10 @@ const Map: FC<MapProps> = ({ location, zoomLevel, cameras }) => {
     setIsOpen(true);
   }
 
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
   const peaknessIcon = (peakedness: number | null) => {
     let url;
 
@@ -89,6 +100,10 @@ const Map: FC<MapProps> = ({ location, zoomLevel, cameras }) => {
     }
   }
 
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
   return (
     <div className="map">
     {!isLoaded ? (
@@ -125,6 +140,10 @@ const Map: FC<MapProps> = ({ location, zoomLevel, cameras }) => {
             </Marker>
 
           ))};
+          <Marker position={center} />
+          {directionsResponse && (
+            <DirectionsRenderer directions={directionsResponse} />
+          )}
         </GoogleMap>
       )}
   </div>
