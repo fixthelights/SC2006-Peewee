@@ -1,7 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 const bcrypt = require('bcrypt');
 
-
 export interface UserDocument extends Document {
     // username: String;
     email: string; 
@@ -10,6 +9,7 @@ export interface UserDocument extends Document {
     // lastName: String;
     // phone: String;
     createdAt: Date;
+    favoriteRoutes: string[];
 }
 
 const UserSchema: Schema<UserDocument> = new Schema({
@@ -44,6 +44,10 @@ const UserSchema: Schema<UserDocument> = new Schema({
     createdAt: { 
         type: Date, 
         default: Date.now 
+    },
+    favoriteRoutes: {
+        type:[String],
+        default: []
     }
 });
 
@@ -65,7 +69,8 @@ UserSchema.pre('save', async function (next) {
 
 // Compile model from schema
 const User = mongoose.model<UserDocument>('User',UserSchema);
-
+export default User; 
 
 // Export model
 module.exports = User;
+
