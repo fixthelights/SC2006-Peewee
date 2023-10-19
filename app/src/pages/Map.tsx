@@ -52,8 +52,7 @@ export default function Map() {
   const [trafficFilters, setTrafficFilters] = React.useState([""]);
   const [incidentFilters, setIncidentFilters] = React.useState([""]);
   const [cameras, setCameras] = React.useState<Array<Camera>>([]);
-<<<<<<< Updated upstream
-=======
+  
 
   const [directionsRenderer, setDirectionsRenderer] = React.useState<google.maps.DirectionsRenderer | null>(null);
   const [directionsResponse, setDirectionsResponse] = React.useState<google.maps.DirectionsResult | null>(null);
@@ -65,7 +64,7 @@ export default function Map() {
     libraries: ['places']
   });
 
->>>>>>> Stashed changes
+
 
   const handleTrafficFilters = (
     event: React.MouseEvent<HTMLElement>,
