@@ -15,7 +15,7 @@ import Paper from "@mui/material/Paper";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { Deposits } from "../components/Deposits";
-import Orders from "../components/Orders";
+
 import {
   ListItemButton,
   ListItemIcon,
@@ -28,7 +28,6 @@ import {
 } from "../components/ListButtonIndex";
 import { useNavigate } from "react-router-dom";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
-import Chart from "../components/Chart";
 import AppFrame from "../components/AppFrame";
 
 // TODO remove, this demo shouldn't need to reset the theme.

@@ -3,8 +3,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
@@ -13,7 +11,6 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from "react-router-dom";
-import {AuthController} from "../classes/AuthController"
 import { useState , useEffect } from 'react';
 import axios from 'axios';
 import Alert from '@mui/material/Alert';
@@ -28,8 +25,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
  
   // States for checking the errors
-  const [isInvalidEmail, setIsInvalidEmail] = useState(true);
-  const [isInvalidPassword, setIsInvalidPssword] = useState(true);
+  const [isValidUser, setIsValidUser] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [userList, setUserList] = useState([])
 
@@ -65,13 +61,11 @@ export default function Login() {
         {navigate("/dashboard")};
       } else {
         // display message for invalid user
-        setIsInvalidEmail(false);
-        setIsInvalidPssword(false);
+       setIsValidUser(true)
       }
 
     } catch (error) {
-      setIsInvalidEmail(true);
-      setIsInvalidPssword(true);  
+      setIsValidUser(false)  
       console.log("Invalid login");
     }
   }
@@ -120,15 +114,10 @@ export default function Login() {
 
   const Message = () => {
     if (isSubmitted){
-      if (isInvalidPassword && isInvalidEmail) {
-        return <Alert severity="info">Password and email are invalid. Log In is unsuccessful.</Alert>
+      if (!isValidUser) {
+        return <Alert severity="info">Invalid User.</Alert>
       }
-      if (isInvalidPassword){
-        return <Alert severity="info">Password is invalid. Log In is unsuccessful.</Alert>
-      }
-      if (isInvalidEmail){
-        return <Alert severity="info">Email is invalid. Log In is unsuccessful.</Alert>
-      }
+      return null;
     }
     return null;
   }
@@ -174,16 +163,11 @@ export default function Login() {
               autoComplete="current-password"
               onChange={handlePassword}
             />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
             <Button
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              onClick={handleSubmit}
             >
               Log In
             </Button>

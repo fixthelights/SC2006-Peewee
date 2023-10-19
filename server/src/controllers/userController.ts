@@ -331,8 +331,6 @@ const verifyPassword = async (inputPassword : String, hashedPassword : String) =
     };
 };
 
-
-
 const generateOTP = (otpLen: number) => {
     const permissableCharacters = '0123456789';
     let OTP = '';

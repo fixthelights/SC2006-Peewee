@@ -20,7 +20,7 @@ process.env.PROCESSING === 'TRUE' && scheduledFunctions.initScheduledJobs();
 const userRouter = require('./src/routes/userRouter');
 const reportRouter = require('./src/routes/reportRouter');
 const trafficRouter = require('./src/routes/trafficRouter');
-//const routeRouter = require('./src/routes./routeRouter');
+const routeRouter = require('./src/routes/routeRouter');
 
 // Express Code
 const app = express();
@@ -33,8 +33,7 @@ app.use(cors());
 app.use('/users',userRouter);
 app.use('/reports',reportRouter);
 app.use('/traffic', trafficRouter);
-// app.use('/routes',routeRouter);
-
+app.use('/routes',routeRouter);
 
 
 // Catch 404 and forward to error handler
