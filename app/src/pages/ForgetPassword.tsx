@@ -12,21 +12,28 @@ import { useState, useEffect } from 'react'
 import Alert from '@mui/material/Alert';
 import Link from '@mui/material/Link';
 import { AuthManager} from '../classes/AuthManager';
+import axios from 'axios';
 import Photo from '../assets/LoginBackground.jpg'
 import Paper from '@mui/material/Paper';
+import e from 'cors';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 const authController = new AuthManager()
 
+
 export default function ForgetPassword() {
+  
+
+  // Importing States
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('')
+  
   const [generatedOTP, setGeneratedOTP] = useState('')
   const [isOTPSent, setIsOTPSent] = useState(false);
   const [isEmailSubmitted, setIsEmailSubmitted] = useState(false)
 
+  const [email, setEmail] = useState('')
   const [OTP, setOTP] = useState('')
   const [password, setPassword] = useState('')
   const [retypedPassword, setRetypedPassword] = useState('')
@@ -36,57 +43,50 @@ export default function ForgetPassword() {
   const [isRetypedPasswordValid, setIsRetypedPasswordValid] = useState(false)
   const [isPasswordSubmitted, setIsPasswordSubmitted] = useState(false)
   const [isPasswordUpdated, setIsPasswordUpdated] = useState(false)
-  
-  const [userList, setUserList] = useState([])
+  const [currentStep, setCurrentStep] = useState(1);
 
+  // Steps handler for forget password flow
+  const handleNextStep = () => {
+    setCurrentStep(currentStep + 1);
+  };
+  const handlePreviousStep = () => {
+    setCurrentStep(currentStep - 1);
+  };
+
+  // Handle changes to OTP Input
   const handleOTP = (event: React.ChangeEvent<HTMLInputElement>) => {
     setOTP(event.target.value);
   };
 
-  const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(event.target.value);
-  };
-
+  // Handle changes to Password Input
   const handlePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(event.target.value);
   };
 
+  // Handle changes to Retyped Password Input
   const handleRetypedPassword = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRetypedPassword(event.target.value);
   };
-
   
-  const handleEmailSubmission = (event: React.MouseEvent) => {
 
-    event.preventDefault()
-
-    //let otpGenerated = authManager.generateOTP()
-    let otpGenerated = 12345678
-
-    /*axios.post('http://localhost:2000/users/forget-password',{
-      username: "hiiii",
-      email: email,
-      otp: otpGenerated
-      })
-      .then((res)=> console.log(res.data))
-      .then ((res) => setIsOTPSent(true))
-      .then ((res)=>setIsEmailSubmitted(true))
-      .catch(function(error) {
-          console.log(error);
-          if (error.message === "Request failed with status code 404"){
-            setIsEmailValid(false)
-          }else{
-            etIsEmailValid(false)
-          }
-          setIsOTPSent(false);
-          setIsEmailSubmitted(true)
-    })*/
-
-    setIsEmailValid(true)
-    setIsOTPSent(true);
-    setIsEmailSubmitted(true)
-
-  };
+  // Send OTP to email
+  function sendForgetPassword(email: string) {
+    try {
+      console.log("Email is " + email);
+      const response = axios.post('http://localhost:2000/users/forget-password', { email : email });
+      console.log(response);
+      // Return OTP 
+      return response;
+    } catch (error : any) {
+      console.log(error);
+      // Handle error
+      if (error.message === "Request failed with status code 404"){
+        setIsEmailValid(false)
+      }
+      setIsOTPSent(false);
+      setIsEmailSubmitted(true);
+    }
+  } 
 
   const OtpMessage = () => {
     if (isEmailSubmitted){
@@ -100,6 +100,8 @@ export default function ForgetPassword() {
     }
     return null;
   }
+
+  
 
   const handlePasswordSubmission = (event: React.MouseEvent) => {
 
@@ -162,70 +164,152 @@ export default function ForgetPassword() {
     return null;
   }
 
-  return (
-    <ThemeProvider theme={defaultTheme}>
-      <Grid container component="main" sx={{ height: '100vh' }}>
-        <CssBaseline />
-        <Grid
-          item
-          xs={false}
-          sm={4}
-          md={7}
-          sx={{
-            backgroundImage: `url(${Photo})`,
-            backgroundRepeat: 'no-repeat',
-            backgroundColor: (t) =>
-              t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
-        <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+  /* Forget Password Screen */
+
+  // SendEmailStep is the first step in the forget password flow
+  const SendEmailStep: React.FC = () => {
+    
+    
+    // Handle Email Submission
+    const handleEmailSubmission = (event: React.MouseEvent) => {
+      event.preventDefault()
+      try {
+        console.log(email);
+        if (email) {
+          const otpPromise = sendForgetPassword(email);
+          otpPromise?.then(otp => {
+            console.log(otp.data.otp);
+            setGeneratedOTP(otp.data.otp);
+            setIsEmailValid(true);
+            setIsEmailSubmitted(true);
+            handleNextStep(); // Move to next step
+          });
+        }
+      } catch (error : any) {
+        // Handle error
+        if (error.message === "Request failed with status code 404"){
+          setIsEmailValid(false)
+          setIsOTPSent(false);
+          setIsEmailSubmitted(true);
+        }
+      }
+    };
+
+    // Handle changes to Email Input
+    const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setEmail(event.target.value)
+      console.log(email);
+    };
+
+    return (
+      <ThemeProvider theme={defaultTheme}>
+        <Container component="main" maxWidth="xs">
+          <CssBaseline />
           <Box
             sx={{
-              my: 8,
-              mx: 4,
+              marginTop: 8,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
             }}
           >
-          <Typography component="h1" variant="h5">
-            Forget Password
-          </Typography>
-          <Box component="form" noValidate sx={{ mt: 3 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <Typography variant="body1">
-                Please provide the email address you used to register for an account.
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
+            <Typography component="h1" variant="h5">
+              Forget Password
+            </Typography>
+            <Box component="form" noValidate sx={{ mt: 3 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Typography variant="body1">
+                  Please provide the email address you used to register for an account.
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    id="email"
+                    label="Email Address"
+                    name="email"
+                    autoComplete="email"
+                    autoFocus={true}
+                    onChange={handleEmail}
+                    value={email}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                <Button
+                  type="submit"
                   fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                  onChange={handleEmail}
-                />
-              </Grid>
-              <Grid item xs={12}>
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-                onClick = {handleEmailSubmission}
-              >
-                Confirm
-              </Button>
-              </Grid>
-              <Grid item xs={12}>
-              <OtpMessage />
-              </Grid>
-              <Grid item xs={12}>
+                  variant="contained"
+                  sx={{ mt: 3, mb: 2 }}
+                  onClick = {handleEmailSubmission}
+                >
+                  Confirm
+                </Button>
+                </Grid>
+                <Grid item xs={12}>
+                <OtpMessage />
+                </Grid>
+
+                <Grid container justifyContent="flex-end">
+                  <Grid item>
+                    <Link href="#" variant="body2" onClick={() => navigate("/login")}>
+                      Log In
+                    </Link>
+                  </Grid>
+                </Grid>
+                <Grid item>
+                  <PasswordMessage />
+                </Grid>
+                </Grid>
+              </Box>
+            </Box>
+          </Container>
+        </ThemeProvider>
+    );
+  };
+
+  // EnterOTPStep is the second step in the forget password flow
+
+  const EnterOTPStep: React.FC = ( ) => {
+    const handleOtpSubmission = (event: React.MouseEvent) => {
+      event.preventDefault();
+
+      setIsOTPSent(true);
+
+      console.log("Entered OTP: " + OTP);
+      console.log("Generated OTP: " + generatedOTP);
+  
+      (generatedOTP!=='' && OTP===generatedOTP)? setIsOTPValid(true) : setIsOTPValid(false);
+
+      if (isOTPValid){
+        handleNextStep();
+      }
+    };
+
+    return (
+      <ThemeProvider theme={defaultTheme}>
+        <Container component="main" maxWidth="xs">
+          <CssBaseline />
+          <Box
+            sx={{
+              marginTop: 8,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+          >
+            <Typography component="h1" variant="h5">
+              An OTP has been sent to your email
+            </Typography>
+            <Box component="form" noValidate sx={{ mt: 3 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Typography variant="body1">
+                  Please enter the OTP below to reset your password.
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
                   <TextField
                     required
                     fullWidth
@@ -233,57 +317,118 @@ export default function ForgetPassword() {
                     label="OTP"
                     type="otp"
                     id="otp"
-                    onChange = {handleOTP}
+                    onChange = {e => e.target.value}
                   />
-              </Grid>
-              <Grid item xs={12}>
-                  <TextField
-                    required
-                    fullWidth
-                    name="password"
-                    label="Password"
-                    type="password"
-                    id="password"
-                    onChange = {handlePassword}
-                  />
-              </Grid>
-              <Grid item xs={12}>
-                  <TextField
-                    required
-                    fullWidth
-                    name="retypedPassword"
-                    label="Retype Password"
-                    type="retypedPassword"
-                    id="retypedPassword"
-                    onChange = {handleRetypedPassword}
-                  />
-              </Grid>
-              <Grid item xs={12}>
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-                onClick = {handlePasswordSubmission}
-              >
-                Reset Password
-              </Button>
-              </Grid>
-              <Grid container justifyContent="flex-end">
-                <Grid item>
-                  <Link href="#" variant="body2" onClick={() => navigate("/login")}>
-                    Log In
-                  </Link>
                 </Grid>
-              </Grid>
-              <Grid item>
-                <PasswordMessage />
-              </Grid>
-              </Grid>
+                <Grid item xs={12}>
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  sx={{ mt: 3, mb: 2 }}
+                  onClick = {handleOtpSubmission}
+                >
+                  Confirm
+                </Button>
+                </Grid>
+                <Grid item xs={12}>
+                <OtpMessage />
+                </Grid>
+
+                <Grid container justifyContent="flex-end">
+                  <Grid item>
+                    <Link href="#" variant="body2" onClick={() => navigate("/login")}>
+                      Log In
+                    </Link>
+                  </Grid>
+                </Grid>
+                <Grid item>
+                  <PasswordMessage />
+                </Grid>
+                </Grid>
+              </Box>
             </Box>
-          </Box>
-        </Grid>
-        </Grid>
-      </ThemeProvider>
+          </Container>
+        </ThemeProvider>
+    );
+  };
+
+  // ResetPasswordStep is the third step in the forget password flow
+
+  const ResetPasswordStep: React.FC = () => {
+    // Add password reset logic here
+    return (
+      <ThemeProvider theme={defaultTheme}>
+        <Container component="main" maxWidth="xs">
+          <CssBaseline />
+          <Box
+            sx={{
+              marginTop: 8,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+          >
+            <Typography component="h1" variant="h5" fontWeight={'bold'}>
+              Reset your password
+            </Typography>
+            <Box component="form" noValidate sx={{ mt: 3 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Typography variant="body1" align={'center'}>
+                  Enter your new password below
+                  </Typography>
+                </Grid>
+                <><Grid item xs={12}>
+        <TextField
+          required
+          fullWidth
+          name="password"
+          label="Password"
+          type="password"
+          id="password"
+          onChange={handlePassword} />
+      </Grid><Grid item xs={12}>
+          <TextField
+            required
+            fullWidth
+            name="retypedPassword"
+            label="Retype Password"
+            type="retypedPassword"
+            id="retypedPassword"
+            onChange={handleRetypedPassword} />
+        </Grid><Grid item xs={12}>
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+            onClick={handlePasswordSubmission}
+          >
+            Reset Password
+          </Button>
+        </Grid></>
+                <Grid item>
+                  <PasswordMessage />
+                </Grid>
+                </Grid>
+              </Box>
+            </Box>
+          </Container>
+        </ThemeProvider>
+      
+      
+    );
+  };
+
+
+    
+  return (
+    <div>
+      {currentStep === 1 && <SendEmailStep />}
+      {currentStep === 2 && <EnterOTPStep />}
+      {currentStep === 3 && <ResetPasswordStep />}
+    </div>
   );
-}
+};
+
