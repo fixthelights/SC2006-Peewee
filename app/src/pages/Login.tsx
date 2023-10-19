@@ -35,35 +35,14 @@ export default function Login() {
 
   useEffect( () => {
     handleLogin();
-    console.log("Use effect");
-    
-    if (isSubmitted){   
-
-      // // Check if JWT exists in local storage
-      // let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
-      // // userJwt = "null";
-      // // Validate JWT with backend - Check if token still valid
-      // let loggedIn;
-      // const loggedInPromise = axios.post(`http://localhost:2000/users/${userJwt}`);
-
-      // loggedInPromise.then((response) => {
-      //   loggedIn = response.data;
-      // });
- 
-      // // Validate user login
-      // if (loggedIn === true) {
-      //   {navigate("/dashboard")};
-      // } else {
-      //   // display message for invalid user
-      //   setIsInvalidEmail(false);
-      //   setIsInvalidPssword(false);
-      // }
-    }
   }, [isSubmitted]);
 
   const handleLogin = async () => {
     try {
-      isUserLoggedIn();
+      // If user logged in, redirect to next page and end function call
+      if (await isUserLoggedIn()) {
+        return;
+      };
       
       // Make login request to server
       const response = await axios.post('http://localhost:2000/users/login', {
@@ -103,22 +82,6 @@ export default function Login() {
     handleLogin();
   };
 
-
-  // Checks can be done backend
-  /*let checkMatchingEmail = userList.map((user)=>{
-    if (user.email === email){
-      return true;
-    }
-    return false;
-  });*/
-
-  /*let checkMatchingPassword = userList.map((user)=>{
-    if (user.password === password && user.email === email){
-      return true;
-    }
-    return false;
-  });*/
-
   async function isUserLoggedIn() {
     // Check if JWT exists in local storage
     let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
@@ -131,8 +94,11 @@ export default function Login() {
     // If already logged in, redirect to next page
     if (loggedIn.data === true) {
       {navigate("/dashboard")};
+      return true;
     }
+    return false;
   }
+
   // Handling the email change
   function handleEmail(event: React.ChangeEvent<HTMLInputElement>) {
     setEmail(event.target.value);
@@ -142,21 +108,7 @@ export default function Login() {
   const handlePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(event.target.value);
   };
-
-    // // to be removed
-    // let emailValid = true;
-    // let passwordValid = true;
-  
-    // // redirect valid user
-    // if (emailValid && passwordValid){
-    //   {navigate("/dashboard")};
-    // }
-
-    // User validation can be done backend
-    /*let emailValid = checkMatchingEmail;*/
-    /*let passwordValid = checkMatchingPassword; // would check for empty string*/
     
-
   const handleInput = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
