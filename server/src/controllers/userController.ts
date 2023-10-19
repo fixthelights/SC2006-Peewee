@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import { AppError } from '../config/AppError';
 import crypto from 'crypto';
 import jwt from "jsonwebtoken";
-import { SECRET_KEY, authJwt } from '../middlewares/auth';
+import { signToken, authJwt } from '../middlewares/auth';
 
 
 const User = require("../models/user");
@@ -113,9 +113,7 @@ exports.login = async (req : Request,res : Response) => {
         // If email & password match
         const verifiedUser = await authenticatedUser( email , password )
         if (verifiedUser) {
-            const token = jwt.sign({ _id: verifiedUser._id?.toString(), name: verifiedUser.name }, SECRET_KEY, {
-                expiresIn: '2 days',
-              });
+            const token = signToken(verifiedUser._id, verifiedUser.email);
 
             console.log("User logged in successfully");
             return res.status(200).json( {_id: verifiedUser._id, email: email, token: token} ); // Returns JWT for frontend to store
