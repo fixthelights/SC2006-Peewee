@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { useState , useEffect } from 'react';
 import axios from 'axios';
 import Alert from '@mui/material/Alert';
-import { LegendToggleRounded } from '@mui/icons-material';
+// import { LegendToggleRounded } from '@mui/icons-material';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
@@ -27,11 +27,10 @@ export default function Login() {
   // States for checking the errors
   const [isValidUser, setIsValidUser] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [userList, setUserList] = useState([])
 
   useEffect( () => {
     handleLogin();
-  }, [isSubmitted]);
+  });
 
   const handleLogin = async () => {
     try {
@@ -58,7 +57,7 @@ export default function Login() {
 
       // Redirect to dashboard
       if (loggedIn.data === true) {
-        {navigate("/dashboard")};
+        navigate("/dashboard");
       } else {
         // display message for invalid user
        setIsValidUser(true)
@@ -87,7 +86,7 @@ export default function Login() {
     
     // If already logged in, redirect to next page
     if (loggedIn.data === true) {
-      {navigate("/dashboard")};
+      navigate("/dashboard");
       return true;
     }
     return false;
