@@ -381,7 +381,7 @@ export default function Dashboard() {
                 </ListItemIcon>
                 <ListItemText primary="Road Conditions" />
               </ListItemButton>
-                <ListItemButton onClick={() => navigate("/")}>
+                <ListItemButton onClick={() => {localStorage.removeItem("token"); navigate("/")}}> 
                 <ListItemIcon>
                   <LogoutOutlinedIcon />
                 </ListItemIcon>
