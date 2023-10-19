@@ -234,7 +234,7 @@ export default function Dashboard() {
           }
           average += traffic["vehicle_total"]
         })
-        average /= 23
+        average /= 24
 
         const DisplayExpectedTraffic = () => {
           if (carsNow > average) {
