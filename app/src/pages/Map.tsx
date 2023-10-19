@@ -240,7 +240,8 @@ function clearRoute() {
             <Button variant="contained" onClick={() => { clearRender(); calculateRoute(); }}>Search</Button>
             <Button variant="contained">Save Route</Button>
             <Button variant="contained">View Favourites</Button>
-            <Button variant="contained"onClick={clearRoute}>Clear Route</Button>
+            {/* For dev purposes
+            <Button variant="contained"onClick={clearRoute}>Clear Route</Button>*/}
             
           </Stack>
         </Container>
