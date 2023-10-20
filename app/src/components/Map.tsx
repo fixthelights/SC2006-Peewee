@@ -35,7 +35,7 @@ interface MapProps {
   };
   zoomLevel: number;
   cameras: Camera[]
-  directionsResponse: google.maps.DirectionsResult | null;
+  directionsResponse?: google.maps.DirectionsResult | null;
 }
 
 const Map: FC<MapProps> = ({ location, zoomLevel, cameras, directionsResponse }) => {
