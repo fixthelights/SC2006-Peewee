@@ -217,7 +217,7 @@ function clearRoute() {
             sx={{ "& > :not(style)": { width: "35ch" }, my: 2 }}
           >
             {isLoaded && (
-              <Autocomplete>
+              <Autocomplete options={{ componentRestrictions: { country: "SG" } }}>
                 <TextField
                   label="Source"
                   variant="outlined"
@@ -226,7 +226,7 @@ function clearRoute() {
               </Autocomplete>
             )}
             {isLoaded && (
-              <Autocomplete>
+              <Autocomplete options={{ componentRestrictions: { country: "SG" } }}>
                 <TextField
                   label="Destination"
                   variant="outlined"
