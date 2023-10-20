@@ -1,9 +1,7 @@
 import React from 'react';
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import MuiDrawer from '@mui/material/Drawer';
 import Box from '@mui/material/Box';
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Typography from '@mui/material/Typography';
 import { useNavigate } from "react-router-dom";
 import InputLabel from '@mui/material/InputLabel';
@@ -21,75 +19,10 @@ import Paper from '@mui/material/Paper';
 import Container from '@mui/material/Container';
 import AppFrame from '../components/AppFrame'
 
-const drawerWidth: number = 240;
-
-interface AppBarProps extends MuiAppBarProps {
-  open?: boolean;
-}
-
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
-})<AppBarProps>(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(['width', 'margin'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
-
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    '& .MuiDrawer-paper': {
-      position: 'relative',
-      whiteSpace: 'nowrap',
-      width: drawerWidth,
-      transition: theme.transitions.create('width', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-      boxSizing: 'border-box',
-      ...(!open && {
-        overflowX: 'hidden',
-        transition: theme.transitions.create('width', {
-          easing: theme.transitions.easing.sharp,
-          duration: theme.transitions.duration.leavingScreen,
-        }),
-        width: theme.spacing(7),
-        [theme.breakpoints.up('sm')]: {
-          width: theme.spacing(9),
-        },
-      }),
-    },
-  }),
-);
-
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
-    },
-  },
-};
-
 export default function ReportIncident() {
-  const [open, setOpen] = React.useState(true);
-  const toggleDrawer = () => {
-    setOpen(!open);
-  };
 
   const navigate = useNavigate();
 
@@ -104,23 +37,27 @@ export default function ReportIncident() {
   const [validSubmission, setValidSubmission] = useState(false);
 
   useEffect(() => {
-    let lat = 1000
-    let long = 1000
-
-    setLatitude(1.3456) //Jurong West Address 
-    setLongitude(103.704116) //Jurong West Address 
-
-    /*navigator.geolocation.getCurrentPosition(function(position) {
-      console.log("Latitude is :", position.coords.latitude);
-      console.log("Longitude is :", position.coords.longitude);
-      lat = position.coords.latitude;
-      long = position.coords.longitude;
-      setLatitude(lat)
-      setLongitude(long)
-    })*/
+    getUserLocation()
   }, []);
 
-  const LocationMessage = () => {
+  function getUserLocation(): void {
+    //let lat = 1000
+    //let long = 1000
+
+    //setLatitude(1.3456) //Jurong West Address 
+    //setLongitude(103.704116) //Jurong West Address 
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        console.log("Latitude is :", position.coords.latitude);
+        console.log("Longitude is :", position.coords.longitude);
+        setLatitude(position.coords.latitude)
+        setLongitude(position.coords.longitude)
+      })
+    } 
+  }
+
+  const DisplayLocationMessage = () => {
     if (!submissionStatus && incidentType!=''){
       if (!locationPermission){
         return <Box sx={{ pl: 3, pt: 3 }}>
@@ -199,7 +136,7 @@ export default function ReportIncident() {
     
   }
 
-  const IncidentTypeSelection = () => {
+  const DisplayIncidentTypeSelection = () => {
     if (!submissionStatus){
         return  <Box sx={{ width: 360, pl: 3, pt: 3 }}>
                 <FormControl fullWidth>
@@ -222,7 +159,7 @@ export default function ReportIncident() {
   }
   
 
-  const IncidentDescriptionInput= () => {
+  const DisplayIncidentDescriptionInput= () => {
     if (!submissionStatus){
       if (locationDetected){
         return  <Box sx={{ width: 360, pl: 3, pt: 3 }}>
@@ -249,7 +186,7 @@ export default function ReportIncident() {
     return null;
   }
 
-  const SubmitButton = () =>{
+  const DisplaySubmitButton = () =>{
     if (!submissionStatus){
       if (incidentDescription!=''){
         return <Box sx={{ pl: 3, pt: 3 }}>
@@ -287,7 +224,7 @@ export default function ReportIncident() {
         });
   }
 
-  const SubmissionMessage = () => {
+  const DisplaySubmissionMessage = () => {
     if (submissionStatus){
       if (validSubmission){
         return <Alert severity="info"> 
@@ -333,6 +270,8 @@ export default function ReportIncident() {
     setIncidentType('');
     setIncidentDescription('');
     setSubmissionStatus(false);
+    setLatitude(1000)
+    setLongitude(1000)
   }
 
   return (
@@ -351,11 +290,11 @@ export default function ReportIncident() {
                         height: 500,
                         overflow: 'auto'
                     }}>
-                  <IncidentTypeSelection />
-                  <LocationMessage />
-                  <IncidentDescriptionInput />
-                  <SubmitButton />
-                  <SubmissionMessage />
+                  <DisplayIncidentTypeSelection />
+                  <DisplayLocationMessage />
+                  <DisplayIncidentDescriptionInput />
+                  <DisplaySubmitButton />
+                  <DisplaySubmissionMessage />
                   </Paper>
               </Grid>
             </Grid>

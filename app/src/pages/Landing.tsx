@@ -25,8 +25,8 @@ function Landing() {
             console.log(error);
         });*/
 
-            axios.get('http://localhost:2000/traffic/combined-conditions') 
-            .then ((res)=> console.log(res.data["vehicle_total"]))
+            axios.get('http://localhost:2000/reports') 
+            .then ((res)=> console.log(res.data))
             .catch(function(error){
               console.log(error)
             })      
