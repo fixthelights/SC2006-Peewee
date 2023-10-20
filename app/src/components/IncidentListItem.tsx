@@ -7,10 +7,10 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import FmdGoodOutlinedIcon from '@mui/icons-material/FmdGoodOutlined';
 
 interface IncidentListItemProps {
-    incidentType: string
-    incidentTime: string
-    incidentLocation: string
-    incidentDescription: string 
+    incidentType: String
+    incidentTime: String
+    incidentLocation: String
+    incidentDescription: String 
 }
   
 const IncidentListItem: FC<IncidentListItemProps> = ({incidentType, incidentTime, incidentLocation, incidentDescription}) => {
@@ -22,7 +22,7 @@ const IncidentListItem: FC<IncidentListItemProps> = ({incidentType, incidentTime
                 p: 2,
                 display: 'flex',
                 flexDirection: 'column',
-                height: 240,
+                height: 300,
                 overflow: 'auto'
             }}
             >
@@ -35,6 +35,8 @@ const IncidentListItem: FC<IncidentListItemProps> = ({incidentType, incidentTime
             >
                 {incidentType}
             </Typography>
+            </Stack>
+            <Stack spacing={2} direction="row" paddingX={2} paddingY={2}>
             <AccessTimeIcon />
                 <Typography
                 component="h1"
@@ -43,7 +45,9 @@ const IncidentListItem: FC<IncidentListItemProps> = ({incidentType, incidentTime
                 noWrap
                 >
                 {incidentTime}
-            </Typography>
+                </Typography>
+            </Stack>
+            <Stack spacing={2} direction="row" paddingX={2} paddingY={2}>
             <FmdGoodOutlinedIcon />
                 <Typography
                 component="h1"

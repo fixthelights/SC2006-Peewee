@@ -4,7 +4,7 @@ import Report from '../models/report';
 
 exports.getAllReports = async (req :Request, res :Response) => {
     try{
-        const reports = await Report.find().exec();
+        const reports = await Report.find();
         return res.status(200).send(reports)
     }catch(error: any){
         throw new AppError({
@@ -33,6 +33,57 @@ exports.getOneReport = async (req :Request, res :Response) => {
     }
 }
 
+exports.getTodayReports = async (req :Request, res :Response) => {
+    // reports[i].timestamp.toString().substring(0,10) != "2023-10-16"
+    // Extract ID from URL
+    try{
+        let i;
+        const date = new Date()
+        const reports = await Report.find().exec();
+        for (i=0; i<reports.length; i++){
+            if (reports[i].timestamp.toDateString() !== date.toDateString()) {
+                reports.splice(i, 1)
+                i-=1
+            }
+        }
+        return res.status(200).send(reports);
+    }catch(error: any){
+        throw new AppError({
+            type: "Error",
+            statusCode: 500,
+            description: 'Error loading report.',
+            error: error
+        });
+    }
+}
+
+exports.getRecentReports = async (req :Request, res :Response) => {
+    // reports[i].timestamp.toString().substring(0,10) != "2023-10-16"
+    // Extract ID from URL
+    try{
+        let i;
+        const date = new Date()
+        const reports = await Report.find().exec();
+        for (i=0; i<reports.length; i++){
+            if (reports[i].timestamp.toDateString() !== date.toDateString()) {
+                reports.splice(i, 1)
+                i-=1
+            }
+        }
+        while (reports.length>3){
+            reports.splice(0,1)
+        }
+        return res.status(200).send(reports);
+    }catch(error: any){
+        throw new AppError({
+            type: "Error",
+            statusCode: 500,
+            description: 'Error loading report.',
+            error: error
+        });
+    }
+}
+
 exports.submitReport = async (req :Request, res :Response) => {
     // Extract fields from JSON Request body
     const json = req.body; 
@@ -40,7 +91,9 @@ exports.submitReport = async (req :Request, res :Response) => {
     const report = new Report;
     report.incident = json.incident;
     report.location = json.location;
+    report.address = json.address;
     report.duration_hours = json.duration_hours;
+    report.time = json.time;
     report.description = json.description;
 
     try{

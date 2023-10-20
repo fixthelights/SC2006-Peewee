@@ -1,19 +1,24 @@
 import mongoose, { Schema, Document } from 'mongoose';
 const bcrypt = require('bcrypt');
 
-
 export interface UserDocument extends Document {
-    username: String;
-    password: String;
-    email: String;
-    firstName: String;
-    lastName: String;
-    phone: String;
+    // username: String;
+    email: string; 
+    password: string;
+    // firstName: String;
+    // lastName: String;
+    // phone: String;
     createdAt: Date;
+    //favoriteRoutes: string[];
 }
 
 const UserSchema: Schema<UserDocument> = new Schema({
-    username: { 
+    // username: { 
+    //     type: String, 
+    //     required: true, 
+    //     unique: true
+    // },
+    email: { 
         type: String, 
         required: true, 
         unique: true
@@ -22,28 +27,28 @@ const UserSchema: Schema<UserDocument> = new Schema({
         type: String, 
         required: true
     },
-    email: { 
-        type: String, 
-        required: true, 
-        unique: true
-    },
-    firstName: { 
-        type: String, 
-        required: true
-    },
-    lastName: { 
-        type: String,
-        required: true,
-    },
-    phone: { 
-        type: String, 
-        required: true,
-        unique: true
-    },
+    
+    // firstName: { 
+    //     type: String, 
+    //     required: true
+    // },
+    // lastName: { 
+    //     type: String,
+    //     required: true,
+    // },
+    // phone: { 
+    //     type: String, 
+    //     required: true,
+    //     unique: true
+    // },
     createdAt: { 
         type: Date, 
         default: Date.now 
-    }
+    },
+    /*favoriteRoutes: {
+        type:[String],
+        default: []
+    }*/
 });
 
 // Encrypt new password if password is changed before saving
@@ -65,6 +70,6 @@ UserSchema.pre('save', async function (next) {
 // Compile model from schema
 const User = mongoose.model<UserDocument>('User',UserSchema);
 
-
 // Export model
 module.exports = User;
+

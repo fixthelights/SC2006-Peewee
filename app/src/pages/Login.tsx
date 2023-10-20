@@ -3,8 +3,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
@@ -13,9 +11,13 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from "react-router-dom";
-import {AuthController} from "../classes/AuthController"
-import { useState } from 'react';
+import { useState , useEffect } from 'react';
+import axios from 'axios';
 import Alert from '@mui/material/Alert';
+// import { LegendToggleRounded } from '@mui/icons-material';
+import { LegendToggleRounded } from '@mui/icons-material';
+import Photo from '../assets/LoginBackground.jpg';
+import Paper from '@mui/material/Paper';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
@@ -26,61 +28,83 @@ export default function Login() {
   const [password, setPassword] = useState('');
  
   // States for checking the errors
-  const [isInvalidEmail, setIsInvalidEmail] = useState(true);
-  const [isInvalidPassword, setIsInvalidPssword] = useState(true);
+  const [isValidUser, setIsValidUser] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [userList, setUserList] = useState([])
 
-  /*useEffect(()=> {  
-      axios.get('http://localhost:2000/') 
-      .then((res)=> setUserList(res.data));
-  }, []);*/
+  useEffect( () => {
+    handleLogin();
+  },[isSubmitted]);
 
-  /*let checkMatchingEmail = userList.map((user)=>{
-    if (user.email === email){
+  const handleLogin = async () => {
+    try {
+      // If user logged in, redirect to next page and end function call
+      if (await isUserLoggedIn()) {
+        return;
+      };
+      
+      // Make login request to server
+      const response = await axios.post('http://localhost:2000/users/login', {
+        email: email,
+        password: password
+      });
+
+      // Get JWT from backend
+      const userJwt = JSON.parse(JSON.stringify(response.data.token));
+
+      // Store User JWT into local storage
+      localStorage.setItem('token', JSON.stringify(userJwt));
+
+      console.log(userJwt);
+      // Validate JWT with backend - Check if token still valid
+      const loggedIn = await axios.post(`http://localhost:2000/users/auth`, { jwt: userJwt });
+
+      // Redirect to dashboard
+      if (loggedIn.data === true) {
+        navigate("/dashboard");
+      } else {
+        // display message for invalid user
+       setIsValidUser(true)
+      }
+
+    } catch (error) {
+      setIsValidUser(false)  
+      console.log("Invalid login");
+    }
+  }
+  
+  const handleSubmit = (event : any) => {
+    event.preventDefault(); // Prevents page from refreshing on submit
+    setIsSubmitted(true);
+    handleLogin();
+  };
+
+  async function isUserLoggedIn() {
+    // Check if JWT exists in local storage
+    let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
+    // userJwt = "";
+    // Validate JWT with backend - Check if token still valid
+    const loggedIn = await axios.post(`http://localhost:2000/users/auth`, { jwt: userJwt });
+    
+    console.log(userJwt);
+    
+    // If already logged in, redirect to next page
+    if (loggedIn.data === true) {
+      navigate("/dashboard");
       return true;
     }
     return false;
-  });*/
-
-  /*let checkMatchingPassword = userList.map((user)=>{
-    if (user.password === password && user.email === email){
-      return true;
-    }
-    return false;
-  });*/
+  }
 
   // Handling the email change
-  const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
+  function handleEmail(event: React.ChangeEvent<HTMLInputElement>) {
     setEmail(event.target.value);
-  };
+  }
 
   // Handling the password change
   const handlePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(event.target.value);
   };
-
-  const handleSubmit = () => {
-    setIsSubmitted(true);
-
-    // to be removed
-    let emailValid = true;
-    let passwordValid = true;
-
-    // validate user
-    /*let emailValid = checkMatchingEmail;*/
-    /*let passwordValid = checkMatchingPassword; // would check for empty string*/
-
-    // redirect valid user
-    if (emailValid && passwordValid){
-      {navigate("/dashboard")};
-    }
-
-    // display message for invalid user
-    setIsInvalidEmail(!emailValid);
-    setIsInvalidPssword(!passwordValid);
-  }
-
+    
   const handleInput = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -92,37 +116,48 @@ export default function Login() {
 
   const Message = () => {
     if (isSubmitted){
-      if (isInvalidPassword && isInvalidEmail) {
-        return <Alert severity="info">Password and email are invalid. Log In is unsuccessful.</Alert>
+      if (!isValidUser) {
+        return <Alert severity="info">Invalid User.</Alert>
       }
-      if (isInvalidPassword){
-        return <Alert severity="info">Password is invalid. Log In is unsuccessful.</Alert>
-      }
-      if (isInvalidEmail){
-        return <Alert severity="info">Email is invalid. Log In is unsuccessful.</Alert>
-      }
+      return null;
     }
     return null;
   }
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="xs">
+      <Grid container component="main" sx={{ height: '100vh' }}>
         <CssBaseline />
-        <Box
+        <Grid
+          item
+          xs={false}
+          sm={4}
+          md={7}
           sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            backgroundImage: `url(${Photo})`,
+            backgroundRepeat: 'no-repeat',
+            backgroundColor: (t) =>
+              t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
           }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Log In
-          </Typography>
+        />
+        <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+          <Box
+            sx={{
+              my: 8,
+              mx: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+          >
+            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component="h1" variant="h5">
+              Log In
+            </Typography>
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
             <TextField
               margin="normal"
@@ -146,16 +181,11 @@ export default function Login() {
               autoComplete="current-password"
               onChange={handlePassword}
             />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
             <Button
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              onClick={handleSubmit}
             >
               Log In
             </Button>
@@ -176,7 +206,8 @@ export default function Login() {
             </Grid>
           </Box>
         </Box>
-      </Container>
+      </Grid>
+      </Grid>
     </ThemeProvider>
   );
 }

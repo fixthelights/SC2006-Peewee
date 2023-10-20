@@ -5,11 +5,13 @@ const mongoose = require("mongoose");
 const routeSchema = new mongoose.Schema({
     source: {
         longitude: Number,
-        latitude: Number
+        latitude: Number,
+        address: String 
     },
     destination: {
         longitude: Number, 
-        latitude: Number
+        latitude: Number,
+        address: String
     },
     description: String
     });
