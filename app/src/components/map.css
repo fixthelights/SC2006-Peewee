@@ -6,9 +6,9 @@
     text-align: center;
   }
   
-  .google-map {
+  .map-container {
     width: 100%;
-    height: 60vh;
+    height: 90vh;
   }
   
   .pin {

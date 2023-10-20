@@ -142,33 +142,40 @@ Do **note** that the following endpoints **may not return data on all 90 traffic
 > Returns the latest information on traffic conditions of all processed traffic cameras.
 ```json
 {
-    "date": "10/16/2023, 2:57:23 AM",
-    "camera_count": 89,
+    "date": "10/19/2023, 7:57:26 PM",
+    "camera_count": 88,
     "cameras": [
+        ...
         {
-            "camera_name": "1001",
-            "camera_id": "6529c77c46a5bed4455082dc",
+            "camera_name": "1705",
+            "camera_id": "6529c74b46a5bed4455081b3",
             "location": {
-                "long": 103.871146,
-                "lat": 1.29531332
+                "long": 103.8587986,
+                "lat": 1.375925022
             },
-            "url": "https://images.data.gov.sg/api/traffic-images/2023/10/e461432d-7643-4735-9504-86048e8af35d.jpg",
-            "vehicle_count": 0
+            "url": "https://images.data.gov.sg/api/traffic-images/2023/10/28af481a-eda4-4f8a-8bf3-c5bb96d5d5db.jpg",
+            "vehicle_count": 12,
+            "peakedness": 0.7058823529411765
         },
         {
-            "camera_name": "1002",
-            "camera_id": "6529c74146a5bed445508171",
+            "camera_name": "1706",
+            "camera_id": "6529c74c46a5bed4455081b7",
             "location": {
-                "long": 103.8785627,
-                "lat": 1.319541067
+                "long": 103.85806,
+                "lat": 1.38861
             },
-            "url": "https://images.data.gov.sg/api/traffic-images/2023/10/c12fe59e-5106-4d94-b0e7-7d9536ef9acb.jpg",
-            "vehicle_count": 3
-        }
+            "url": "https://images.data.gov.sg/api/traffic-images/2023/10/a164144d-b94c-4907-8ac7-e1005f9872cb.jpg",
+            "vehicle_count": 16,
+            "peakedness": 0.9411764705882353
+        },
         ...
     ]
 }
 ```
+
+**Notes**
+`peakedness` provides a percentage number, from 0 to 1, of the current traffic "peakedness" by comparing with Trend data. Be careful, **peakednes** may return **null** if there are missing Trend data. Type is (number | null).
+
 ---
 #### `GET` `/traffic/conditions/:cameraId`
 > Returns the latest information on traffic conditions of one processed traffic camera.
@@ -182,11 +189,15 @@ Do **note** that the following endpoints **may not return data on all 90 traffic
         "lat": 1.29531332
     },
     "url": "https://images.data.gov.sg/api/traffic-images/2023/10/e461432d-7643-4735-9504-86048e8af35d.jpg",
-    "vehicle_count": 0
+    "vehicle_count": 0,
+    "peakedness": 0
 }
 ```
 **Defined Error Types**
 > Check with error.type === "MyErrorType"
+
+**Notes**
+`peakedness` provides a percentage number, from 0 to 1, of the current traffic "peakedness" by comparing with Trend data. Be careful, **peakednes** may return **null** if there are missing Trend data. Type is (number | null).
 
 `CameraNotFoundError`
 

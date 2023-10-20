@@ -12,7 +12,7 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
             type: err.type,
             statusCode: err.statusCode,
             description: err.message,
-            rawError: err.error
+            rawError: err.error.stack
         }
     });
   }
