@@ -23,7 +23,7 @@ interface CardProps {
     card: number;
 }
 
-const cards: number[] = [1, 2];
+const cards: number[] = [1];
 
 const defaultTheme = createTheme();
 
