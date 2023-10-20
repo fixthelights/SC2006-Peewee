@@ -52,16 +52,19 @@ export default function Map() {
   const [incidentFilters, setIncidentFilters] = React.useState([""]);
   const [cameras, setCameras] = React.useState<Array<Camera>>([]);
   
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: 'AIzaSyCn6_wKG_mP0YI_eVctQ5zB50VuwMmzoWQ',
+    libraries: ['places']
+  });
 
   const [directionsRenderer, setDirectionsRenderer] = React.useState<google.maps.DirectionsRenderer | null>(null);
   const [directionsResponse, setDirectionsResponse] = React.useState<google.maps.DirectionsResult | null>(null);
   const originRef = React.useRef<HTMLInputElement>(null);
   const destinationRef = React.useRef<HTMLInputElement>(null);
+  const placesService = isLoaded ? new google.maps.places.PlacesService(document.createElement("div")) : null;
  
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: 'AIzaSyCn6_wKG_mP0YI_eVctQ5zB50VuwMmzoWQ',
-    libraries: ['places']
-  });
+  
+
 
 
 
@@ -140,17 +143,84 @@ export default function Map() {
   const theme = useTheme();
   const isScreenSmall = useMediaQuery(theme.breakpoints.down("sm"));
 
-async function calculateRoute(){
-    if (originRef.current?.value === ''|| destinationRef.current?.value ===''){
-      return;
-    }
-    const directionsService = new google.maps.DirectionsService();
-    const results = await directionsService.route({
-      origin: originRef.current!.value,
-      destination: destinationRef.current!.value,
-      travelMode: google.maps.TravelMode.DRIVING
+  async function findPlaceDetails(query: string): Promise<google.maps.places.PlaceResult[]> {
+    return new Promise((resolve, reject) => {
+      if (!placesService) {
+        reject(new Error('PlacesService is not available'));
+      }
+  
+      const request: google.maps.places.FindPlaceFromQueryRequest = {
+        query,
+        fields: ['name', 'geometry', 'place_id']
+      };
+  
+      placesService!.findPlaceFromQuery(request, (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+          resolve(results);
+        } else {
+          console.error(`Find place from query request failed with status: ${status}`);
+          reject(new Error(`Find place from query request failed with status: ${status}`));
+        }
+      });
     });
-    setDirectionsResponse(results);
+  }
+  
+  function extractCoordinates(results: google.maps.places.PlaceResult[]): google.maps.LatLngLiteral | null {
+    if (results.length > 0) {
+      const location = results[0]?.geometry?.location;
+      if (location) {
+        return {
+          lat: location.lat(),
+          lng: location.lng(),
+        };
+      }
+    }
+    return null;
+  }
+
+  async function calculateRoute() {
+    try {
+      if (!originRef.current || !destinationRef.current) {
+        return;
+      }
+  
+      const originQuery = originRef.current.value;
+      const destinationQuery = destinationRef.current.value;
+  
+      if (!originQuery || !destinationQuery) {
+        return;
+      }
+  
+      clearRender();
+  
+      const [originResults, destinationResults] = await Promise.all([
+        findPlaceDetails(originQuery),
+        findPlaceDetails(destinationQuery),
+      ]);
+  
+      const originLocation = extractCoordinates(originResults);
+      const destinationLocation = extractCoordinates(destinationResults);
+  
+      console.log("Origin Location:", originLocation, originRef.current!.value);
+      console.log("Destination Location:", destinationLocation, destinationRef.current!.value);
+  
+      if (!originLocation || !destinationLocation) {
+        console.error('Failed to get details for origin or destination');
+        return;
+      }
+  
+      const directionsService = new google.maps.DirectionsService();
+  
+      const results = await directionsService.route({
+        origin: originLocation,
+        destination: destinationLocation,
+        travelMode: google.maps.TravelMode.DRIVING,
+      });
+  
+      setDirectionsResponse(results);
+    } catch (error) {
+      console.error('Error in calculateRoute:', error);
+    }
   }
 
 function clearRender(){
@@ -159,14 +229,15 @@ function clearRender(){
   setDirectionsRenderer(null);
 }}
 
-function clearRoute() {
+//for dev
+/*function clearRoute() {
     if (directionsRenderer) {
       directionsRenderer.setMap(null);
       setDirectionsRenderer(null);
     }
     originRef.current!.value = '';
     destinationRef.current!.value = '';
-  }
+  }*/
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -236,7 +307,7 @@ function clearRoute() {
           
           </Stack>
           <Stack direction="row" spacing={2}>
-            <Button variant="contained" onClick={() => { clearRender(); calculateRoute(); }}>Search</Button>
+            <Button variant="contained" onClick={calculateRoute}>Search</Button>
             <Button variant="contained">Save Route</Button>
             <Button variant="contained">View Favourites</Button>
             {/* For dev purposes
