@@ -40,14 +40,30 @@ import {
 } from "@mui/material";
 import MapComponent from "../components/Map";
 import axios from "axios";
+import { Autocomplete,useLoadScript } from "@react-google-maps/api";
+
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 export default function Map() {
+
   const [trafficFilters, setTrafficFilters] = React.useState([""]);
   const [incidentFilters, setIncidentFilters] = React.useState([""]);
   const [cameras, setCameras] = React.useState<Array<Camera>>([]);
+  
+
+  const [directionsRenderer, setDirectionsRenderer] = React.useState<google.maps.DirectionsRenderer | null>(null);
+  const [directionsResponse, setDirectionsResponse] = React.useState<google.maps.DirectionsResult | null>(null);
+  const originRef = React.useRef<HTMLInputElement>(null);
+  const destinationRef = React.useRef<HTMLInputElement>(null);
+ 
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: 'AIzaSyCn6_wKG_mP0YI_eVctQ5zB50VuwMmzoWQ',
+    libraries: ['places']
+  });
+
+
 
   const handleTrafficFilters = (
     event: React.MouseEvent<HTMLElement>,
@@ -124,6 +140,34 @@ export default function Map() {
   const theme = useTheme();
   const isScreenSmall = useMediaQuery(theme.breakpoints.down("sm"));
 
+async function calculateRoute(){
+    if (originRef.current?.value === ''|| destinationRef.current?.value ===''){
+      return;
+    }
+    const directionsService = new google.maps.DirectionsService();
+    const results = await directionsService.route({
+      origin: originRef.current!.value,
+      destination: destinationRef.current!.value,
+      travelMode: google.maps.TravelMode.DRIVING
+    });
+    setDirectionsResponse(results);
+  }
+
+function clearRender(){
+  if (directionsRenderer) {
+  directionsRenderer.setMap(null);
+  setDirectionsRenderer(null);
+}}
+
+function clearRoute() {
+    if (directionsRenderer) {
+      directionsRenderer.setMap(null);
+      setDirectionsRenderer(null);
+    }
+    originRef.current!.value = '';
+    destinationRef.current!.value = '';
+  }
+
   return (
     <ThemeProvider theme={defaultTheme}>
       <CssBaseline />
@@ -171,13 +215,33 @@ export default function Map() {
             spacing={2}
             sx={{ "& > :not(style)": { width: "35ch" }, my: 2 }}
           >
-            <TextField label="Source" variant="outlined" />
-            <TextField label="Destination" variant="outlined" />
+            {isLoaded && (
+              <Autocomplete options={{ componentRestrictions: { country: "SG" } }}>
+                <TextField
+                  label="Source"
+                  variant="outlined"
+                  inputRef={originRef}
+                />
+              </Autocomplete>
+            )}
+            {isLoaded && (
+              <Autocomplete options={{ componentRestrictions: { country: "SG" } }}>
+                <TextField
+                  label="Destination"
+                  variant="outlined"
+                  inputRef={destinationRef}
+                />
+              </Autocomplete>
+            )}
+          
           </Stack>
           <Stack direction="row" spacing={2}>
-            <Button variant="contained">Search</Button>
+            <Button variant="contained" onClick={() => { clearRender(); calculateRoute(); }}>Search</Button>
             <Button variant="contained">Save Route</Button>
             <Button variant="contained">View Favourites</Button>
+            {/* For dev purposes
+            <Button variant="contained"onClick={clearRoute}>Clear Route</Button>*/}
+            
           </Stack>
         </Container>
         <Container>
@@ -185,6 +249,7 @@ export default function Map() {
             location={{ lng: 103.7992246, lat: 1.3687004, address: "Singapore" }}
             zoomLevel={12}
             cameras={cameras}
+            directionsResponse={directionsResponse}
           />
         </Container>
       </AppFrame>
