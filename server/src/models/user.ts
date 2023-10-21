@@ -9,7 +9,7 @@ export interface UserDocument extends Document {
     // lastName: String;
     // phone: String;
     createdAt: Date;
-    //favoriteRoutes: string[];
+    //favoriteRoutes: Array<Schema.Types.ObjectId>;
 }
 
 const UserSchema: Schema<UserDocument> = new Schema({
@@ -27,6 +27,11 @@ const UserSchema: Schema<UserDocument> = new Schema({
         type: String, 
         required: true
     },
+
+    /*favoriteRoutes: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Route'
+    }],*/
     
     // firstName: { 
     //     type: String, 

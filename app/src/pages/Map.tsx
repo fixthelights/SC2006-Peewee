@@ -51,6 +51,7 @@ export default function Map() {
   const [trafficFilters, setTrafficFilters] = React.useState([""]);
   const [incidentFilters, setIncidentFilters] = React.useState([""]);
   const [cameras, setCameras] = React.useState<Array<Camera>>([]);
+  const [routeData, setRouteData] = React.useState<RouteData | null>(null);
   
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: 'AIzaSyCn6_wKG_mP0YI_eVctQ5zB50VuwMmzoWQ',
@@ -106,6 +107,19 @@ export default function Map() {
     lat: number,
     vehicleCount: number
     peakedness: number | null
+  }
+
+ interface RouteData {
+    source: {
+      longitude: number;
+      latitude: number;
+      address: string;
+    };
+    destination: {
+      longitude: number;
+      latitude: number;
+      address: string;
+    };
   }
 
   React.useEffect(() => {
@@ -218,6 +232,19 @@ export default function Map() {
       });
   
       setDirectionsResponse(results);
+      const newRouteData: RouteData = {
+        source: {
+          longitude: originLocation.lng,
+          latitude: originLocation.lat,
+          address: originRef.current!.value,
+        },
+        destination: {
+          longitude: destinationLocation.lng,
+          latitude: destinationLocation.lat,
+          address: destinationRef.current!.value,
+        },
+      };
+      setRouteData(newRouteData);
     } catch (error) {
       console.error('Error in calculateRoute:', error);
     }
@@ -228,6 +255,15 @@ function clearRender(){
   directionsRenderer.setMap(null);
   setDirectionsRenderer(null);
 }}
+
+async function saveRoute(routeData: RouteData) {
+  try {
+    const response = await axios.post('http://localhost:2000/routes', routeData);
+    console.log('Route saved successfully:', response.data);
+  } catch (error) {
+    console.error('Error saving route:', error);
+  }
+}
 
 //for dev
 /*function clearRoute() {
@@ -308,7 +344,8 @@ function clearRender(){
           </Stack>
           <Stack direction="row" spacing={2}>
             <Button variant="contained" onClick={calculateRoute}>Search</Button>
-            <Button variant="contained">Save Route</Button>
+            <Button variant="contained" onClick={() => routeData && saveRoute(routeData)}>Save Route</Button>
+
             <Button variant="contained">View Favourites</Button>
             {/* For dev purposes
             <Button variant="contained"onClick={clearRoute}>Clear Route</Button>*/}

@@ -12,8 +12,7 @@ const routeSchema = new mongoose.Schema({
         longitude: Number, 
         latitude: Number,
         address: String
-    },
-    description: String
+    }
     });
 
     const Route = mongoose.model('Route', routeSchema);
