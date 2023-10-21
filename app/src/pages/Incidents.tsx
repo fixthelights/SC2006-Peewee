@@ -17,7 +17,6 @@ interface Report {
     lat: Number
   },
   address: String
-  duration_hours: Number
   description: String
   time: String
   timestamp: Date
@@ -28,11 +27,6 @@ interface Report {
 const defaultTheme = createTheme();
 
 export default function Incidents() {
-  let listOfReports: Array<Report> = [];
-  const [open, setOpen] = useState(true);
-  const toggleDrawer = () => {
-    setOpen(!open);
-  };
 
   const navigate = useNavigate();
   const [reportList, setReportList] = useState([])
@@ -52,14 +46,22 @@ export default function Incidents() {
     getReportList();
   }, []);
 
-  const Message = () => {
+  const DisplayMessage = () => {
     if (isReportLoaded && reportList.length===0){
-      return <Alert severity="info">There are no incidents reported today.</Alert>
+      return <DisplayNoIncidentMessage/>
     }
     if (!isReportLoaded){
-      return <Alert severity="info">Error in loading. Please refresh the page again.</Alert>
+      return <DisplayErrorMessage />
     }
     return null;
+  }
+  
+  const DisplayNoIncidentMessage = () => {
+    return <Alert severity="info">There are no incidents reported today.</Alert>
+  }
+
+  const DisplayErrorMessage = () => {
+    return <Alert severity="info">There are no incidents reported today.</Alert>
   }
 
   return (
@@ -85,7 +87,7 @@ export default function Incidents() {
                 />
                 ))}
                 <Grid item sx={{pt:2}}>
-                  <Message/>
+                  <DisplayMessage/>
                 </Grid>
             </Grid>
           </Container>

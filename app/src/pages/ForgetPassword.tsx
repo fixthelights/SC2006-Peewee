@@ -269,16 +269,16 @@ export default function ForgetPassword() {
                 Reset Password
               </Button>
               </Grid>
+              <Grid item xs={12}>
+              <PasswordMessage/>
+              </Grid>
+              </Grid>
               <Grid container justifyContent="flex-end">
                 <Grid item>
                   <Link href="#" variant="body2" onClick={() => navigate("/login")}>
                     Log In
                   </Link>
                 </Grid>
-              </Grid>
-              <Grid item>
-                <PasswordMessage />
-              </Grid>
               </Grid>
             </Box>
           </Box>

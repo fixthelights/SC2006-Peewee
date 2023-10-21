@@ -212,6 +212,11 @@ export default function Register() {
             >
               Register
             </Button>
+            <Grid container spacing={2}>
+            <Grid item xs={12}>
+            <RegistrationStatusMessage/>
+            </Grid>
+            </Grid>
             <Grid container>
               <Grid item xs>
                 <Link href="#" variant="body2" onClick={() => navigate("/forgetpassword")}>
@@ -222,10 +227,7 @@ export default function Register() {
                 <Link href="#" variant="body2" onClick={() => navigate("/login")}>
                   {"Already have an account? Log in"}
                 </Link>
-              </Grid>
-              <Grid item sx={{pt:2}}>
-                <RegistrationStatusMessage/>
-              </Grid>
+            </Grid>
             </Grid>
           </Box>
         </Box>

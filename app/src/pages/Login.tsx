@@ -189,6 +189,11 @@ export default function Login() {
             >
               Log In
             </Button>
+            <Grid container spacing={2}>
+            <Grid item xs={12}>
+            <Message/>
+            </Grid>
+            </Grid>
             <Grid container>
               <Grid item xs>
                 <Link href="#" variant="body2" onClick={() => navigate("/forgetpassword")}>
@@ -199,9 +204,6 @@ export default function Login() {
                 <Link href="#" variant="body2" onClick={() => navigate("/register")}>
                   {"Don't have an account? Register"}
                 </Link>
-              </Grid>
-              <Grid item sx={{pt:2}}>
-                <Message />
               </Grid>
             </Grid>
           </Box>

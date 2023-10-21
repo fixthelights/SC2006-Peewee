@@ -60,7 +60,18 @@ export default function ReportIncident() {
   const DisplayLocationMessage = () => {
     if (!submissionStatus && incidentType!=''){
       if (!locationPermission){
-        return <Box sx={{ pl: 3, pt: 3 }}>
+        return <DisplayLocationAccessRequest/>
+      } else if (locationDetected){
+        return <DisplayLocation />
+      } else {
+        return <DisplayRetry />
+      }
+    }
+    return null;
+  }
+
+  const DisplayLocationAccessRequest = () => {
+    return <Box sx={{ pl: 3, pt: 3 }}>
                 <Grid item xs={12} md={6} lg={5}>
                 <Alert 
                   severity="info"
@@ -85,42 +96,40 @@ export default function ReportIncident() {
                 </Alert>
               </Grid>
               </Box>
-      } else if (locationDetected){
-        return <Box sx={{ pl: 3, pt: 3 }}>
-              <Typography
-                component="h1"
-                variant="body1"
-              >
-              Incident Location: {incidentLocation}
-              </Typography>
-              </Box>
-      } else {
-        return <Alert 
-                  severity="info"
-                >
-                  Failed to detect location. Redetect current location?
-                <Box sx={{ pt: 3 }}>
-                <Stack spacing={2} direction="row">
-                  <Button 
-                      variant="contained" 
-                      onClick={handleLocationAccess}
-                  >
-                      Yes
-                  </Button>
-                  <Button 
-                      variant="contained" 
-                      onClick={() => navigate("/incidents")}
-                  >
-                      Return to Incident Page
-                  </Button>
-                </Stack>
-                </Box>
-                </Alert>
-      }
-    }
-    return null;
   }
   
+  const DisplayLocation = () => {
+    return <Box sx={{ pl: 3, pt: 3 }}>
+          <Typography
+            component="h1"
+            variant="body1"
+          >
+          Incident Location: {incidentLocation}
+          </Typography>
+          </Box>
+  }
+
+  const DisplayRetry = () => {
+    return <Alert severity="info">
+                Failed to detect location. Redetect current location?
+              <Box sx={{ pt: 3 }}>
+              <Stack spacing={2} direction="row">
+                <Button 
+                    variant="contained" 
+                    onClick={handleLocationAccess}
+                >
+                    Yes
+                </Button>
+                <Button 
+                    variant="contained" 
+                    onClick={() => navigate("/incidents")}
+                >
+                    Return to Incident Page
+                </Button>
+              </Stack>
+              </Box>
+              </Alert>
+  }
 
   const handleLocationAccess = () => {
 
@@ -214,7 +223,6 @@ export default function ReportIncident() {
             address : incidentLocation,
             description: incidentDescription,
             time: date.toLocaleTimeString(),
-            duration_hours: date.getHours()
         })
         .then((res)=> console.log(res.data))
         .then ((res)=> setValidSubmission(true))
@@ -227,40 +235,48 @@ export default function ReportIncident() {
   const DisplaySubmissionMessage = () => {
     if (submissionStatus){
       if (validSubmission){
-        return <Alert severity="info"> 
-                  Incident is successfully reported. 
-                  <Box sx={{ pt: 3 }}>
-                  <Button 
-                      variant="contained" 
-                      onClick={()=>navigate("/incidents")}
-                  >
-                  Return to Incident Page
-                  </Button>
-                  </Box>
-                </Alert>
+        return <DisplaySuccessfulSubmission />
       } else{
-        return <Alert severity="info"> 
-                  Error in report submission
-                  <Box sx={{ pt: 3 }}>
-                  <Stack spacing={2} direction="row">
-                  <Button 
-                      variant="contained" 
-                      onClick={handleReenter}
-                  >
-                      Re-enter form details
-                  </Button>
-                  <Button 
-                      variant="contained" 
-                      onClick={() => navigate("/incidents")}
-                  >
-                      Return to Incidents Page
-                  </Button>
-                  </Stack>
-                  </Box>
-                </Alert>
+        return <DisplayErrorMessage />
       }
-    }
-    return null;
+  }
+  return null
+}
+
+const DisplaySuccessfulSubmission = () => {
+  return <Alert severity="info"> 
+          Incident is successfully reported. 
+         <Box sx={{ pt: 3 }}>
+         <Button 
+          variant="contained" 
+          onClick={()=>navigate("/incidents")}
+         >
+          Return to Incident Page
+         </Button>
+         </Box>
+         </Alert>
+}
+
+const DisplayErrorMessage = () => {
+    return <Alert severity="info"> 
+            Error in report submission
+            <Box sx={{ pt: 3 }}>
+             <Stack spacing={2} direction="row">
+             <Button 
+              variant="contained" 
+              onClick={handleReenter}
+             >
+             Re-enter form details
+            </Button>
+            <Button 
+              variant="contained" 
+              onClick={() => navigate("/incidents")}
+            >
+              Return to Incidents Page
+            </Button>
+            </Stack>
+            </Box>
+           </Alert>
   }
 
   const handleReenter = () => {

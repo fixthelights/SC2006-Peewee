@@ -92,7 +92,6 @@ exports.submitReport = async (req :Request, res :Response) => {
     report.incident = json.incident;
     report.location = json.location;
     report.address = json.address;
-    report.duration_hours = json.duration_hours;
     report.time = json.time;
     report.description = json.description;
 
