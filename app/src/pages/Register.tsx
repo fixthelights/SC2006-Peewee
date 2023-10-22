@@ -132,7 +132,7 @@ export default function Register() {
         return <Alert severity="info">Registration is successful.</Alert>
       }
       if (!isExistingUser && !isInvalidPassword && !isRegistrationSuccessful){
-        return <Alert severity="info">Error in Registration</Alert>
+        return <Alert severity="info">Error in Registration.</Alert>
       }
      return null;
     }

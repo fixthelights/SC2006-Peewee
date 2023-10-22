@@ -24,12 +24,14 @@ function Landing() {
         .catch(function(error) {
             console.log(error);
         });*/
+        /*const token = localStorage.getItem("jwt");
+        console.log(token)*/
 
-            axios.get('http://localhost:2000/reports') 
-            .then ((res)=> console.log(res.data))
-            .catch(function(error){
+        axios.get('http://localhost:2000/traffic/combined-conditions') 
+        .then ((res)=> console.log(res.data))
+        .catch(function(error){
               console.log(error)
-            })      
+        })
 
         /*axios.post('http://localhost:2000/reports/', {
             incident: "Accident",

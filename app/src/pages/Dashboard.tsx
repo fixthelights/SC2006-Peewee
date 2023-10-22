@@ -26,6 +26,7 @@ import { useTheme } from "@mui/material/styles";
 import MapComponent from "../components/Map";
 import Stack from "@mui/material/Stack";
 import AppFrame from "../components/AppFrame";
+import {TrafficChart} from "../components/TrafficChart"
 
 const drawerWidth: number = 240;
 
@@ -91,9 +92,11 @@ export default function Dashboard() {
   const [routeList, setRouteList] = useState([]);
   const [incidentList, setIncidentList] = useState([]);
   const [trafficData, setTrafficData] = useState([]);
+  const [currentCarCount, setCurrentCarCount] = useState(0)
   const [isRouteLoaded, setIsRouteLoaded] = useState(false);
   const [isIncidentLoaded, setIsIncidentLoaded] = useState(false);
   const [isTrafficLoaded, setIsTrafficLoaded] = useState(false);
+  const [isCurrentTrafficLoaded, setIsCurrentTrafficLoaded] = useState(false);
   const [cameras, setCameras] = React.useState<Array<Camera>>([]);
 
   const toggleDrawer = () => {
@@ -107,6 +110,7 @@ export default function Dashboard() {
     getRecentIncidentList();
     getTrafficData();
     getTrafficCameraData();
+    getCurrentData()
   }, []);
 
   const getFavouriteRouteList = () => {
@@ -168,13 +172,22 @@ export default function Dashboard() {
     }
   };
 
+  const getCurrentData = () => {
+    axios
+      .get("http://localhost:2000/traffic/combined-trends")
+      .then((res) => setCurrentCarCount(res.data['vehicle_total']))
+      .then((res) => setIsCurrentTrafficLoaded(true))
+      .catch(function (error) {
+        console.log(error);
+        setIsCurrentTrafficLoaded(false);
+      });
+  };
+
   const TrafficTrend = () => {
-    if (isTrafficLoaded) {
+    if (isTrafficLoaded && isCurrentTrafficLoaded) {
       let data: Array<{ time: string; amount: number }> = [];
       let average = 0;
-      let carsNow = 0;
-      let date = new Date();
-      let expectedTraffic = "";
+      //let carsNow: number = currentCarCount
       trafficData.forEach((traffic: Traffic) => {
         if (parseInt(traffic["time_of_day"]) < 10) {
           data.push(
@@ -188,89 +201,15 @@ export default function Dashboard() {
             createData(traffic["time_of_day"] + ":00", traffic["vehicle_total"])
           );
         }
-        if (parseInt(traffic["time_of_day"]) === date.getHours()) {
+        /*if (parseInt(traffic["time_of_day"]) === date.getHours()) {
           carsNow = traffic["vehicle_total"];
-        }
+        }*/
         average += traffic["vehicle_total"];
       });
       average /= 24;
-
-      const DisplayExpectedTraffic = () => {
-        if (carsNow > 1.25*average) {
-          return (
-            <Typography component="h2" variant="h6" color="red" gutterBottom>
-              High
-            </Typography>
-          );
-        } else if (carsNow < 0.75*average) {
-          return (
-            <Typography component="h2" variant="h6" color="green" gutterBottom>
-              Low
-            </Typography>
-          );
-        } else {
-          return (
-            <Typography component="h2" variant="h6" color="orange" gutterBottom>
-              Moderate
-            </Typography>
-          );
-        }
-      };
       return (
         <React.Fragment>
-          <Title>Past Traffic Trend</Title>
-          <Stack spacing={1} direction="row">
-            <Typography
-              component="h2"
-              variant="h6"
-              color="primary"
-              gutterBottom
-            >
-              Current expected traffic:
-            </Typography>
-            <DisplayExpectedTraffic />
-          </Stack>
-          <ResponsiveContainer>
-            <LineChart
-              data={data}
-              margin={{
-                top: 16,
-                right: 16,
-                bottom: 0,
-                left: 24,
-              }}
-            >
-              <XAxis
-                dataKey="time"
-                stroke={theme.palette.text.secondary}
-                style={theme.typography.body2}
-                tickCount={23}
-              />
-              <YAxis
-                stroke={theme.palette.text.secondary}
-                style={theme.typography.body2}
-              >
-                <Label
-                  angle={270}
-                  position="left"
-                  style={{
-                    textAnchor: "middle",
-                    fill: theme.palette.text.primary,
-                    ...theme.typography.body1,
-                  }}
-                >
-                  Total cars
-                </Label>
-              </YAxis>
-              <Line
-                isAnimationActive={true}
-                type="monotone"
-                dataKey="amount"
-                stroke={theme.palette.primary.main}
-                dot={true}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          <TrafficChart carsNow={currentCarCount} average={average} data={data}/>
           <Link color="primary" href="#" sx={{ mt: 3 }}>
             See specific camera trends
           </Link>
