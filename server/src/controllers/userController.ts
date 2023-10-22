@@ -167,7 +167,7 @@ exports.forgetPassword =  async ( req: Request, res: Response ) => {
             // Generate 6 digit OTP for password reset token
             token = await new PasswordToken({
                 userId: verifiedUser._id,
-                token: crypto.randomBytes(32).toString("hex"),
+                token: generateOTP(6),
             }).save();
         }
         
@@ -288,7 +288,7 @@ exports.updateUser = async (req :Request, res :Response) => {
 exports.deleteUser = async (req :Request, res :Response) => {
     try {
         const userId = req.body.userId;
-        const user = await User.findByIdAndDelete({userId : userId});
+        const user = await User.findByIdAndDelete({_id : userId});
 
         if (!user) {
             throw new AppError({

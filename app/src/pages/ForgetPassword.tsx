@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Alert from '@mui/material/Alert';
 import Link from '@mui/material/Link';
 import { AuthManager} from '../classes/AuthManager';
@@ -53,6 +53,11 @@ export default function ForgetPassword() {
     setCurrentStep(currentStep - 1);
   };
 
+  // Handle changes to Email Input
+  const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(event.target.value)
+  };
+
   // Handle changes to OTP Input
   const handleOTP = (event: React.ChangeEvent<HTMLInputElement>) => {
     setOTP(event.target.value);
@@ -68,6 +73,10 @@ export default function ForgetPassword() {
     setRetypedPassword(event.target.value);
   };
   
+  // Maintain focus on text inputs
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+
 
   // Send OTP to email
   function sendForgetPassword(email: string) {
@@ -88,7 +97,7 @@ export default function ForgetPassword() {
     }
   } 
 
-  const OtpMessage = () => {
+  const OTPMessage = () => {
     if (isEmailSubmitted){
       if (!isEmailValid){
         return <Alert severity="info">Email is invalid</Alert>
@@ -178,8 +187,8 @@ export default function ForgetPassword() {
         if (email) {
           const otpPromise = sendForgetPassword(email);
           otpPromise?.then(otp => {
-            console.log(otp.data.otp);
-            setGeneratedOTP(otp.data.otp);
+            console.log(otp.data.otp.token);
+            setGeneratedOTP(otp.data.otp.token);
             setIsEmailValid(true);
             setIsEmailSubmitted(true);
             handleNextStep(); // Move to next step
@@ -193,12 +202,6 @@ export default function ForgetPassword() {
           setIsEmailSubmitted(true);
         }
       }
-    };
-
-    // Handle changes to Email Input
-    const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
-      setEmail(event.target.value)
-      console.log(email);
     };
 
     return (
@@ -248,7 +251,7 @@ export default function ForgetPassword() {
                 </Button>
                 </Grid>
                 <Grid item xs={12}>
-                <OtpMessage />
+                <OTPMessage />
                 </Grid>
 
                 <Grid container justifyContent="flex-end">
@@ -272,7 +275,7 @@ export default function ForgetPassword() {
   // EnterOTPStep is the second step in the forget password flow
 
   const EnterOTPStep: React.FC = ( ) => {
-    const handleOtpSubmission = (event: React.MouseEvent) => {
+    const handleOTPSubmission = (event: React.MouseEvent) => {
       event.preventDefault();
 
       setIsOTPSent(true);
@@ -286,6 +289,13 @@ export default function ForgetPassword() {
         handleNextStep();
       }
     };
+
+    // useEffect with an empty dependency array runs the callback once after the initial render
+    useEffect(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, []);
 
     return (
       <ThemeProvider theme={defaultTheme}>
@@ -317,7 +327,10 @@ export default function ForgetPassword() {
                     label="OTP"
                     type="otp"
                     id="otp"
-                    onChange = {e => e.target.value}
+                    placeholder={"Enter OTP"}
+                    inputRef={inputRef}
+                    onChange={handleOTP}
+                    value={OTP}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -326,13 +339,13 @@ export default function ForgetPassword() {
                   fullWidth
                   variant="contained"
                   sx={{ mt: 3, mb: 2 }}
-                  onClick = {handleOtpSubmission}
+                  onClick = {handleOTPSubmission}
                 >
                   Confirm
                 </Button>
                 </Grid>
                 <Grid item xs={12}>
-                <OtpMessage />
+                <OTPMessage />
                 </Grid>
 
                 <Grid container justifyContent="flex-end">
