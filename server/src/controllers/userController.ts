@@ -161,29 +161,18 @@ exports.forgetPassword =  async ( req: Request, res: Response ) => {
             });
         }
         
-        // Check if token exists, if not, create a new password token
+        // Delete existing password token and create a new one
         let token = await PasswordToken.findOne({ userId: verifiedUser._id });
-        if (!token) {
-            // Generate 6 digit OTP for password reset token
-            token = await new PasswordToken({
-                userId: verifiedUser._id,
-                token: generateOTP(6),
-            }).save();
+        if (token) {
+            PasswordToken.findByIdAndDelete({userId: verifiedUser._id });
         }
+        // Generate 6 digit OTP for password reset token
+        token = await new PasswordToken({
+            userId: verifiedUser._id,
+            token: generateOTP(6),
+        }).save();
         
         console.log(token);
-
-        // Send email to user with reset link
-        // let token = await PasswordToken.findOne({ userId: verifiedUser._id });
-        // if (!token) {
-        //     token = await new PasswordToken({
-        //         userId: verifiedUser._id,
-        //         token: crypto.randomBytes(32).toString("hex"),
-        //     }).save();
-        // }
-        // const link = req.protocol + "://" + req.get('host') + req.originalUrl + "/" + verifiedUser._id + "/" + token.token;
-        // console.log(link);
-        // await sendForgetEmail(verifiedUser, link);
 
         // Send email to user with OTP
         await sendForgetEmail(verifiedUser, token.token);
