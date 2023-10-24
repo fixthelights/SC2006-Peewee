@@ -1,7 +1,6 @@
 import * as React from "react";
 import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import { useNavigate } from "react-router-dom";
@@ -14,14 +13,6 @@ import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Title from "../components/Title";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Label,
-  ResponsiveContainer,
-} from "recharts";
 import { useTheme } from "@mui/material/styles";
 import MapComponent from "../components/Map";
 import Stack from "@mui/material/Stack";
@@ -187,7 +178,6 @@ export default function Dashboard() {
     if (isTrafficLoaded && isCurrentTrafficLoaded) {
       let data: Array<{ time: string; amount: number }> = [];
       let average = 0;
-      //let carsNow: number = currentCarCount
       trafficData.forEach((traffic: Traffic) => {
         if (parseInt(traffic["time_of_day"]) < 10) {
           data.push(
@@ -201,9 +191,6 @@ export default function Dashboard() {
             createData(traffic["time_of_day"] + ":00", traffic["vehicle_total"])
           );
         }
-        /*if (parseInt(traffic["time_of_day"]) === date.getHours()) {
-          carsNow = traffic["vehicle_total"];
-        }*/
         average += traffic["vehicle_total"];
       });
       average /= 24;
