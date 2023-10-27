@@ -10,6 +10,9 @@ router.get('/', routeController.findRoutes);
     
     //read specific route(GET by ID):
 router.get('/:id', routeController.getRoutes);
+
+//read route list(GET by ID):
+router.post('/list', routeController.getUserRoutes);
     
     //update (PUT by ID):
 router.put('/:id', routeController.updateRoutes);

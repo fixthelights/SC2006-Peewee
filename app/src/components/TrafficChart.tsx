@@ -14,6 +14,7 @@ import { useTheme } from "@mui/material/styles";
 import Stack from "@mui/material/Stack";
 
 interface TrafficChartProps {
+   //currentData: Array<{ time: string; amount: number }>
    carsNow: number
    average: number
    data: Array<{ time: string; amount: number }>
@@ -59,6 +60,10 @@ const TrafficChart: FC<TrafficChartProps> = ({carsNow, average, data}) => {
           </Stack>
           <ResponsiveContainer>
             <LineChart
+              /*series={[
+                {data:{data}}, 
+                {data:{currentData}},
+              ]}*/
               data={data}
               margin={{
                 top: 16,

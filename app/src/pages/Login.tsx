@@ -33,7 +33,7 @@ export default function Login() {
 
   useEffect( () => {
     handleLogin();
-  });
+  },[isSubmitted]);
 
   const handleLogin = async () => {
     try {
@@ -56,7 +56,7 @@ export default function Login() {
 
       console.log(userJwt);
       // Validate JWT with backend - Check if token still valid
-      const loggedIn = await axios.post(`http://localhost:2000/users/${userJwt}`);
+      const loggedIn = await axios.post(`http://localhost:2000/users/auth`, { jwt: userJwt });
 
       // Redirect to dashboard
       if (loggedIn.data === true) {
@@ -83,7 +83,7 @@ export default function Login() {
     let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
     // userJwt = "";
     // Validate JWT with backend - Check if token still valid
-    const loggedIn = await axios.post(`http://localhost:2000/users/${userJwt}`);
+    const loggedIn = await axios.post(`http://localhost:2000/users/auth`, { jwt: userJwt });
     
     console.log(userJwt);
     

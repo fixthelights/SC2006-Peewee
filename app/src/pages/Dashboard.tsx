@@ -46,7 +46,6 @@ interface Route {
     latitude: Number;
     address: String;
   };
-  description: String;
 }
 
 interface Traffic {
@@ -84,9 +83,12 @@ export default function Dashboard() {
   const [incidentList, setIncidentList] = useState([]);
   const [trafficData, setTrafficData] = useState([]);
   const [currentCarCount, setCurrentCarCount] = useState(0)
+  const [timeRetrieved, setTimeRetrieved] = useState("")
+  // const [allCameras, setAllCameras] = useState([])
   const [isRouteLoaded, setIsRouteLoaded] = useState(false);
   const [isIncidentLoaded, setIsIncidentLoaded] = useState(false);
   const [isTrafficLoaded, setIsTrafficLoaded] = useState(false);
+  // const[isConditionLoaded, setIsConditionLoaded] = useState(false);
   const [isCurrentTrafficLoaded, setIsCurrentTrafficLoaded] = useState(false);
   const [cameras, setCameras] = React.useState<Array<Camera>>([]);
 
@@ -105,8 +107,12 @@ export default function Dashboard() {
   }, []);
 
   const getFavouriteRouteList = () => {
+
     axios
-      .get("http://localhost:2000/routes")
+      .post("http://localhost:2000/routes/list",
+      {
+        id: "6534d743e1ae557b525d813f" // to be changed to JwT
+      })
       .then((res) => setRouteList(res.data))
       .then((res) => setIsRouteLoaded(true))
       .catch(function (error) {
@@ -145,16 +151,16 @@ export default function Dashboard() {
       console.log(response.data);
       const allCameras = response.data.cameras;
 
-      let cameraArray: Array<Camera> = [];
+      let cameraArray: Array<Camera>= [];
 
-      allCameras.forEach(({ camera_name, location, vehicle_count, peakedness }: CameraFromAPI) => {
+      allCameras.forEach(({ camera_name, location, vehicle_count, peakedness} : CameraFromAPI)=> {
         cameraArray.push({
           cameraName: camera_name,
           lng: location.long,
           lat: location.lat,
           vehicleCount: vehicle_count,
           peakedness: peakedness
-        });
+        })
       });
 
       setCameras(cameraArray);
@@ -165,8 +171,8 @@ export default function Dashboard() {
 
   const getCurrentData = () => {
     axios
-      .get("http://localhost:2000/traffic/combined-trends")
-      .then((res) => setCurrentCarCount(res.data['vehicle_total']))
+      .get("http://localhost:2000/traffic/combined-conditions")
+      .then((res) => {setCurrentCarCount(res.data['vehicle_total']); setTimeRetrieved(res.data['taken_at'].substring(12,17));})
       .then((res) => setIsCurrentTrafficLoaded(true))
       .catch(function (error) {
         console.log(error);
@@ -177,6 +183,7 @@ export default function Dashboard() {
   const TrafficTrend = () => {
     if (isTrafficLoaded && isCurrentTrafficLoaded) {
       let data: Array<{ time: string; amount: number }> = [];
+      let currentData: Array<{ time: string; amount: number }> = [] 
       let average = 0;
       trafficData.forEach((traffic: Traffic) => {
         if (parseInt(traffic["time_of_day"]) < 10) {
@@ -194,6 +201,7 @@ export default function Dashboard() {
         average += traffic["vehicle_total"];
       });
       average /= 24;
+      //currentData.push(createData(timeRetrieved, currentCarCount))
       return (
         <React.Fragment>
           <TrafficChart carsNow={currentCarCount} average={average} data={data}/>
@@ -267,8 +275,8 @@ export default function Dashboard() {
             <TableBody>
               {routeList.map((route: Route) => (
                 <TableRow>
-                  <TableCell>jurong</TableCell>
-                  <TableCell>changi</TableCell>
+                  <TableCell>{route.source.address}</TableCell>
+                  <TableCell>{route.destination.address}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
