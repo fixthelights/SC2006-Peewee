@@ -5,29 +5,51 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import axios from 'axios'
 import {useState} from 'react'
+import jwt from 'jsonwebtoken';
+
+interface user{
+    userId: String,
+    email: String, 
+    iat: Number,
+    exp: Number
+}
 
 function Landing() {
     const navigate = useNavigate();
 
     function testBackend(): void {
         axios
-        .get("http://localhost:2000/users",)
+        .get("http://localhost:2000/traffic/combined-conditions")
+        .then((res) => console.log(res.data["taken_at"].slice(-2)))
+        .catch(function (error) {
+            console.log(error);
+        });
+
+        /*let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
+        const userDetails: user = jwtDecode(userJwt)
+        console.log(userDetails.userId)*/
+        /*axios
+        .post("http://localhost:2000/users/register",
+        {
+            email: "hahaha@ymail.com",
+            password: "Hahaha*123"
+        })
         .then((res) => console.log(res.data))
         .catch(function (error) {
           console.log(error);
-        })
+        })*/
         /*axios.post("http://localhost:2000/routes",
         {
-            favourited_by: "6534d765e1ae557b525d8143",
+            favourited_by: "653bd957ff600f6066e5b2da",
             source: {
-                longitude: 1.22,
-                latitude: 1.22,
-                address: "Toa Payoh"
+                longitude: 1.234,
+                latitude: 1.234,
+                address: "Woodlands"
             },
             destination: {
-                longitude: 1.33, 
-                latitude: 1.33,
-                address: "Jurong East"
+                longitude: 1.386, 
+                latitude: 1.386,
+                address: "Caldecott"
             }
         })
         .then((res) => console.log(res.data))
@@ -43,7 +65,7 @@ function Landing() {
           console.log(error);
         })*/
         /*axios
-        .get("http://localhost:2000/routes")
+        .get("http://localhost:2000/reports")
         .then((res) => console.log(res.data))
         .catch(function (error) {
           console.log(error);

@@ -9,15 +9,16 @@ import {
   YAxis,
   Label,
   ResponsiveContainer,
+  Tooltip,
+  Legend
 } from "recharts";
 import { useTheme } from "@mui/material/styles";
 import Stack from "@mui/material/Stack";
 
 interface TrafficChartProps {
-   //currentData: Array<{ time: string; amount: number }>
    carsNow: number
    average: number
-   data: Array<{ time: string; amount: number }>
+   data: Array<{ time: string; trend: number | null, current: number | null}>
 }
 
 const TrafficChart: FC<TrafficChartProps> = ({carsNow, average, data}) => {
@@ -60,10 +61,6 @@ const TrafficChart: FC<TrafficChartProps> = ({carsNow, average, data}) => {
           </Stack>
           <ResponsiveContainer>
             <LineChart
-              /*series={[
-                {data:{data}}, 
-                {data:{currentData}},
-              ]}*/
               data={data}
               margin={{
                 top: 16,
@@ -94,12 +91,23 @@ const TrafficChart: FC<TrafficChartProps> = ({carsNow, average, data}) => {
                   Total cars
                 </Label>
               </YAxis>
+              <Tooltip/>
+              <Legend/>
               <Line
                 isAnimationActive={true}
                 type="monotone"
-                dataKey="amount"
+                dataKey="trend"
                 stroke={theme.palette.primary.main}
                 dot={true}
+                label="trend"
+              />
+              <Line
+                isAnimationActive={true}
+                type="monotone"
+                dataKey="current"
+                stroke={theme.palette.secondary.main}
+                dot={true}
+                label="current car count"
               />
             </LineChart>
           </ResponsiveContainer>

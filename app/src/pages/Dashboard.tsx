@@ -18,8 +18,16 @@ import MapComponent from "../components/Map";
 import Stack from "@mui/material/Stack";
 import AppFrame from "../components/AppFrame";
 import {TrafficChart} from "../components/TrafficChart"
+import {jwtDecode} from 'jwt-decode';
 
 const drawerWidth: number = 240;
+
+interface User{
+  userId: string,
+  email: string, 
+  iat: number,
+  exp: number
+}
 
 interface Report {
   incident: String;
@@ -84,11 +92,9 @@ export default function Dashboard() {
   const [trafficData, setTrafficData] = useState([]);
   const [currentCarCount, setCurrentCarCount] = useState(0)
   const [timeRetrieved, setTimeRetrieved] = useState("")
-  // const [allCameras, setAllCameras] = useState([])
   const [isRouteLoaded, setIsRouteLoaded] = useState(false);
   const [isIncidentLoaded, setIsIncidentLoaded] = useState(false);
   const [isTrafficLoaded, setIsTrafficLoaded] = useState(false);
-  // const[isConditionLoaded, setIsConditionLoaded] = useState(false);
   const [isCurrentTrafficLoaded, setIsCurrentTrafficLoaded] = useState(false);
   const [cameras, setCameras] = React.useState<Array<Camera>>([]);
 
@@ -98,20 +104,32 @@ export default function Dashboard() {
 
   const navigate = useNavigate();
 
+  const userId = identifyUser()
+
   useEffect(() => {
-    getFavouriteRouteList();
+    identifyUser();
     getRecentIncidentList();
     getTrafficData();
     getTrafficCameraData();
     getCurrentData()
+    getFavouriteRouteList();
   }, []);
 
+  function identifyUser(){
+    let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
+    if (userJwt!='null'){
+      const userDetails: User = jwtDecode(userJwt)
+      return userDetails.userId
+    }
+    else{
+      return ''
+    }
+  }
   const getFavouriteRouteList = () => {
-
-    axios
+      axios
       .post("http://localhost:2000/routes/list",
       {
-        id: "6534d743e1ae557b525d813f" // to be changed to JwT
+        id: userId
       })
       .then((res) => setRouteList(res.data))
       .then((res) => setIsRouteLoaded(true))
@@ -172,7 +190,7 @@ export default function Dashboard() {
   const getCurrentData = () => {
     axios
       .get("http://localhost:2000/traffic/combined-conditions")
-      .then((res) => {setCurrentCarCount(res.data['vehicle_total']); setTimeRetrieved(res.data['taken_at'].substring(12,17));})
+      .then((res) => {setCurrentCarCount(res.data['vehicle_total']); setTimeRetrieved(res.data['taken_at']);})
       .then((res) => setIsCurrentTrafficLoaded(true))
       .catch(function (error) {
         console.log(error);
@@ -181,27 +199,65 @@ export default function Dashboard() {
   };
 
   const TrafficTrend = () => {
+    let time = timeRetrieved.split(",")[1]
     if (isTrafficLoaded && isCurrentTrafficLoaded) {
-      let data: Array<{ time: string; amount: number }> = [];
-      let currentData: Array<{ time: string; amount: number }> = [] 
+      let currentHour = 12
+      if (time[2]==':'){
+          if (time.slice(-2)==='pm'){
+            currentHour += parseInt(time[1])
+          }
+          else {
+            currentHour = parseInt(time[1])
+          }
+      } else {
+        if (time.slice(-2)==='pm'){
+          currentHour += parseInt(time.substring(0,1))
+        }
+        else {
+          currentHour = parseInt(time.substring(0,1))
+        }
+      }
+
+      let data: Array<{ time: string; trend: number | null; current: number | null }> = [];
       let average = 0;
       trafficData.forEach((traffic: Traffic) => {
         if (parseInt(traffic["time_of_day"]) < 10) {
-          data.push(
-            createData(
-              "0" + traffic["time_of_day"] + ":00",
-              traffic["vehicle_total"]
-            )
-          );
+          if (currentHour == parseInt(traffic["time_of_day"])){
+            data.push(
+              createData(
+                "0" + traffic["time_of_day"] + ":00",
+                traffic["vehicle_total"], currentCarCount
+              )
+            );
+          } else {
+            data.push(
+              createData(
+                "0" + traffic["time_of_day"] + ":00",
+                traffic["vehicle_total"], null
+              )
+            );
+          }
         } else {
-          data.push(
-            createData(traffic["time_of_day"] + ":00", traffic["vehicle_total"])
-          );
+          if (currentHour == parseInt(traffic["time_of_day"])){
+            data.push(
+              createData(
+                traffic["time_of_day"] + ":00",
+                traffic["vehicle_total"], currentCarCount
+              )
+            );
+          } else {
+            data.push(
+              createData(
+                traffic["time_of_day"] + ":00",
+                traffic["vehicle_total"], null
+              )
+            );
+          }
         }
         average += traffic["vehicle_total"];
       });
       average /= 24;
-      //currentData.push(createData(timeRetrieved, currentCarCount))
+      
       return (
         <React.Fragment>
           <TrafficChart carsNow={currentCarCount} average={average} data={data}/>
@@ -296,8 +352,8 @@ export default function Dashboard() {
     return null;
   };
 
-  function createData(time: string, amount: number) {
-    return { time, amount };
+  function createData(time: string, trend: number | null, current: number | null ) {
+    return { time, trend, current };
   }
 
   return (

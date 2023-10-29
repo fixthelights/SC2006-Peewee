@@ -44,17 +44,17 @@ export default function ReportIncident() {
     //let lat = 1000
     //let long = 1000
 
-    //setLatitude(1.3456) //Jurong West Address 
-    //setLongitude(103.704116) //Jurong West Address 
+    setLatitude(1.3456) //Jurong West Address 
+    setLongitude(103.704116) //Jurong West Address 
 
-    if (navigator.geolocation) {
+    /*if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(function(position) {
         console.log("Latitude is :", position.coords.latitude);
         console.log("Longitude is :", position.coords.longitude);
         setLatitude(position.coords.latitude)
         setLongitude(position.coords.longitude)
       })
-    } 
+    }*/
   }
 
   const DisplayLocationMessage = () => {
@@ -81,7 +81,7 @@ export default function ReportIncident() {
                 <Stack spacing={2} direction="row">
                   <Button 
                       variant="contained" 
-                      onClick={()=>handleLocationAccess()}
+                      onClick={() => handleLocationAccess()}
                   >
                       Yes
                   </Button>
@@ -110,7 +110,9 @@ export default function ReportIncident() {
   }
 
   const DisplayRetry = () => {
-    return <Alert severity="info">
+    return <Box sx={{ pl: 3, pt: 3 }}>
+            <Grid item xs={12} md={6} lg={5}>
+            <Alert severity="info">
                 Failed to detect location. Redetect current location?
               <Box sx={{ pt: 3 }}>
               <Stack spacing={2} direction="row">
@@ -129,6 +131,8 @@ export default function ReportIncident() {
               </Stack>
               </Box>
               </Alert>
+            </Grid>
+          </Box>
   }
 
   const handleLocationAccess = () => {
@@ -223,12 +227,15 @@ export default function ReportIncident() {
             address : incidentLocation,
             description: incidentDescription,
             time: date.toLocaleTimeString(),
+            date: date.toDateString()
         })
         .then((res)=> console.log(res.data))
-        .then ((res)=> setValidSubmission(true))
+        .then((res)=> setValidSubmission(true))
+        .then((res)=> setSubmissionStatus(true))
         .catch(function(error) {
             console.log(error)
             setValidSubmission(false)
+            setSubmissionStatus(false)
         });
   }
 
@@ -244,7 +251,9 @@ export default function ReportIncident() {
 }
 
 const DisplaySuccessfulSubmission = () => {
-  return <Alert severity="info"> 
+  return <Box sx={{ pl: 3, pt: 3 }}>
+          <Grid item xs={12} md={6} lg={4}>
+          <Alert severity="info"> 
           Incident is successfully reported. 
          <Box sx={{ pt: 3 }}>
          <Button 
@@ -255,10 +264,14 @@ const DisplaySuccessfulSubmission = () => {
          </Button>
          </Box>
          </Alert>
+         </Grid>
+         </Box>
 }
 
 const DisplayErrorMessage = () => {
-    return <Alert severity="info"> 
+    return <Box sx={{ pl: 3, pt: 3 }}>
+            <Grid item xs={12} md={6} lg={4}>
+            <Alert severity="info"> 
             Error in report submission
             <Box sx={{ pt: 3 }}>
              <Stack spacing={2} direction="row">
@@ -277,6 +290,8 @@ const DisplayErrorMessage = () => {
             </Stack>
             </Box>
            </Alert>
+           </Grid>
+           </Box>
   }
 
   const handleReenter = () => {
@@ -286,8 +301,8 @@ const DisplayErrorMessage = () => {
     setIncidentType('');
     setIncidentDescription('');
     setSubmissionStatus(false);
-    setLatitude(1000)
-    setLongitude(1000)
+    setValidSubmission(false)
+    getUserLocation()
   }
 
   return (
@@ -303,7 +318,7 @@ const DisplayErrorMessage = () => {
                         p: 2,
                         display: 'flex',
                         flexDirection: 'column',
-                        height: 500,
+                        height: 770,
                         overflow: 'auto'
                     }}>
                   <DisplayIncidentTypeSelection />
@@ -311,7 +326,7 @@ const DisplayErrorMessage = () => {
                   <DisplayIncidentDescriptionInput />
                   <DisplaySubmitButton />
                   <DisplaySubmissionMessage />
-                  </Paper>
+              </Paper>
               </Grid>
             </Grid>
         </Container>
