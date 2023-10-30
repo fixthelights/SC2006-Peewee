@@ -30,6 +30,7 @@
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
     "mdbreact": "^5.2.0",
+    "mui-one-time-password-input": "^2.0.1",
     "popper.js": "^1.16.1",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",

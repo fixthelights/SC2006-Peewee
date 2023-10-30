@@ -290,8 +290,8 @@ export default function Dashboard() {
                   <TableCell width="20%">
                     {report.incident.toUpperCase()}
                   </TableCell>
-                  <TableCell width="15%">{report.time}</TableCell>
-                  <TableCell width="65%">{report.address}</TableCell>
+                  <TableCell width="18%">{report.time}</TableCell>
+                  <TableCell width="62%">{report.address}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
