@@ -236,14 +236,48 @@ exports.validatePasswordToken = async (req: Request, res: Response) => {
     }
 };
 
-// Update a user's information by ID
-exports.updateUser = async (req :Request, res :Response) => {
+// PUT request to update a user's information by email
+exports.updateUserPassword = async (req :Request, res :Response) => {
     try {
-        const userId = req.body.userId;
         const email = req.body.email;
         const password = req.body.password;
 
-        const user = await User.findById({userId : userId});
+        const user = await User.findOne({email : email});
+        if (!user) {
+            throw new AppError({
+                type: "UserNotFoundError",
+                statusCode: 404,
+                description: 'User not found.',
+            });
+        }
+
+        // Update user password
+        user.password = password;
+
+        // Save the updated user to the database
+        await user.save();
+        return res.status(200).send("User's password has been updated");
+    } catch(error: any){
+        if (error instanceof AppError) throw error;
+        throw new AppError({
+            type: "UpdateUserError",
+            statusCode: 500,
+            description: 'Error updating password.',
+            error: error
+        });
+    }
+    
+};
+
+
+// Update a user's information by ID
+exports.updateUser = async (req :Request, res :Response) => {
+    try {
+        const userId = req.body._id;
+        const email = req.body.email;
+        const password = req.body.password;
+
+        const user = await User.findById({_id : userId});
 
         if (!user) {
             throw new AppError({

@@ -101,13 +101,13 @@ export default function OTPInput() {
             }}
           >
             <Typography component="h1" variant="h5" fontStyle={"semibold"}>
-                Email Verification
+                Enter Security Code
             </Typography>
             <Box component="form" noValidate sx={{ mt: 3 }}>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                     <Typography variant="body1" align='center'>
-                        We have sent a code to your email <br></br> <b>{email.toUpperCase()}</b>
+                        We sent your code to: <br></br> <b>{email.toUpperCase()}</b>
                     </Typography>
                     <Typography variant="body2" fontStyle='italic' fontSize='12px' align='center'>
                         Check your spam folder if you do not see the email

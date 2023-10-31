@@ -47,11 +47,11 @@ export default function ResetPassword() {
 
     event.preventDefault()
 
-
-    let validOTP = false
     let validPassword = false
     let validRetypedPassword = false
-    let savedNewPassword = false
+
+    console.log(email);
+    console.log(password, retypedPassword);
 
     if (authController.checkPasswordValidity(password)){ 
       validPassword = true
@@ -59,48 +59,38 @@ export default function ResetPassword() {
     if (validPassword && password===retypedPassword){
       validRetypedPassword = true
     }
-    if (validOTP && validPassword && validRetypedPassword){
-      
-      axios.put('http://localhost:2000/users/reset-password', {
+    if (validPassword && validRetypedPassword){
+      axios.put('http://localhost:2000/users/update-password', {
         email: email,
-        newPassword: password
+        password: password
       })
       .then(res => console.log(res.data))
       .then(res => setIsPasswordUpdated(true))
       .then(res => setIsPasswordSubmitted(true))
-      .catch(function(error) {
+      .then(res => setPage("login"))
+      .catch(error => {
           console.log(error);
           setIsPasswordUpdated(false);
           setIsPasswordSubmitted(true)
         })
-        
-        // Navigate to Login
-        setPage("login");
     }
-
-    setIsPasswordValid(validPassword)
-    setIsRetypedPasswordValid(validRetypedPassword)
-    setIsPasswordUpdated(savedNewPassword)
-
   };
   
   const PasswordMessage = () => {
     if (isPasswordSubmitted){
       if (!isPasswordValid){
-        return <Alert severity="info">Password does not meet the requirements.</Alert>
+        return <Alert severity="error">Password does not meet the requirements.</Alert>
       } else if(!isRetypedPasswordValid){
-        return <Alert severity="info">Retyped password has to be the same as password.</Alert>
+        return <Alert severity="error">Retyped password has to be the same as password.</Alert>
       } else if (!isPasswordUpdated){
-        return <Alert severity="info">Failed to update password. Please try again.</Alert>
+        return <Alert severity="error">Failed to update password. Please try again.</Alert>
       } else {
-        return <Alert severity="info">Password has been changed.</Alert>
+        return <Alert severity="success">Password has been changed.</Alert>
       }
     }
     return null;
   }
 
-
-  // ResetPasswordStep is the third step in the forget password flow
 
     return (
       <ThemeProvider theme={defaultTheme}>
@@ -142,7 +132,7 @@ export default function ResetPassword() {
             fullWidth
             name="retypedPassword"
             label="Retype Password"
-            type="retypedPassword"
+            type="Password"
             id="retypedPassword"
             onChange={handleRetypedPassword} />
         </Grid><Grid item xs={12}>
