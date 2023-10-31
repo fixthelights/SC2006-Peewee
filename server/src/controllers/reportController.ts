@@ -2,6 +2,9 @@ import { Request, Response } from 'express';
 import { AppError } from '../config/AppError';
 import Report from '../models/report';
 
+import startOfDay from "date-fns/startOfDay";
+import endOfDay from "date-fns/endOfDay";
+
 exports.getAllReports = async (req :Request, res :Response) => {
     try{
         const reports = await Report.find();
@@ -37,15 +40,8 @@ exports.getTodayReports = async (req :Request, res :Response) => {
     // reports[i].timestamp.toString().substring(0,10) != "2023-10-16"
     // Extract ID from URL
     try{
-        let i;
         const date = new Date()
-        const reports = await Report.find().exec();
-        for (i=0; i<reports.length; i++){
-            if (reports[i].timestamp.toDateString() !== date.toDateString()) {
-                reports.splice(i, 1)
-                i-=1
-            }
-        }
+        const reports = await Report.find({timestamp: {$gte: startOfDay(date), $lte: endOfDay(date)}});
         return res.status(200).send(reports);
     }catch(error: any){
         throw new AppError({
@@ -61,18 +57,8 @@ exports.getRecentReports = async (req :Request, res :Response) => {
     // reports[i].timestamp.toString().substring(0,10) != "2023-10-16"
     // Extract ID from URL
     try{
-        let i;
         const date = new Date()
-        const reports = await Report.find().exec();
-        for (i=0; i<reports.length; i++){
-            if (reports[i].timestamp.toDateString() !== date.toDateString()) {
-                reports.splice(i, 1)
-                i-=1
-            }
-        }
-        while (reports.length>3){
-            reports.splice(0,1)
-        }
+        const reports = await Report.find({timestamp: {$gte: startOfDay(date), $lte: endOfDay(date)}}).limit(3);
         return res.status(200).send(reports);
     }catch(error: any){
         throw new AppError({

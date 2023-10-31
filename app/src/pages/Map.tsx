@@ -40,37 +40,37 @@ import {
 } from "@mui/material";
 import MapComponent from "../components/Map";
 import axios from "axios";
-import { Autocomplete,useLoadScript } from "@react-google-maps/api";
+import { Autocomplete, Libraries, useLoadScript } from "@react-google-maps/api";
 
+// Move array outside of functional component
+// See https://github.com/JustFly1984/react-google-maps-api/issues/238
+const libraries: Libraries = ["places"];
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 export default function Map() {
-
-  const [trafficFilters, setTrafficFilters] = React.useState([""]);
-  const [incidentFilters, setIncidentFilters] = React.useState([""]);
+  const [trafficFilters, setTrafficFilters] = React.useState(["show-all"]);
+  const [incidentFilters, setIncidentFilters] = React.useState(["accident", "roadWork", "roadClosure"]);
   const [cameras, setCameras] = React.useState<Array<Camera>>([]);
-  
+  const [incidents, setIncidents] = React.useState<Array<Report>>([]);
 
-  const [directionsRenderer, setDirectionsRenderer] = React.useState<google.maps.DirectionsRenderer | null>(null);
-  const [directionsResponse, setDirectionsResponse] = React.useState<google.maps.DirectionsResult | null>(null);
+  const [directionsRenderer, setDirectionsRenderer] =
+    React.useState<google.maps.DirectionsRenderer | null>(null);
+  const [directionsResponse, setDirectionsResponse] =
+    React.useState<google.maps.DirectionsResult | null>(null);
   const originRef = React.useRef<HTMLInputElement>(null);
   const destinationRef = React.useRef<HTMLInputElement>(null);
- 
+
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: 'AIzaSyCn6_wKG_mP0YI_eVctQ5zB50VuwMmzoWQ',
-    libraries: ['places']
+    googleMapsApiKey: "AIzaSyCn6_wKG_mP0YI_eVctQ5zB50VuwMmzoWQ",
+    libraries: libraries, // Move array outside of functional component
   });
-
-
 
   const handleTrafficFilters = (
     event: React.MouseEvent<HTMLElement>,
     newFilters: string[]
   ) => {
-    if (newFilters.includes("show-all"))
-      newFilters = ["accidents", "city-cams", "highway-cams"];
     if (newFilters.includes("hide-all")) newFilters = [];
 
     setTrafficFilters(newFilters);
@@ -81,91 +81,126 @@ export default function Map() {
     newFilters: string[]
   ) => {
     if (newFilters.includes("show-all"))
-      newFilters = ["accidents", "roadworks", "closures"];
+      newFilters = ["accident", "roadWork", "roadClosure"];
     if (newFilters.includes("hide-all")) newFilters = [];
 
     setIncidentFilters(newFilters);
   };
 
-  interface CameraFromAPI{
-    camera_name: string,
+  enum IncidentType {
+    accident = "Accident",
+    roadWork = "RoadWork",
+    roadClosure = "RoadClosure",
+  }
+  
+  interface Report {
+    incident: IncidentType,
     location: {
-      long: number,
-      lat: number
-    },
-    vehicle_count: number
-    peakedness: number | null
+      long: number;
+      lat: number;
+    };
+    address: string;
+    duration_hours: number;
+    description: string;
+    time: string;
+    timestamp: Date;
+    reported_by: string;
   }
 
-  interface Camera{
-    cameraName: string,
-    lng: number,
-    lat: number,
-    vehicleCount: number
-    peakedness: number | null
+  interface CameraFromAPI {
+    camera_name: string;
+    location: {
+      long: number;
+      lat: number;
+    };
+    vehicle_count: number;
+    peakedness: number | null;
+  }
+
+  interface Camera {
+    cameraName: string;
+    lng: number;
+    lat: number;
+    vehicleCount: number;
+    peakedness: number | null;
   }
 
   React.useEffect(() => {
-    const getData = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:2000/traffic/conditions"
-        );
-        console.log(response.data);
-        const allCameras = response.data.cameras;
-
-        let cameraArray: Array<Camera>= [];
-
-        allCameras.forEach(({ camera_name, location, vehicle_count, peakedness} : CameraFromAPI)=> {
-          cameraArray.push({
-            cameraName: camera_name,
-            lng: location.long,
-            lat: location.lat,
-            vehicleCount: vehicle_count,
-            peakedness: peakedness
-          })
-        });
-
-        setCameras(cameraArray);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    getData();
-
-    return () => {};
-  });
+    loadTrafficIncidents();
+    loadTrafficConditions();
+  }, []);
 
   const theme = useTheme();
   const isScreenSmall = useMediaQuery(theme.breakpoints.down("sm"));
 
-async function calculateRoute(){
-    if (originRef.current?.value === ''|| destinationRef.current?.value ===''){
+  async function loadTrafficIncidents() {
+    try {
+      const response = await axios.get(
+        "http://localhost:2000/reports/today/recent"
+      );
+      console.log(response.data);
+      setIncidents(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function loadTrafficConditions() {
+    try {
+      const response = await axios.get(
+        "http://localhost:2000/traffic/conditions"
+      );
+      console.log(response.data);
+      const allCameras = response.data.cameras;
+
+      let cameraArray: Array<Camera>= [];
+
+      allCameras.forEach(({ camera_name, location, vehicle_count, peakedness} : CameraFromAPI)=> {
+        cameraArray.push({
+          cameraName: camera_name,
+          lng: location.long,
+          lat: location.lat,
+          vehicleCount: vehicle_count,
+          peakedness: peakedness
+        })
+      });
+
+      setCameras(cameraArray);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  async function calculateRoute() {
+    if (
+      originRef.current?.value === "" ||
+      destinationRef.current?.value === ""
+    ) {
       return;
     }
     const directionsService = new google.maps.DirectionsService();
     const results = await directionsService.route({
       origin: originRef.current!.value,
       destination: destinationRef.current!.value,
-      travelMode: google.maps.TravelMode.DRIVING
+      travelMode: google.maps.TravelMode.DRIVING,
     });
     setDirectionsResponse(results);
   }
 
-function clearRender(){
-  if (directionsRenderer) {
-  directionsRenderer.setMap(null);
-  setDirectionsRenderer(null);
-}}
-
-function clearRoute() {
+  function clearRender() {
     if (directionsRenderer) {
       directionsRenderer.setMap(null);
       setDirectionsRenderer(null);
     }
-    originRef.current!.value = '';
-    destinationRef.current!.value = '';
+  }
+
+  function clearRoute() {
+    if (directionsRenderer) {
+      directionsRenderer.setMap(null);
+      setDirectionsRenderer(null);
+    }
+    originRef.current!.value = "";
+    destinationRef.current!.value = "";
   }
 
   return (
@@ -182,9 +217,6 @@ function clearRoute() {
             size={isScreenSmall ? "small" : "medium"}
             color="primary"
           >
-            <ToggleButton value="accidents">Accident Zone</ToggleButton>
-            <ToggleButton value="city-cams">City Cameras</ToggleButton>
-            <ToggleButton value="highway-cams">Highway Cameras</ToggleButton>
             <ToggleButton value="show-all">Show all</ToggleButton>
             <ToggleButton value="hide-all">Hide all</ToggleButton>
           </ToggleButtonGroup>
@@ -199,9 +231,9 @@ function clearRoute() {
             size={isScreenSmall ? "small" : "medium"}
             color="primary"
           >
-            <ToggleButton value="accidents">Accidents</ToggleButton>
-            <ToggleButton value="roadworks">Roadworks</ToggleButton>
-            <ToggleButton value="closures">Closure</ToggleButton>
+            <ToggleButton value="accident">Accidents</ToggleButton>
+            <ToggleButton value="roadWork">Roadworks</ToggleButton>
+            <ToggleButton value="roadClosure">Closure</ToggleButton>
             <ToggleButton value="show-all">Show all</ToggleButton>
             <ToggleButton value="hide-all">Hide all</ToggleButton>
           </ToggleButtonGroup>
@@ -216,7 +248,9 @@ function clearRoute() {
             sx={{ "& > :not(style)": { width: "35ch" }, my: 2 }}
           >
             {isLoaded && (
-              <Autocomplete options={{ componentRestrictions: { country: "SG" } }}>
+              <Autocomplete
+                options={{ componentRestrictions: { country: "SG" } }}
+              >
                 <TextField
                   label="Source"
                   variant="outlined"
@@ -225,7 +259,9 @@ function clearRoute() {
               </Autocomplete>
             )}
             {isLoaded && (
-              <Autocomplete options={{ componentRestrictions: { country: "SG" } }}>
+              <Autocomplete
+                options={{ componentRestrictions: { country: "SG" } }}
+              >
                 <TextField
                   label="Destination"
                   variant="outlined"
@@ -233,23 +269,38 @@ function clearRoute() {
                 />
               </Autocomplete>
             )}
-          
           </Stack>
           <Stack direction="row" spacing={2}>
-            <Button variant="contained" onClick={() => { clearRender(); calculateRoute(); }}>Search</Button>
+            <Button
+              variant="contained"
+              onClick={() => {
+                clearRender();
+                calculateRoute();
+              }}
+            >
+              Search
+            </Button>
             <Button variant="contained">Save Route</Button>
             <Button variant="contained">View Favourites</Button>
             {/* For dev purposes
             <Button variant="contained"onClick={clearRoute}>Clear Route</Button>*/}
-            
           </Stack>
         </Container>
         <Container>
           <MapComponent
-            location={{ lng: 103.7992246, lat: 1.3687004, address: "Singapore" }}
+            location={{
+              lng: 103.7992246,
+              lat: 1.3687004,
+              address: "Singapore",
+            }}
             zoomLevel={12}
             cameras={cameras}
+            incidents={incidents}
             directionsResponse={directionsResponse}
+            showCameras={trafficFilters.includes("show-all")}
+            showAccidents={incidentFilters.includes("accident")}
+            showRoadClosures={incidentFilters.includes("roadClosure")}
+            showRoadWorks={incidentFilters.includes("roadWork")}
           />
         </Container>
       </AppFrame>
