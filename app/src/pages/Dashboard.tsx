@@ -117,7 +117,7 @@ export default function Dashboard() {
 
   function identifyUser(){
     let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
-    if (userJwt!='null'){
+    if (userJwt!=='null'){
       const userDetails: User = jwtDecode(userJwt)
       return userDetails.userId
     }

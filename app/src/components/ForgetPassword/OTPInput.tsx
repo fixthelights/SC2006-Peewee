@@ -33,42 +33,13 @@ export default function OTPInput() {
   const [disable, setDisable] = useState(true);
 
   // Handle changes to OTP Input
-//   const handleOTP = (event: React.ChangeEvent<HTMLInputElement>) => {
-//     setEnteredOTP(event.target.value);
-//   };
   const handleOTPChange = (newInput : string) => {
     setEnteredOTP(newInput);
   };
-
-
-  // EnterOTPStep is the second step in the forget password flow
-    // const handleOTPSubmission = (event: React.MouseEvent) => {
-    //   event.preventDefault();
-
-    //   setIsOTPSent(true);
-
-    //   console.log("Entered OTP: " + enteredOTP);
-    //   console.log("Generated OTP: " + otp);
   
-    //   (otp!=='' && enteredOTP===otp)? setIsOTPValid(true) : setIsOTPValid(false);
-
-    //   if (isOTPValid){
-    //     setPage("reset");
-    //   }
-    // };
-
-  
-
-  function resendOTP() {
-    if (disable) return;
-    axios.post('http://localhost:2000/users/forget-password', { email : email })
-    .then(() => setDisable(true))
-    .then(() => alert("A new OTP has succesfully been sent to your email."))
-    .then(() => setTimer(60))
-    .catch(console.log);
-  }
-
-  function verfiyOTP() {
+  // Verify OTP
+  function verifyOTP() {
+    console.log(enteredOTP, otp);
     if (enteredOTP === otp) {
       setPage("reset");
       return;
@@ -78,6 +49,17 @@ export default function OTPInput() {
     );
   }
 
+  // Resend OTP to email with 60s cooldown
+  function resendOTP() {
+    if (disable) return;
+    axios.post('http://localhost:2000/users/forget-password', { email : email })
+    .then(() => setDisable(true))
+    .then(() => alert("A new OTP has succesfully been sent to your email."))
+    .then(() => setTimer(60))
+    .catch(console.log);
+  }
+
+  // Countdown timer for resend OTP
   useEffect(() => {
     let interval = setInterval(() => {
       setTimer((lastTimerCount) => {
@@ -90,6 +72,17 @@ export default function OTPInput() {
     //cleanup the interval on complete
     return () => clearInterval(interval);
   }, [disable]);
+
+
+  // Field type validation for OTP input
+  function matchIsNumeric(text : any) {
+    const isNumber = typeof text === 'number';
+    const isString = typeof text === 'string';
+    return (isNumber || (isString && text !== '')) && !isNaN(Number(text))
+  }
+  const validateChar = (value: any) => {
+    return matchIsNumeric(value)
+  }
 
 
   return (
@@ -124,8 +117,8 @@ export default function OTPInput() {
                     <MuiOtpInput 
                         value={enteredOTP} 
                         onChange={handleOTPChange} 
+                        validateChar={validateChar}
                         length={6}
-                        onComplete={verfiyOTP}
                         TextFieldsProps={{ placeholder: '-' }}
                     />
                 </Grid>
@@ -135,7 +128,7 @@ export default function OTPInput() {
                   fullWidth
                   variant="contained"
                   sx={{ mt: 3, mb: 2 }}
-                  onClick = {verfiyOTP}
+                  onClick = {verifyOTP}
                 >
                   Confirm
                 </Button>
@@ -174,70 +167,4 @@ export default function OTPInput() {
         </ThemeProvider>
     );
   
-    // return (
-    //   <ThemeProvider theme={defaultTheme}>
-    //     <Container component="main" maxWidth="xs">
-    //       <CssBaseline />
-    //       <Box
-    //         sx={{
-    //           marginTop: 8,
-    //           display: 'flex',
-    //           flexDirection: 'column',
-    //           alignItems: 'center',
-    //         }}
-    //       >
-    //         <Typography component="h1" variant="h5">
-    //           An OTP has been sent to your email
-    //         </Typography>
-    //         <Box component="form" noValidate sx={{ mt: 3 }}>
-    //           <Grid container spacing={2}>
-    //             <Grid item xs={12}>
-    //                 <Typography variant="body1">
-    //                     Please enter the OTP below to reset your password.
-    //                 </Typography>
-    //                 <Typography variant="body2" fontStyle='italic' fontSize='14px' >
-    //                     Check your spam folder if you do not see the email
-    //                 </Typography>
-    //             </Grid>
-    //             <Grid item xs={12}>
-    //               <TextField
-    //                 required
-    //                 fullWidth
-    //                 name="otp"
-    //                 label="OTP"
-    //                 type="otp"
-    //                 id="otp"
-    //                 placeholder={"Enter OTP"}
-    //                 onChange={handleOTP}
-    //               />
-    //             </Grid>
-    //             <Grid item xs={12}>
-    //             <Button
-    //               type="submit"
-    //               fullWidth
-    //               variant="contained"
-    //               sx={{ mt: 3, mb: 2 }}
-    //               onClick = {handleOTPSubmission}
-    //             >
-    //               Confirm
-    //             </Button>
-    //             </Grid>
-    //             <Grid item xs={12}>
-    //             </Grid>
-
-    //             <Grid container justifyContent="flex-end">
-    //               <Grid item>
-    //                 <Link href="#" variant="body2" onClick={() => navigate("/login")}>
-    //                   Log In
-    //                 </Link>
-    //               </Grid>
-    //             </Grid>
-    //             <Grid item>
-    //             </Grid>
-    //             </Grid>
-    //           </Box>
-    //         </Box>
-    //       </Container>
-    //     </ThemeProvider>
-    // );
 };
