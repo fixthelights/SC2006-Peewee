@@ -1,22 +1,28 @@
-import { useState } from "react";
+import React, { useState, useMemo, ReactElement } from "react";
 import { createContext } from "react";
-import Login from "./Login";
 import OTPResetEmail from "../components/ForgetPassword/ForgetPasswordEmail";
 import OTPInput from "../components/ForgetPassword/OTPInput";
 import ResetPassword from "../components/ForgetPassword/ResetPassword";
 
 
-export const RecoveryContext = createContext<any>({} as any)
+
+const MemoisedOTPResetEmail = React.memo(OTPResetEmail);
+const MemoisedOTPInput = React.memo(OTPInput);
+const MemoisedResetPassword = React.memo(ResetPassword);
+
+export const RecoveryContext = createContext<any>({} as any);
+export const delayTime = 2000; // Set delay to simulate loading (for user experience)
+
 function ForgetPassword2() {
   const [page, setPage] = useState("otpemail");
-  const [email, setEmail] = useState();
-  const [otp, setOTP] = useState();
+  const [email, setEmail] = useState("");
+  const [otp, setOTP] = useState("");
 
-  function NavigateComponents() {
-    if (page === "otpemail") return <OTPResetEmail />;
-    if (page === "otpinput") return <OTPInput />;
-    if (page === "reset") return <ResetPassword />;
-    if (page === "login") return <Login />;
+  
+  const NavigateComponents = useMemo(() => {
+    if (page === "otpemail") return <MemoisedOTPResetEmail />;
+    if (page === "otpinput") return <MemoisedOTPInput />;
+    if (page === "reset") return <MemoisedResetPassword />;
 
     return (
       <div>
@@ -48,14 +54,14 @@ function ForgetPassword2() {
         </section>
       </div>
     );
-  }
+  }, [page, MemoisedOTPResetEmail, MemoisedOTPInput, MemoisedResetPassword]);
 
   return (
     <RecoveryContext.Provider
       value={{ page, setPage, otp, setOTP, setEmail, email }}
     >
       <div className="flex justify-center items-center">
-        <NavigateComponents />
+        {NavigateComponents as ReactElement}
       </div>
     </RecoveryContext.Provider>
   );

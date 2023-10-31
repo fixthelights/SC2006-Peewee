@@ -10,25 +10,24 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useState, useContext  } from 'react'
 import Alert from '@mui/material/Alert';
 import { AuthManager} from '../../classes/AuthManager';
-import { RecoveryContext } from "../../pages/PasswordRecovery";
+import { RecoveryContext, delayTime } from "../../pages/PasswordRecovery";
+import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 const authController = new AuthManager()
 
-
 export default function ResetPassword() {
-
-
   // Importing States
   const [password, setPassword] = useState('')
   const [retypedPassword, setRetypedPassword] = useState('')
-  const [isPasswordValid, setIsPasswordValid] = useState(false)
-  const [isRetypedPasswordValid, setIsRetypedPasswordValid] = useState(false)
+  const [isPasswordValid, setIsPasswordValid] = useState({} as boolean)
+  const [isRetypedPasswordValid, setIsRetypedPasswordValid] = useState({} as boolean)
   const [isPasswordSubmitted, setIsPasswordSubmitted] = useState(false)
   const [isPasswordUpdated, setIsPasswordUpdated] = useState(false)
   const { email, setPage } = useContext(RecoveryContext)
+  const navigate = useNavigate();
 
   // Handle changes to Password Input
   const handlePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,7 +66,7 @@ export default function ResetPassword() {
       .then(res => console.log(res.data))
       .then(res => setIsPasswordUpdated(true))
       .then(res => setIsPasswordSubmitted(true))
-      .then(res => setPage("login"))
+      .then(res => setTimeout(() => navigate("/login"),delayTime))
       .catch(error => {
           console.log(error);
           setIsPasswordUpdated(false);

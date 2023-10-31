@@ -12,7 +12,7 @@ import { useState, useEffect, useContext } from 'react'
 import Alert from '@mui/material/Alert';
 import Link from '@mui/material/Link';
 import { AuthManager} from '../../classes/AuthManager';
-import { RecoveryContext } from '../../pages/PasswordRecovery';
+import { RecoveryContext, delayTime } from '../../pages/PasswordRecovery';
 import axios from 'axios';
 import { MuiOtpInput } from 'mui-one-time-password-input'
 
@@ -26,9 +26,9 @@ export default function OTPInput() {
   const navigate = useNavigate();
 
   const [enteredOTP, setEnteredOTP] = useState('');
-  const [isOTPValid, setIsOTPValid] = useState(false)
+  const [isCorrectOTP, setIsCorrectOTP] = useState({} as boolean)
   const [isOTPSent, setIsOTPSent] = useState(false);
-  const { email, otp, setPage } = useContext(RecoveryContext)
+  const { email, otp, setPage, page } = useContext(RecoveryContext)
   const [timerCount, setTimer] = React.useState(60);
   const [disable, setDisable] = useState(true);
 
@@ -38,15 +38,17 @@ export default function OTPInput() {
   };
   
   // Verify OTP
-  function verifyOTP() {
+  function verifyOTP(event: React.MouseEvent) {
+    setIsOTPSent(true);
+    event.preventDefault();
     console.log(enteredOTP, otp);
     if (enteredOTP === otp) {
-      setPage("reset");
+      setIsCorrectOTP(true);
+      setTimeout(()=>setPage("reset"),delayTime);
       return;
     }
-    alert(
-      "The code you have entered is not correct, try again or re-send the link"
-    );
+    setIsCorrectOTP(false);
+    return;
   }
 
   // Resend OTP to email with 60s cooldown
@@ -84,6 +86,15 @@ export default function OTPInput() {
     return matchIsNumeric(value)
   }
 
+
+  const OTPMessage = () => {
+    if (isOTPSent && !isCorrectOTP) {
+      return <Alert severity="error"> Wrong OTP entered, please try again </Alert> ;
+    } else if (isOTPSent && isCorrectOTP) {
+      return <Alert severity="success"> Correct OTP, please reset your password </Alert> ;
+    }
+    return null;
+  };
 
   return (
       <ThemeProvider theme={defaultTheme}>
@@ -134,6 +145,9 @@ export default function OTPInput() {
                 </Button>
                 </Grid>
                 <Grid item xs={12}>
+                  <OTPMessage/>
+                </Grid>
+                <Grid item xs={12}>
                     <Typography variant="body1" align='center' fontSize={'18px'} color={"#404040"}>
                     Didn't recieve code?
                     </Typography>
@@ -157,8 +171,6 @@ export default function OTPInput() {
                       Log In
                     </Link>
                   </Grid>
-                </Grid>
-                <Grid item>
                 </Grid>
                 </Grid>
               </Box>
