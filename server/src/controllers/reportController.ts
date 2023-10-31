@@ -34,18 +34,9 @@ exports.getOneReport = async (req :Request, res :Response) => {
 }
 
 exports.getTodayReports = async (req :Request, res :Response) => {
-    // reports[i].timestamp.toString().substring(0,10) != "2023-10-16"
-    // Extract ID from URL
     try{
-        let i;
         const date = new Date()
-        const reports = await Report.find().exec();
-        for (i=0; i<reports.length; i++){
-            if (reports[i].timestamp.toDateString() !== date.toDateString()) {
-                reports.splice(i, 1)
-                i-=1
-            }
-        }
+        const reports = await Report.find({date : date.toDateString()});
         return res.status(200).send(reports);
     }catch(error: any){
         throw new AppError({
@@ -58,22 +49,14 @@ exports.getTodayReports = async (req :Request, res :Response) => {
 }
 
 exports.getRecentReports = async (req :Request, res :Response) => {
-    // reports[i].timestamp.toString().substring(0,10) != "2023-10-16"
-    // Extract ID from URL
     try{
-        let i;
         const date = new Date()
-        const reports = await Report.find().exec();
-        for (i=0; i<reports.length; i++){
-            if (reports[i].timestamp.toDateString() !== date.toDateString()) {
-                reports.splice(i, 1)
-                i-=1
-            }
+        const reports = await Report.find({date : date.toDateString()});
+        if (reports.length<=3){
+            return res.status(200).send(reports);
+        } else {
+            return res.status(200).send(reports.slice(-3));
         }
-        while (reports.length>3){
-            reports.splice(0,1)
-        }
-        return res.status(200).send(reports);
     }catch(error: any){
         throw new AppError({
             type: "Error",
@@ -92,8 +75,8 @@ exports.submitReport = async (req :Request, res :Response) => {
     report.incident = json.incident;
     report.location = json.location;
     report.address = json.address;
-    report.duration_hours = json.duration_hours;
     report.time = json.time;
+    report.date = json.date;
     report.description = json.description;
 
     try{

@@ -308,7 +308,7 @@ export default function ForgetPassword() {
               flexDirection: 'column',
               alignItems: 'center',
             }}
-          >
+          />
             <Typography component="h1" variant="h5">
               An OTP has been sent to your email
             </Typography>
@@ -332,34 +332,51 @@ export default function ForgetPassword() {
                     onChange={handleOTP}
                     value={OTP}
                   />
-                </Grid>
-                <Grid item xs={12}>
-                <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  sx={{ mt: 3, mb: 2 }}
-                  onClick = {handleOTPSubmission}
-                >
-                  Confirm
-                </Button>
-                </Grid>
-                <Grid item xs={12}>
-                <OTPMessage />
-                </Grid>
-
-                <Grid container justifyContent="flex-end">
-                  <Grid item>
-                    <Link href="#" variant="body2" onClick={() => navigate("/login")}>
-                      Log In
-                    </Link>
-                  </Grid>
-                </Grid>
+              </Grid>
+              <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    name="password"
+                    label="Password"
+                    type="password"
+                    id="password"
+                    onChange = {handlePassword}
+                  />
+              </Grid>
+              <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    name="retypedPassword"
+                    label="Retype Password"
+                    type="retypedPassword"
+                    id="retypedPassword"
+                    onChange = {handleRetypedPassword}
+                  />
+              </Grid>
+              <Grid item xs={12}>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+                onClick = {handlePasswordSubmission}
+              >
+                Reset Password
+              </Button>
+              </Grid>
+              <Grid item xs={12}>
+              <PasswordMessage/>
+              </Grid>
+              </Grid>
+              <Grid container justifyContent="flex-end">
                 <Grid item>
-                  <PasswordMessage />
+                  <Link href="#" variant="body2" onClick={() => navigate("/login")}>
+                    Log In
+                  </Link>
                 </Grid>
-                </Grid>
-              </Box>
+              </Grid>
             </Box>
           </Container>
         </ThemeProvider>

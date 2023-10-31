@@ -1,19 +1,9 @@
-import React, { FC } from 'react';
+import React from 'react';
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import MuiDrawer from '@mui/material/Drawer';
 import Box from '@mui/material/Box';
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import {ListItemButton, ListItemIcon, ListItemText, DashboardIcon, CarCrashOutlinedIcon, MapOutlinedIcon, TrafficOutlinedIcon , LogoutOutlinedIcon} from '../components/ListButtonIndex'
 import { useNavigate } from "react-router-dom";
-import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -27,76 +17,12 @@ import {MouseEvent} from 'react'
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Container from '@mui/material/Container';
-
-const drawerWidth: number = 240;
-
-interface AppBarProps extends MuiAppBarProps {
-  open?: boolean;
-}
-
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
-})<AppBarProps>(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(['width', 'margin'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
-
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    '& .MuiDrawer-paper': {
-      position: 'relative',
-      whiteSpace: 'nowrap',
-      width: drawerWidth,
-      transition: theme.transitions.create('width', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-      boxSizing: 'border-box',
-      ...(!open && {
-        overflowX: 'hidden',
-        transition: theme.transitions.create('width', {
-          easing: theme.transitions.easing.sharp,
-          duration: theme.transitions.duration.leavingScreen,
-        }),
-        width: theme.spacing(7),
-        [theme.breakpoints.up('sm')]: {
-          width: theme.spacing(9),
-        },
-      }),
-    },
-  }),
-);
+import AppFrame from '../components/AppFrame'
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
-    },
-  },
-};
-
 export default function ReportIncident() {
-  const [open, setOpen] = React.useState(true);
-  const toggleDrawer = () => {
-    setOpen(!open);
-  };
 
   const navigate = useNavigate();
 
@@ -111,26 +37,41 @@ export default function ReportIncident() {
   const [validSubmission, setValidSubmission] = useState(false);
 
   useEffect(() => {
-    let lat = 1000
-    let long = 1000
+    getUserLocation()
+  }, []);
+
+  function getUserLocation(): void {
+    //let lat = 1000
+    //let long = 1000
 
     setLatitude(1.3456) //Jurong West Address 
     setLongitude(103.704116) //Jurong West Address 
 
-    /*navigator.geolocation.getCurrentPosition(function(position) {
-      console.log("Latitude is :", position.coords.latitude);
-      console.log("Longitude is :", position.coords.longitude);
-      lat = position.coords.latitude;
-      long = position.coords.longitude;
-      setLatitude(lat)
-      setLongitude(long)
-    })*/
-  }, []);
+    /*if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        console.log("Latitude is :", position.coords.latitude);
+        console.log("Longitude is :", position.coords.longitude);
+        setLatitude(position.coords.latitude)
+        setLongitude(position.coords.longitude)
+      })
+    }*/
+  }
 
-  const LocationMessage = () => {
+  const DisplayLocationMessage = () => {
     if (!submissionStatus && incidentType!=''){
       if (!locationPermission){
-        return <Box sx={{ pl: 3, pt: 3 }}>
+        return <DisplayLocationAccessRequest/>
+      } else if (locationDetected){
+        return <DisplayLocation />
+      } else {
+        return <DisplayRetry />
+      }
+    }
+    return null;
+  }
+
+  const DisplayLocationAccessRequest = () => {
+    return <Box sx={{ pl: 3, pt: 3 }}>
                 <Grid item xs={12} md={6} lg={5}>
                 <Alert 
                   severity="info"
@@ -140,7 +81,7 @@ export default function ReportIncident() {
                 <Stack spacing={2} direction="row">
                   <Button 
                       variant="contained" 
-                      onClick={()=>handleLocationAccess()}
+                      onClick={() => handleLocationAccess()}
                   >
                       Yes
                   </Button>
@@ -155,42 +96,44 @@ export default function ReportIncident() {
                 </Alert>
               </Grid>
               </Box>
-      } else if (locationDetected){
-        return <Box sx={{ pl: 3, pt: 3 }}>
-              <Typography
-                component="h1"
-                variant="body1"
-              >
-              Incident Location: {incidentLocation}
-              </Typography>
-              </Box>
-      } else {
-        return <Alert 
-                  severity="info"
-                >
-                  Failed to detect location. Redetect current location?
-                <Box sx={{ pt: 3 }}>
-                <Stack spacing={2} direction="row">
-                  <Button 
-                      variant="contained" 
-                      onClick={handleLocationAccess}
-                  >
-                      Yes
-                  </Button>
-                  <Button 
-                      variant="contained" 
-                      onClick={() => navigate("/incidents")}
-                  >
-                      Return to Incident Page
-                  </Button>
-                </Stack>
-                </Box>
-                </Alert>
-      }
-    }
-    return null;
   }
   
+  const DisplayLocation = () => {
+    return <Box sx={{ pl: 3, pt: 3 }}>
+          <Typography
+            component="h1"
+            variant="body1"
+          >
+          Incident Location: {incidentLocation}
+          </Typography>
+          </Box>
+  }
+
+  const DisplayRetry = () => {
+    return <Box sx={{ pl: 3, pt: 3 }}>
+            <Grid item xs={12} md={6} lg={5}>
+            <Alert severity="info">
+                Failed to detect location. Redetect current location?
+              <Box sx={{ pt: 3 }}>
+              <Stack spacing={2} direction="row">
+                <Button 
+                    variant="contained" 
+                    onClick={handleLocationAccess}
+                >
+                    Yes
+                </Button>
+                <Button 
+                    variant="contained" 
+                    onClick={() => navigate("/incidents")}
+                >
+                    Return to Incident Page
+                </Button>
+              </Stack>
+              </Box>
+              </Alert>
+            </Grid>
+          </Box>
+  }
 
   const handleLocationAccess = () => {
 
@@ -206,7 +149,7 @@ export default function ReportIncident() {
     
   }
 
-  const IncidentTypeSelection = () => {
+  const DisplayIncidentTypeSelection = () => {
     if (!submissionStatus){
         return  <Box sx={{ width: 360, pl: 3, pt: 3 }}>
                 <FormControl fullWidth>
@@ -229,7 +172,7 @@ export default function ReportIncident() {
   }
   
 
-  const IncidentDescriptionInput= () => {
+  const DisplayIncidentDescriptionInput= () => {
     if (!submissionStatus){
       if (locationDetected){
         return  <Box sx={{ width: 360, pl: 3, pt: 3 }}>
@@ -256,7 +199,7 @@ export default function ReportIncident() {
     return null;
   }
 
-  const SubmitButton = () =>{
+  const DisplaySubmitButton = () =>{
     if (!submissionStatus){
       if (incidentDescription!=''){
         return <Box sx={{ pl: 3, pt: 3 }}>
@@ -284,53 +227,71 @@ export default function ReportIncident() {
             address : incidentLocation,
             description: incidentDescription,
             time: date.toLocaleTimeString(),
-            duration_hours: date.getHours()
+            date: date.toDateString()
         })
         .then((res)=> console.log(res.data))
-        .then ((res)=> setValidSubmission(true))
+        .then((res)=> setValidSubmission(true))
+        .then((res)=> setSubmissionStatus(true))
         .catch(function(error) {
             console.log(error)
             setValidSubmission(false)
+            setSubmissionStatus(false)
         });
   }
 
-  const SubmissionMessage = () => {
+  const DisplaySubmissionMessage = () => {
     if (submissionStatus){
       if (validSubmission){
-        return <Alert severity="info"> 
-                  Incident is successfully reported. 
-                  <Box sx={{ pt: 3 }}>
-                  <Button 
-                      variant="contained" 
-                      onClick={()=>navigate("/incidents")}
-                  >
-                  Return to Incident Page
-                  </Button>
-                  </Box>
-                </Alert>
+        return <DisplaySuccessfulSubmission />
       } else{
-        return <Alert severity="info"> 
-                  Error in report submission
-                  <Box sx={{ pt: 3 }}>
-                  <Stack spacing={2} direction="row">
-                  <Button 
-                      variant="contained" 
-                      onClick={handleReenter}
-                  >
-                      Re-enter form details
-                  </Button>
-                  <Button 
-                      variant="contained" 
-                      onClick={() => navigate("/incidents")}
-                  >
-                      Return to Incidents Page
-                  </Button>
-                  </Stack>
-                  </Box>
-                </Alert>
+        return <DisplayErrorMessage />
       }
-    }
-    return null;
+  }
+  return null
+}
+
+const DisplaySuccessfulSubmission = () => {
+  return <Box sx={{ pl: 3, pt: 3 }}>
+          <Grid item xs={12} md={6} lg={4}>
+          <Alert severity="info"> 
+          Incident is successfully reported. 
+         <Box sx={{ pt: 3 }}>
+         <Button 
+          variant="contained" 
+          onClick={()=>navigate("/incidents")}
+         >
+          Return to Incident Page
+         </Button>
+         </Box>
+         </Alert>
+         </Grid>
+         </Box>
+}
+
+const DisplayErrorMessage = () => {
+    return <Box sx={{ pl: 3, pt: 3 }}>
+            <Grid item xs={12} md={6} lg={4}>
+            <Alert severity="info"> 
+            Error in report submission
+            <Box sx={{ pt: 3 }}>
+             <Stack spacing={2} direction="row">
+             <Button 
+              variant="contained" 
+              onClick={handleReenter}
+             >
+             Re-enter form details
+            </Button>
+            <Button 
+              variant="contained" 
+              onClick={() => navigate("/incidents")}
+            >
+              Return to Incidents Page
+            </Button>
+            </Stack>
+            </Box>
+           </Alert>
+           </Grid>
+           </Box>
   }
 
   const handleReenter = () => {
@@ -340,116 +301,14 @@ export default function ReportIncident() {
     setIncidentType('');
     setIncidentDescription('');
     setSubmissionStatus(false);
+    setValidSubmission(false)
+    getUserLocation()
   }
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      <Box sx={{ display: 'flex' }}>
         <CssBaseline />
-        <AppBar position="absolute" open={open}>
-          <Toolbar
-            sx={{
-              pr: '24px', // keep right padding when drawer closed
-            }}
-          >
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="open drawer"
-              onClick={toggleDrawer}
-              sx={{
-                marginRight: '36px',
-                ...(open && { display: 'none' }),
-              }}
-            >
-            <MenuIcon />
-            </IconButton>
-            <MapOutlinedIcon />
-            <Typography
-              component="h1"
-              variant="h6"
-              color="inherit"
-              noWrap
-              sx={{ flexGrow: 1 }}
-            >
-              PEEWEE
-            </Typography>
-            <Typography
-              component="h1"
-              variant="h6"
-              color="inherit"
-              noWrap
-              sx={{ flexGrow: 1 }}
-            >
-              Report Incident
-            </Typography>
-            <IconButton color="inherit">
-              <AccountCircleOutlinedIcon/>
-            </IconButton>
-          </Toolbar>
-        </AppBar>
-        <Drawer variant="permanent" open={open}>
-          <Toolbar
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'flex-end',
-              px: [1],
-            }}
-          >
-            <IconButton onClick={toggleDrawer}>
-              <ChevronLeftIcon />
-            </IconButton>
-          </Toolbar>
-          <Divider />
-          <List component="nav">
-            <React.Fragment>
-              <ListItemButton onClick={() => navigate("/dashboard")}>
-                <ListItemIcon>
-                  <DashboardIcon />
-                </ListItemIcon>
-                <ListItemText primary="Dashboard" />
-              </ListItemButton>
-              <ListItemButton onClick={() => navigate("/incidents")}>
-                <ListItemIcon>
-                  <CarCrashOutlinedIcon />
-                </ListItemIcon>
-                <ListItemText primary="Incidents" />
-              </ListItemButton>
-              <ListItemButton onClick={() => navigate("/map")}>
-                <ListItemIcon>
-                 <MapOutlinedIcon />
-                </ListItemIcon>
-                <ListItemText primary="Map" />
-              </ListItemButton>
-              <ListItemButton>
-                <ListItemIcon>
-                  <TrafficOutlinedIcon />
-                </ListItemIcon>
-                <ListItemText primary="Road Conditions" />
-              </ListItemButton>
-                <ListItemButton onClick={() => {localStorage.removeItem("token"); navigate("/")}}> 
-                <ListItemIcon>
-                  <LogoutOutlinedIcon />
-                </ListItemIcon>
-                <ListItemText primary="Log Out"/>
-              </ListItemButton>
-            </React.Fragment>
-          </List>
-        </Drawer>
-        <Box
-          component="main"
-          sx={{
-            backgroundColor: (theme) =>
-              theme.palette.mode === 'light'
-                ? theme.palette.grey[100]
-                : theme.palette.grey[900],
-            flexGrow: 1,
-            height: '100vh',
-            overflow: 'auto',
-          }}
-        >
-       <Toolbar />
+        <AppFrame pageName="Report Incidents">
        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Grid container spacing={3}>
               {/* Chart */}
@@ -459,20 +318,19 @@ export default function ReportIncident() {
                         p: 2,
                         display: 'flex',
                         flexDirection: 'column',
-                        height: 500,
+                        height: 770,
                         overflow: 'auto'
                     }}>
-                  <IncidentTypeSelection />
-                  <LocationMessage />
-                  <IncidentDescriptionInput />
-                  <SubmitButton />
-                  <SubmissionMessage />
-                  </Paper>
+                  <DisplayIncidentTypeSelection />
+                  <DisplayLocationMessage />
+                  <DisplayIncidentDescriptionInput />
+                  <DisplaySubmitButton />
+                  <DisplaySubmissionMessage />
+              </Paper>
               </Grid>
             </Grid>
         </Container>
-      </Box>
-      </Box>
+      </AppFrame>
     </ThemeProvider>
   );
 }
