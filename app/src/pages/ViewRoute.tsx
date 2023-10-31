@@ -17,32 +17,31 @@ import MapComponent from "../components/Map";
 import axios from "axios";
 import { Autocomplete,useLoadScript } from "@react-google-maps/api";
 import {jwtDecode} from 'jwt-decode';
-import {useState} from 'react';
-import Alert from '@mui/material/Alert';
+import {useState, FC} from 'react';
+import FavouriteRoutes from '../pages/FavouriteRoutes'
 import { useNavigate } from "react-router-dom";
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
 
+
+
+interface User{
+  userId: string,
+  email: string, 
+  iat: number,
+  exp: number
+}
+
+interface ViewRouteProps{
+  source: string,
+  destination: string
+  setViewMap: React.Dispatch<React.SetStateAction<boolean>>
+}
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
-export default function Map() {
+const ViewRoute: FC<ViewRouteProps> = ({source, destination, setViewMap}) => {
 
   const navigate = useNavigate()
-
-  const userId = identifyUser()
-
-  function identifyUser(){
-    let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
-    if (userJwt!=null){
-      const userDetails: User = jwtDecode(userJwt)
-      return userDetails.userId
-    }
-    else{
-      return ''
-    }
-  }
 
   interface User{
     userId: string,
@@ -86,7 +85,6 @@ export default function Map() {
   const [trafficFilters, setTrafficFilters] = React.useState([""]);
   const [incidentFilters, setIncidentFilters] = React.useState([""]);
   const [cameras, setCameras] = React.useState<Array<Camera>>([]);
-  const [routeData, setRouteData] = React.useState<RouteData | null>(null);
   
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: 'AIzaSyCn6_wKG_mP0YI_eVctQ5zB50VuwMmzoWQ',
@@ -95,11 +93,9 @@ export default function Map() {
 
   const [directionsRenderer, setDirectionsRenderer] = React.useState<google.maps.DirectionsRenderer | null>(null);
   const [directionsResponse, setDirectionsResponse] = React.useState<google.maps.DirectionsResult | null>(null);
-  const originRef = React.useRef<HTMLInputElement>(null);
-  const destinationRef = React.useRef<HTMLInputElement>(null);
   const placesService = isLoaded ? new google.maps.places.PlacesService(document.createElement("div")) : null;
-  const [clickSaved, setClickSaved] = useState(false)
-  const [routeSaved, setRouteSaved] = useState(false)
+
+  const [backToRoutes, setBackToRoutes] = useState(false)
  
   const handleTrafficFilters = (
     event: React.MouseEvent<HTMLElement>,
@@ -195,12 +191,8 @@ export default function Map() {
 
   async function calculateRoute() {
     try {
-      if (!originRef.current || !destinationRef.current) {
-        return;
-      }
-  
-      const originQuery = originRef.current.value;
-      const destinationQuery = destinationRef.current.value;
+      const originQuery = source
+      const destinationQuery = destination
   
       if (!originQuery || !destinationQuery) {
         return;
@@ -216,9 +208,6 @@ export default function Map() {
       const originLocation = extractCoordinates(originResults);
       const destinationLocation = extractCoordinates(destinationResults);
   
-      console.log("Origin Location:", originLocation, originRef.current!.value);
-      console.log("Destination Location:", destinationLocation, destinationRef.current!.value);
-  
       if (!originLocation || !destinationLocation) {
         console.error('Failed to get details for origin or destination');
         return;
@@ -233,20 +222,6 @@ export default function Map() {
       });
   
       setDirectionsResponse(results);
-      const newRouteData: RouteData = {
-        favourited_by: userId,
-        source: {
-          longitude: originLocation.lng,
-          latitude: originLocation.lat,
-          address: originRef.current!.value,
-        },
-        destination: {
-          longitude: destinationLocation.lng,
-          latitude: destinationLocation.lat,
-          address: destinationRef.current!.value,
-        },
-      };
-      setRouteData(newRouteData);
     } catch (error) {
       console.error('Error in calculateRoute:', error);
     }
@@ -258,126 +233,64 @@ function clearRender(){
   setDirectionsRenderer(null);
 }}
 
-async function saveRoute(routeData: RouteData) {
-  setClickSaved(true)
-  try {
-    const response = await axios.post('http://localhost:2000/routes', routeData);
-    setRouteSaved(true)
-  } catch (error) {
-    console.error('Error saving route:', error);
-    setRouteSaved(false)
-  }
-}
-
-const SaveRouteMessage= () => {
-  if (clickSaved){
-    if (routeSaved){
-      return <Alert severity="info">Route successfully saved.</Alert>
-    } else {
-      return <Alert severity="info">Route failed to save.</Alert>
-    }
-  }
-  return null
-}
-
-//for dev
-/*function clearRoute() {
-    if (directionsRenderer) {
-      directionsRenderer.setMap(null);
-      setDirectionsRenderer(null);
-    }
-    originRef.current!.value = '';
-    destinationRef.current!.value = '';
-  }*/
-
   return (
     <ThemeProvider theme={defaultTheme}>
-      <CssBaseline />
-      <AppFrame pageName="Map">
-        <Container sx={{ my: 3 }}>
-          <Typography fontWeight="Bold" sx={{ my: 2 }}>
-            Traffic Camera Filters
-          </Typography>
-          <ToggleButtonGroup
-            value={trafficFilters}
-            onChange={handleTrafficFilters}
-            size={isScreenSmall ? "small" : "medium"}
-            color="primary"
-          >
-            <ToggleButton value="accidents">Accident Zone</ToggleButton>
-            <ToggleButton value="city-cams">City Cameras</ToggleButton>
-            <ToggleButton value="highway-cams">Highway Cameras</ToggleButton>
-            <ToggleButton value="show-all">Show all</ToggleButton>
-            <ToggleButton value="hide-all">Hide all</ToggleButton>
-          </ToggleButtonGroup>
-        </Container>
-        <Container sx={{ my: 3 }}>
-          <Typography fontWeight="Bold" sx={{ my: 2 }}>
-            Incidents Filters
-          </Typography>
-          <ToggleButtonGroup
-            value={incidentFilters}
-            onChange={handleIncidentFilters}
-            size={isScreenSmall ? "small" : "medium"}
-            color="primary"
-          >
-            <ToggleButton value="accidents">Accidents</ToggleButton>
-            <ToggleButton value="roadworks">Roadworks</ToggleButton>
-            <ToggleButton value="closures">Closure</ToggleButton>
-            <ToggleButton value="show-all">Show all</ToggleButton>
-            <ToggleButton value="hide-all">Hide all</ToggleButton>
-          </ToggleButtonGroup>
-        </Container>
-        <Container sx={{ my: 3 }}>
-          <Typography fontWeight="Bold" sx={{ my: 2 }}>
-            Search Route
-          </Typography>
-          <Stack
-            direction="row"
-            spacing={2}
-            sx={{ "& > :not(style)": { width: "35ch" }, my: 2 }}
-          >
-            {isLoaded && (
-              <Autocomplete options={{ componentRestrictions: { country: "SG" } }}>
-                <TextField
-                  label="Source"
-                  variant="outlined"
-                  inputRef={originRef}
+            <CssBaseline />
+            <AppFrame pageName="Map">
+              <Container sx={{ my: 3 }}>
+                <Typography fontWeight="Bold" sx={{ my: 2 }}>
+                  Traffic Camera Filters
+                </Typography>
+                <ToggleButtonGroup
+                  value={trafficFilters}
+                  onChange={handleTrafficFilters}
+                  size={isScreenSmall ? "small" : "medium"}
+                  color="primary"
+                >
+                  <ToggleButton value="accidents">Accident Zone</ToggleButton>
+                  <ToggleButton value="city-cams">City Cameras</ToggleButton>
+                  <ToggleButton value="highway-cams">Highway Cameras</ToggleButton>
+                  <ToggleButton value="show-all">Show all</ToggleButton>
+                  <ToggleButton value="hide-all">Hide all</ToggleButton>
+                </ToggleButtonGroup>
+              </Container>
+              <Container sx={{ my: 3 }}>
+                <Typography fontWeight="Bold" sx={{ my: 2 }}>
+                  Incidents Filters
+                </Typography>
+                <ToggleButtonGroup
+                  value={incidentFilters}
+                  onChange={handleIncidentFilters}
+                  size={isScreenSmall ? "small" : "medium"}
+                  color="primary"
+                >
+                  <ToggleButton value="accidents">Accidents</ToggleButton>
+                  <ToggleButton value="roadworks">Roadworks</ToggleButton>
+                  <ToggleButton value="closures">Closure</ToggleButton>
+                  <ToggleButton value="show-all">Show all</ToggleButton>
+                  <ToggleButton value="hide-all">Hide all</ToggleButton>
+                </ToggleButtonGroup>
+              </Container>
+              <Container sx={{ my: 3 }}>
+                <Stack direction="row" spacing={2}>
+                  <Button variant="contained" onClick={calculateRoute}>View Route</Button>
+                  <Button variant="contained" onClick={()=>setViewMap(false)}>Back to Favourites</Button>
+                  {/* For dev purposes
+                  <Button variant="contained"onClick={clearRoute}>Clear Route</Button>*/}
+                  
+                </Stack>
+              </Container>
+              <Container>
+                <MapComponent
+                  location={{ lng: 103.7992246, lat: 1.3687004, address: "Singapore" }}
+                  zoomLevel={12}
+                  cameras={cameras}
+                  directionsResponse={directionsResponse}
                 />
-              </Autocomplete>
-            )}
-            {isLoaded && (
-              <Autocomplete options={{ componentRestrictions: { country: "SG" } }}>
-                <TextField
-                  label="Destination"
-                  variant="outlined"
-                  inputRef={destinationRef}
-                />
-              </Autocomplete>
-            )}
-          
-          </Stack>
-          <Stack direction="row" spacing={2}>
-            <Button variant="contained" onClick={calculateRoute}>Search</Button>
-            <Button variant="contained" onClick={() => routeData && saveRoute(routeData)}>Save Route</Button>
-            <Button variant="contained" onClick={() => navigate('/favouriteroutes')}>View Favourites</Button>
-            {/* For dev purposes
-            <Button variant="contained"onClick={clearRoute}>Clear Route</Button>*/}
-            
-          </Stack>
-          <Box sx={{ pt: 3 }}>
-          <SaveRouteMessage />
-          </Box>
-        </Container>
-        <Container>
-          <MapComponent
-            location={{ lng: 103.7992246, lat: 1.3687004, address: "Singapore" }}
-            zoomLevel={12}
-            cameras={cameras}
-            directionsResponse={directionsResponse}
-          />
-        </Container>
-      </AppFrame>
-    </ThemeProvider>
+              </Container>
+            </AppFrame>
+          </ThemeProvider>
   );
 }
+
+export {ViewRoute}

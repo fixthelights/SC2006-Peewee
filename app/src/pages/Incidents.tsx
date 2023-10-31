@@ -61,7 +61,7 @@ export default function Incidents() {
   }
 
   const DisplayErrorMessage = () => {
-    return <Alert severity="info">There are no incidents reported today.</Alert>
+    return <Alert severity="info">Error in loading. Please refresh the page.</Alert>
   }
 
   return (

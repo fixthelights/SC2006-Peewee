@@ -20,6 +20,6 @@ const routeSchema = new mongoose.Schema({
     }
 });
 
-    const Route = mongoose.model('Route', routeSchema);
+const Route = mongoose.model('Route', routeSchema);
     
-    export default Route;
+export default Route;
