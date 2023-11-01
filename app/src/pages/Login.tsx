@@ -196,7 +196,7 @@ export default function Login() {
             </Grid>
             <Grid container>
               <Grid item xs>
-                <Link href="#" variant="body2" onClick={() => navigate("/forgetpassword2")}>
+                <Link href="#" variant="body2" onClick={() => navigate("/forgetpassword")}>
                   Forgot password?
                 </Link>
               </Grid>

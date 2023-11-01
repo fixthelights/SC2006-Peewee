@@ -13,7 +13,7 @@ const MemoisedResetPassword = React.memo(ResetPassword);
 export const RecoveryContext = createContext<any>({} as any);
 export const delayTime = 2000; // Set delay to simulate loading (for user experience)
 
-function ForgetPassword2() {
+function ForgetPassword() {
   const [page, setPage] = useState("otpemail");
   const [email, setEmail] = useState("");
   const [otp, setOTP] = useState("");
@@ -54,7 +54,7 @@ function ForgetPassword2() {
         </section>
       </div>
     );
-  }, [page, MemoisedOTPResetEmail, MemoisedOTPInput, MemoisedResetPassword]);
+  }, [page]);
 
   return (
     <RecoveryContext.Provider
@@ -67,4 +67,4 @@ function ForgetPassword2() {
   );
 }
 
-export default ForgetPassword2;
+export default ForgetPassword;

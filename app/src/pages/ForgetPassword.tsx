@@ -22,7 +22,7 @@ const defaultTheme = createTheme();
 const authController = new AuthManager()
 
 
-export default function ForgetPassword() {
+export default function ForgetPasswordOld() {
   
 
   // Importing States
