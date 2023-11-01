@@ -15,6 +15,12 @@ const PictureSchema = new Schema({
         required: true,
         ref: "Camera"
     }
+}, {
+    timeseries: {
+        timeField: 'date',
+        metaField: 'camera_id',
+        granularity: 'minutes'
+    }
 });
 
 // Compile model from schema

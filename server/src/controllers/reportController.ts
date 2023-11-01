@@ -2,6 +2,9 @@ import { Request, Response } from 'express';
 import { AppError } from '../config/AppError';
 import Report from '../models/report';
 
+import startOfDay from "date-fns/startOfDay";
+import endOfDay from "date-fns/endOfDay";
+
 exports.getAllReports = async (req :Request, res :Response) => {
     try{
         const reports = await Report.find();
@@ -36,7 +39,7 @@ exports.getOneReport = async (req :Request, res :Response) => {
 exports.getTodayReports = async (req :Request, res :Response) => {
     try{
         const date = new Date()
-        const reports = await Report.find({date : date.toDateString()});
+        const reports = await Report.find({timestamp: {$gte: startOfDay(date), $lte: endOfDay(date)}});
         return res.status(200).send(reports);
     }catch(error: any){
         throw new AppError({
@@ -51,12 +54,8 @@ exports.getTodayReports = async (req :Request, res :Response) => {
 exports.getRecentReports = async (req :Request, res :Response) => {
     try{
         const date = new Date()
-        const reports = await Report.find({date : date.toDateString()});
-        if (reports.length<=3){
-            return res.status(200).send(reports);
-        } else {
-            return res.status(200).send(reports.slice(-3));
-        }
+        const reports = await Report.find({timestamp: {$gte: startOfDay(date), $lte: endOfDay(date)}}).limit(3);
+        return res.status(200).send(reports);
     }catch(error: any){
         throw new AppError({
             type: "Error",

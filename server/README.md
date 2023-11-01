@@ -34,12 +34,13 @@ MONGO_PASS = bjRUVe5o9xr7TVRd384sQ0k862SqWhVq5cbDec94
 
 # ---------------
 # Task Processing configuration (for AI trends generation)
+# Only to be enabled on the main server
 PROCESSING = FALSE
 ```
 
 To connect to our cloud mongoDB server using `mongosh` or `mongo`, enter:
 ```
-mongosh -tls --host limzhengguang.com -u user -p bjRUVe5o9xr7TVRd384sQ0k862SqWhVq5cbDec94
+mongosh -tls --host limzhengguang.com -u user -p bjRUVe5o9xr7TVRd384sQ0k862SqWhVq5cbDec94 peewee
 ```
 
 
