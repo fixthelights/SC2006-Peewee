@@ -19,12 +19,27 @@ function Landing() {
     const navigate = useNavigate();
 
     function testBackend(): void {
-        axios
+
+        axios.get("http://localhost:2000/reports")
+        .then((res) => console.log(res.data))
+        .catch(function (error) {
+            console.log(error);
+        });
+
+        /*axios
+        .delete("http://localhost:2000/reports/65413b92090a35bacfb7bff4")
+        .then((res) => console.log(res.data))
+        .catch(function (error) {
+            console.log(error);
+        });*/
+
+        /*axios
         .get("http://localhost:2000/traffic/combined-conditions")
         .then((res) => {console.log(res.data)})
         .catch(function (error) {
             console.log(error);
-        });
+        });*/
+
         /*axios
         .get("http://localhost:2000/routes")
         .then((res) => console.log(res.data[0]["_id"]))
