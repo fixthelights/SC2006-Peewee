@@ -1,5 +1,5 @@
 import React from 'react';
-import {Landing, Login, Register, ForgetPassword, Dashboard, Incidents, ReportIncident, Map} from './pages/PageIndex'
+import {Landing, Login, Register, ForgetPassword, Dashboard, Incidents, ReportIncident, Map, ForgetPassword2, FavouriteRoutes} from './pages/PageIndex'
 
 import {
   BrowserRouter as Router,
@@ -25,9 +25,11 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/forgetpassword" element={<ForgetPassword/>} />
           <Route path="/incidents" element={<Incidents />} />
-          <Route path="/map" element={<Map />} />
+          <Route path="/map" element={<Map/>} />
           <Route path="/reportincident" element={<ReportIncident />} />
           <Route path="/roadconditions" element={<RoadConditions />} />
+          <Route path="/forgetpassword2" element={<ForgetPassword2 />} />
+          <Route path="/favouriteroutes" element={<FavouriteRoutes />} />
         </Routes>
       </Router>
     </div>

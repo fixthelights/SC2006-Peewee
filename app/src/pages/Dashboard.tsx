@@ -1,32 +1,9 @@
 import * as React from "react";
 import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import MuiDrawer from "@mui/material/Drawer";
-import Box from "@mui/material/Box";
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import { Deposits } from "../components/Deposits";
-import {
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  DashboardIcon,
-  CarCrashOutlinedIcon,
-  MapOutlinedIcon,
-  TrafficOutlinedIcon,
-  LogoutOutlinedIcon,
-} from "../components/ListButtonIndex";
 import { useNavigate } from "react-router-dom";
-import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import Link from "@mui/material/Link";
 import axios from "axios";
 import { useState, useEffect } from "react";
@@ -36,20 +13,21 @@ import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Title from "../components/Title";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Label,
-  ResponsiveContainer,
-} from "recharts";
 import { useTheme } from "@mui/material/styles";
 import MapComponent from "../components/Map";
 import Stack from "@mui/material/Stack";
 import AppFrame from "../components/AppFrame";
+import {TrafficChart} from "../components/TrafficChart"
+import {jwtDecode} from 'jwt-decode';
 
 const drawerWidth: number = 240;
+
+interface User{
+  userId: string,
+  email: string, 
+  iat: number,
+  exp: number
+}
 
 interface Report {
   incident: String;
@@ -76,7 +54,6 @@ interface Route {
     latitude: Number;
     address: String;
   };
-  description: String;
 }
 
 interface Traffic {
@@ -103,54 +80,6 @@ interface Camera {
   peakedness: number;
 }
 
-interface AppBarProps extends MuiAppBarProps {
-  open?: boolean;
-}
-
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== "open",
-})<AppBarProps>(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(["width", "margin"], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(["width", "margin"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
-
-const Drawer = styled(MuiDrawer, {
-  shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
-  "& .MuiDrawer-paper": {
-    position: "relative",
-    whiteSpace: "nowrap",
-    width: drawerWidth,
-    transition: theme.transitions.create("width", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    boxSizing: "border-box",
-    ...(!open && {
-      overflowX: "hidden",
-      transition: theme.transitions.create("width", {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-      }),
-      width: theme.spacing(7),
-      [theme.breakpoints.up("sm")]: {
-        width: theme.spacing(9),
-      },
-    }),
-  },
-}));
-
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
@@ -161,9 +90,12 @@ export default function Dashboard() {
   const [routeList, setRouteList] = useState([]);
   const [incidentList, setIncidentList] = useState([]);
   const [trafficData, setTrafficData] = useState([]);
+  const [currentCarCount, setCurrentCarCount] = useState(0)
+  const [timeRetrieved, setTimeRetrieved] = useState("")
   const [isRouteLoaded, setIsRouteLoaded] = useState(false);
   const [isIncidentLoaded, setIsIncidentLoaded] = useState(false);
   const [isTrafficLoaded, setIsTrafficLoaded] = useState(false);
+  const [isCurrentTrafficLoaded, setIsCurrentTrafficLoaded] = useState(false);
   const [cameras, setCameras] = React.useState<Array<Camera>>([]);
 
   const toggleDrawer = () => {
@@ -172,16 +104,34 @@ export default function Dashboard() {
 
   const navigate = useNavigate();
 
+  const userId = identifyUser()
+
   useEffect(() => {
-    getFavouriteRouteList();
+    identifyUser();
     getRecentIncidentList();
     getTrafficData();
     getTrafficCameraData();
+    getCurrentData()
+    getFavouriteRouteList();
   }, []);
 
+  function identifyUser(){
+    let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
+    if (userJwt!=null){
+      const userDetails: User = jwtDecode(userJwt)
+      return userDetails.userId
+    }
+    else{
+      return ''
+    }
+  }
   const getFavouriteRouteList = () => {
-    axios
-      .get("http://localhost:2000/routes")
+     console.log(userId)
+      axios
+      .post("http://localhost:2000/routes/list",
+      {
+        id: userId
+      })
       .then((res) => setRouteList(res.data))
       .then((res) => setIsRouteLoaded(true))
       .catch(function (error) {
@@ -220,16 +170,16 @@ export default function Dashboard() {
       console.log(response.data);
       const allCameras = response.data.cameras;
 
-      let cameraArray: Array<Camera> = [];
+      let cameraArray: Array<Camera>= [];
 
-      allCameras.forEach(({ camera_name, location, vehicle_count, peakedness }: CameraFromAPI) => {
+      allCameras.forEach(({ camera_name, location, vehicle_count, peakedness} : CameraFromAPI)=> {
         cameraArray.push({
           cameraName: camera_name,
           lng: location.long,
           lat: location.lat,
           vehicleCount: vehicle_count,
           peakedness: peakedness
-        });
+        })
       });
 
       setCameras(cameraArray);
@@ -238,109 +188,84 @@ export default function Dashboard() {
     }
   };
 
+  const getCurrentData = () => {
+    axios
+      .get("http://localhost:2000/traffic/combined-conditions")
+      .then((res) => {setCurrentCarCount(res.data['vehicle_total']); setTimeRetrieved(res.data['taken_at']);})
+      .then((res) => setIsCurrentTrafficLoaded(true))
+      .catch(function (error) {
+        console.log(error);
+        setIsCurrentTrafficLoaded(false);
+      });
+  };
+
   const TrafficTrend = () => {
-    if (isTrafficLoaded) {
-      let data: Array<{ time: string; amount: number }> = [];
+    if (isTrafficLoaded && isCurrentTrafficLoaded) {
+      let time = timeRetrieved.split(",")[1]
+      let currentHour = 12
+      let i=0
+      while (isNaN(parseInt(time[i]))){
+        i++;
+      }
+      if (time[i+1]==':'){
+          if (time.slice(-2)==='pm'){
+            currentHour += parseInt(time[i])
+          }
+          else {
+            currentHour = parseInt(time[i])
+          }
+      } else {
+        if (time.slice(-2)==='pm'){
+          currentHour += parseInt(time.substring(i,i+2))
+        }
+        else {
+          currentHour = parseInt(time.substring(i,i+2))
+        }
+      }
+
+      let data: Array<{ time: string; trend: number | null; current: number | null }> = [];
       let average = 0;
-      let carsNow = 0;
-      let date = new Date();
-      let expectedTraffic = "";
       trafficData.forEach((traffic: Traffic) => {
         if (parseInt(traffic["time_of_day"]) < 10) {
-          data.push(
-            createData(
-              "0" + traffic["time_of_day"] + ":00",
-              traffic["vehicle_total"]
-            )
-          );
+          if (currentHour == parseInt(traffic["time_of_day"])){
+            data.push(
+              createData(
+                "0" + traffic["time_of_day"] + ":00",
+                traffic["vehicle_total"], currentCarCount
+              )
+            );
+          } else {
+            data.push(
+              createData(
+                "0" + traffic["time_of_day"] + ":00",
+                traffic["vehicle_total"], null
+              )
+            );
+          }
         } else {
-          data.push(
-            createData(traffic["time_of_day"] + ":00", traffic["vehicle_total"])
-          );
-        }
-        if (parseInt(traffic["time_of_day"]) === date.getHours()) {
-          carsNow = traffic["vehicle_total"];
+          if (currentHour == parseInt(traffic["time_of_day"])){
+            data.push(
+              createData(
+                traffic["time_of_day"] + ":00",
+                traffic["vehicle_total"], currentCarCount
+              )
+            );
+          } else {
+            data.push(
+              createData(
+                traffic["time_of_day"] + ":00",
+                traffic["vehicle_total"], null
+              )
+            );
+          }
         }
         average += traffic["vehicle_total"];
       });
       average /= 24;
-
-      const DisplayExpectedTraffic = () => {
-        if (carsNow > average) {
-          return (
-            <Typography component="h2" variant="h6" color="red" gutterBottom>
-              High
-            </Typography>
-          );
-        } else if (carsNow < average) {
-          return (
-            <Typography component="h2" variant="h6" color="green" gutterBottom>
-              Low
-            </Typography>
-          );
-        } else {
-          return (
-            <Typography component="h2" variant="h6" color="yellow" gutterBottom>
-              Moderate
-            </Typography>
-          );
-        }
-      };
+      
       return (
         <React.Fragment>
-          <Title>Past Traffic Trend</Title>
-          <Stack spacing={1} direction="row">
-            <Typography
-              component="h2"
-              variant="h6"
-              color="primary"
-              gutterBottom
-            >
-              Current expected traffic:
-            </Typography>
-            <DisplayExpectedTraffic />
-          </Stack>
-          <ResponsiveContainer>
-            <LineChart
-              data={data}
-              margin={{
-                top: 16,
-                right: 16,
-                bottom: 0,
-                left: 24,
-              }}
-            >
-              <XAxis
-                dataKey="time"
-                stroke={theme.palette.text.secondary}
-                style={theme.typography.body2}
-                tickCount={23}
-              />
-              <YAxis
-                stroke={theme.palette.text.secondary}
-                style={theme.typography.body2}
-              >
-                <Label
-                  angle={270}
-                  position="left"
-                  style={{
-                    textAnchor: "middle",
-                    fill: theme.palette.text.primary,
-                    ...theme.typography.body1,
-                  }}
-                >
-                  Total cars
-                </Label>
-              </YAxis>
-              <Line
-                isAnimationActive={true}
-                type="monotone"
-                dataKey="amount"
-                stroke={theme.palette.primary.main}
-                dot={true}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          <TrafficChart carsNow={currentCarCount} average={average} data={data}/>
           <Link color="primary" href="#" sx={{ mt: 3 }}>
             See specific camera trends
           </Link>
@@ -352,7 +277,7 @@ export default function Dashboard() {
   };
 
   const IncidentList = () => {
-    if (isIncidentLoaded) {
+    if (isIncidentLoaded && incidentList.length>0) {
       return (
         <React.Fragment>
           <Title>Recent Incidents</Title>
@@ -370,8 +295,8 @@ export default function Dashboard() {
                   <TableCell width="20%">
                     {report.incident.toUpperCase()}
                   </TableCell>
-                  <TableCell width="15%">{report.time}</TableCell>
-                  <TableCell width="65%">{report.address}</TableCell>
+                  <TableCell width="18%">{report.time}</TableCell>
+                  <TableCell width="62%">{report.address}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -397,7 +322,7 @@ export default function Dashboard() {
   };
 
   const FavouriteRouteList = () => {
-    if (isRouteLoaded) {
+    if (isRouteLoaded && routeList.length>0) {
       return (
         <React.Fragment>
           <Title>Favorite routes</Title>
@@ -411,13 +336,13 @@ export default function Dashboard() {
             <TableBody>
               {routeList.map((route: Route) => (
                 <TableRow>
-                  <TableCell>jurong</TableCell>
-                  <TableCell>changi</TableCell>
+                  <TableCell>{route.source.address}</TableCell>
+                  <TableCell>{route.destination.address}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-          <Link color="primary" href="#" sx={{ mt: 3 }}>
+          <Link color="primary" href="#" onClick={()=>navigate('/favouriteroutes')} sx={{ mt: 3 }}>
             See all routes
           </Link>
         </React.Fragment>
@@ -432,8 +357,8 @@ export default function Dashboard() {
     return null;
   };
 
-  function createData(time: string, amount: number) {
-    return { time, amount };
+  function createData(time: string, trend: number | null, current: number | null ) {
+    return { time, trend, current };
   }
 
   return (

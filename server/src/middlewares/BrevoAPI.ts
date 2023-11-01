@@ -1,12 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserDocument } from '../models/user';
+require('dotenv').config();
 
 var SibApiV3Sdk = require('sib-api-v3-sdk');
 var defaultClient = SibApiV3Sdk.ApiClient.instance;
 
 // Configure API key authorization: api-key
 var apiKey = defaultClient.authentications['api-key'];
-apiKey.apiKey = "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";
+apiKey.apiKey = process.env.BREVO_KEY;
 var apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
 

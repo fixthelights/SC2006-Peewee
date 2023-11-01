@@ -46,6 +46,20 @@ export const getRoutes = async (req: Request, res: Response) => {
     }
 };
 
+export const getUserRoutes = async (req: Request, res: Response) => {
+
+    try {
+        const routeList = await Route.find({ favourited_by : req.body.id}, {favourited_by : false})
+        res.send(routeList);
+    } catch (err: any) {
+        throw new AppError({
+            error: err,
+            statusCode: 500,
+            description: "Error fetching the route!"
+        });
+    }
+};
+
 export const updateRoutes = async (req: Request, res: Response) => {
     try {
         const route = await Route.findByIdAndUpdate(req.params.id, req.body, { new: true });

@@ -42,7 +42,6 @@ interface Report {
   duration_hours: number;
   description: string;
   time: string;
-  timestamp: Date;
   reported_by: string;
 }
 
