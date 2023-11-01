@@ -1,4 +1,4 @@
-import { Request, Response} from "express";
+import { Request, Response } from "express";
 import { AppError } from "../config/AppError";
 
 import Camera from "../models/camera";
@@ -100,8 +100,10 @@ exports.getTrafficConditionsAllCameras = async (req: Request, res: Response) => 
     const pictures = await Picture.find({ date: date })
       .populate<{ camera_id: Camera }>({ path: 'camera_id' });
 
+    const peakCounts = await getPeakFromTrends();
+
     for (let picture of pictures) {
-      const peakedness = await getPeakednessFromTrends(picture.camera_id._id, picture.vehicle_count);
+      const peakedness = calculatePeakedness(picture.vehicle_count, peakCounts[picture.camera_id._id.toString()])
 
       cameras.push({
         camera_name: picture.camera_id.camera_name,
@@ -134,6 +136,7 @@ exports.getTrafficConditionsAllCameras = async (req: Request, res: Response) => 
 
 exports.getTrafficConditionsOneCamera = async (req: Request, res: Response) => {
   const latestProcessingDate = await getLatestProcessingDate();
+  
   const camera_id = req.params.cameraId;
 
   try {
@@ -147,7 +150,9 @@ exports.getTrafficConditionsOneCamera = async (req: Request, res: Response) => {
         description: "Camera not found!"
       });
     }
-    const peakedness = await getPeakednessFromTrends(camera_id, picture.vehicle_count);
+    
+    const peakCount = await getPeakFromTrends(camera_id);
+    const peakedness = calculatePeakedness(picture.vehicle_count, peakCount[camera_id])
 
     const output = {
       date: picture.date.toLocaleString(),
@@ -394,38 +399,67 @@ const getLatestProcessingDate = async () : Promise<Date> => {
   return date;
 }
 
-// TODO: Optimise.
-const getPeakednessFromTrends = async (cameraId: string | ObjectId, vehicleCount:number) : Promise<number| null> => {
+const calculatePeakedness = (currentCount: number, peakCount: number | null) => {
+  if(!peakCount) return null;
+  return currentCount / peakCount;
+}
+
+interface CamerasPeakCount{
+  [key: string]: number
+}
+
+const getPeakFromTrends = async (cameraId?: string | ObjectId) : Promise<CamerasPeakCount> => {
   if(cameraId instanceof mongoose.Types.ObjectId){
     cameraId = cameraId.toString();
   }
 
-  const trend = await Trend.aggregate([
-    { $match: {
-      camera_id: cameraId
-    }},
-    { $unwind: "$hourly_counts" },
-    {
-      $project: {
-        _id: "$_id",
-        hourly_counts: "$hourly_counts"
-      }
-    },
-    {
-      $group: {
-        _id: null,
-        vehicle_min: { $min: "$hourly_counts.vehicle_count" },
-        vehicle_max: { $max: "$hourly_counts.vehicle_count" }
-      },
-    }
-  ]);
+  let query;
 
-  if(trend.length != 1){
-    return null;
+  if(cameraId){
+    query = Trend.aggregate([
+      { $match: {
+        camera_id: cameraId
+      }},
+      { $unwind: "$hourly_counts" },
+      {
+        $project: {
+          _id: "$camera_id",
+          hourly_counts: "$hourly_counts"
+        }
+      },
+      {
+        $group: {
+          _id: "$_id",
+          vehicle_min: { $min: "$hourly_counts.vehicle_count" },
+          vehicle_max: { $max: "$hourly_counts.vehicle_count" }
+        },
+      }
+    ]);
+  }else{
+    query = Trend.aggregate([
+      { $unwind: "$hourly_counts" },
+      {
+        $project: {
+          _id: "$camera_id",
+          hourly_counts: "$hourly_counts"
+        }
+      },
+      {
+        $group: {
+          _id: "$_id",
+          vehicle_min: { $min: "$hourly_counts.vehicle_count" },
+          vehicle_max: { $max: "$hourly_counts.vehicle_count" }
+        },
+      }
+    ]);
   }
 
-  // Get percentage value of current vehicle count over max
-  const percentage = vehicleCount / trend[0].vehicle_max;
+  let peakRecords: CamerasPeakCount = {};
+  const trends = await query;
 
-  return percentage;
+  for (let trend of trends){
+    peakRecords[trend._id] = trend.vehicle_max;
+  }
+
+  return peakRecords;
 }

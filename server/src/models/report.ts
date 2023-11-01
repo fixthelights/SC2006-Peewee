@@ -10,8 +10,8 @@ const ReportSchema = new Schema({
     enum: ["Accident", "RoadWork", "RoadClosure"]
   },
   location: {
-    long: { type: Schema.Types.Decimal128, required: true },
-    lat: { type: Schema.Types.Decimal128, required: true }
+    long: { type: Schema.Types.Decimal128, required: true, get: getDecimal},
+    lat: { type: Schema.Types.Decimal128, required: true, get: getDecimal}
   },
   address: {type: String, required: true},
   description: { type: String, required: true },
@@ -23,7 +23,14 @@ const ReportSchema = new Schema({
     //required: true
     required: false
   }
-});
+}, {toObject :{getters: true}, toJSON :{getters: true}});
+
+function getDecimal(value: any) {
+  if (typeof value !== 'undefined') {
+     return parseFloat(value.toString());
+  }
+  return value;
+};
 
 // Compile model from schema
 const Report = mongoose.model("Report", ReportSchema);

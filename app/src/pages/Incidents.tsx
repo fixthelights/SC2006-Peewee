@@ -19,7 +19,6 @@ interface Report {
   address: String
   description: String
   time: String
-  timestamp: Date
   reported_by: String
 }
 
