@@ -7,6 +7,7 @@ import Incidents from './Incidents'
 import ReportIncident from './ReportIncident'
 import Map from './Map';
 import ForgetPassword from './PasswordRecovery';
+import FavouriteRoutes from './FavouriteRoutes';
 
-export {Landing, Login, Register, ForgetPasswordOld, Dashboard, Incidents, ReportIncident, Map, ForgetPassword}
+export {Landing, Login, Register, ForgetPasswordOld, Dashboard, Incidents, ReportIncident, Map, ForgetPassword, FavouriteRoutes}
 

@@ -117,8 +117,7 @@ export default function Dashboard() {
 
   function identifyUser(){
     let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
-    console.log(userJwt);
-    if (userJwt!=='null'){
+    if (userJwt!=null){
       const userDetails: User = jwtDecode(userJwt)
       return userDetails.userId
     }
@@ -127,6 +126,7 @@ export default function Dashboard() {
     }
   }
   const getFavouriteRouteList = () => {
+     console.log(userId)
       axios
       .post("http://localhost:2000/routes/list",
       {
@@ -200,22 +200,26 @@ export default function Dashboard() {
   };
 
   const TrafficTrend = () => {
-    let time = timeRetrieved.split(",")[1]
     if (isTrafficLoaded && isCurrentTrafficLoaded) {
+      let time = timeRetrieved.split(",")[1]
       let currentHour = 12
-      if (time[2]==':'){
+      let i=0
+      while (isNaN(parseInt(time[i]))){
+        i++;
+      }
+      if (time[i+1]==':'){
           if (time.slice(-2)==='pm'){
-            currentHour += parseInt(time[1])
+            currentHour += parseInt(time[i])
           }
           else {
-            currentHour = parseInt(time[1])
+            currentHour = parseInt(time[i])
           }
       } else {
         if (time.slice(-2)==='pm'){
-          currentHour += parseInt(time.substring(0,1))
+          currentHour += parseInt(time.substring(i,i+2))
         }
         else {
-          currentHour = parseInt(time.substring(0,1))
+          currentHour = parseInt(time.substring(i,i+2))
         }
       }
 
@@ -291,8 +295,8 @@ export default function Dashboard() {
                   <TableCell width="20%">
                     {report.incident.toUpperCase()}
                   </TableCell>
-                  <TableCell width="15%">{report.time}</TableCell>
-                  <TableCell width="65%">{report.address}</TableCell>
+                  <TableCell width="18%">{report.time}</TableCell>
+                  <TableCell width="62%">{report.address}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -318,7 +322,7 @@ export default function Dashboard() {
   };
 
   const FavouriteRouteList = () => {
-    if (isRouteLoaded) {
+    if (isRouteLoaded && routeList.length>0) {
       return (
         <React.Fragment>
           <Title>Favorite routes</Title>
@@ -338,7 +342,7 @@ export default function Dashboard() {
               ))}
             </TableBody>
           </Table>
-          <Link color="primary" href="#" sx={{ mt: 3 }}>
+          <Link color="primary" href="#" onClick={()=>navigate('/favouriteroutes')} sx={{ mt: 3 }}>
             See all routes
           </Link>
         </React.Fragment>

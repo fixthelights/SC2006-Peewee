@@ -1,33 +1,8 @@
 import * as React from "react";
 import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import MuiDrawer from "@mui/material/Drawer";
-import Box from "@mui/material/Box";
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
 import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
 import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid";
-import Paper from "@mui/material/Paper";
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import { Deposits } from "../components/Deposits";
-
-import {
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  DashboardIcon,
-  CarCrashOutlinedIcon,
-  MapOutlinedIcon,
-  TrafficOutlinedIcon,
-  LogoutOutlinedIcon,
-} from "../components/ListButtonIndex";
-import { useNavigate } from "react-router-dom";
-import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import AppFrame from "../components/AppFrame";
 import {
   ToggleButtonGroup,
@@ -40,6 +15,12 @@ import {
 } from "@mui/material";
 import MapComponent from "../components/Map";
 import axios from "axios";
+import {jwtDecode} from 'jwt-decode';
+import {useState} from 'react';
+import Alert from '@mui/material/Alert';
+import { useNavigate } from "react-router-dom";
+import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
 import { Autocomplete, Libraries, useLoadScript } from "@react-google-maps/api";
 
 // Move array outside of functional component
@@ -50,6 +31,81 @@ const libraries: Libraries = ["places"];
 const defaultTheme = createTheme();
 
 export default function Map() {
+
+  const navigate = useNavigate()
+
+  const userId = identifyUser()
+
+  function identifyUser(){
+    let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
+    if (userJwt!=null){
+      const userDetails: User = jwtDecode(userJwt)
+      return userDetails.userId
+    }
+    else{
+      return ''
+    }
+  }
+
+  interface User{
+    userId: string,
+    email: string, 
+    iat: number,
+    exp: number
+  }
+
+  interface CameraFromAPI{
+    camera_name: string,
+    location: {
+      long: number,
+      lat: number
+    },
+    vehicle_count: number
+    peakedness: number | null
+  }
+
+  interface Camera{
+    cameraName: string,
+    lng: number,
+    lat: number,
+    vehicleCount: number
+    peakedness: number | null
+  }
+
+ interface RouteData {
+    favourited_by: string,
+    source: {
+      longitude: number | undefined;
+      latitude: number | undefined;
+      address: string;
+    };
+    destination: {
+      longitude: number | undefined;
+      latitude: number | undefined;
+      address: string;
+    };
+  }
+
+  enum IncidentType {
+    accident = "Accident",
+    roadWork = "RoadWork",
+    roadClosure = "RoadClosure",
+  }
+  
+  interface Report {
+    incident: IncidentType,
+    location: {
+      long: number;
+      lat: number;
+    };
+    address: string;
+    duration_hours: number;
+    description: string;
+    time: string;
+    reported_by: string;
+  }
+
+  const [routeData, setRouteData] = React.useState<RouteData | null>(null);
   const [trafficFilters, setTrafficFilters] = React.useState(["show-all"]);
   const [incidentFilters, setIncidentFilters] = React.useState(["accident", "roadWork", "roadClosure"]);
   const [cameras, setCameras] = React.useState<Array<Camera>>([]);
@@ -67,6 +123,10 @@ export default function Map() {
     libraries: libraries, // Move array outside of functional component
   });
 
+  const placesService = isLoaded ? new google.maps.places.PlacesService(document.createElement("div")) : null;
+  const [clickSaved, setClickSaved] = useState(false)
+  const [routeSaved, setRouteSaved] = useState(false)
+ 
   const handleTrafficFilters = (
     event: React.MouseEvent<HTMLElement>,
     newFilters: string[]
@@ -87,56 +147,15 @@ export default function Map() {
     setIncidentFilters(newFilters);
   };
 
-  enum IncidentType {
-    accident = "Accident",
-    roadWork = "RoadWork",
-    roadClosure = "RoadClosure",
-  }
-  
-  interface Report {
-    incident: IncidentType,
-    location: {
-      long: number;
-      lat: number;
-    };
-    address: string;
-    duration_hours: number;
-    description: string;
-    time: string;
-    timestamp: Date;
-    reported_by: string;
-  }
-
-  interface CameraFromAPI {
-    camera_name: string;
-    location: {
-      long: number;
-      lat: number;
-    };
-    vehicle_count: number;
-    peakedness: number | null;
-  }
-
-  interface Camera {
-    cameraName: string;
-    lng: number;
-    lat: number;
-    vehicleCount: number;
-    peakedness: number | null;
-  }
-
   React.useEffect(() => {
     loadTrafficIncidents();
     loadTrafficConditions();
   }, []);
 
-  const theme = useTheme();
-  const isScreenSmall = useMediaQuery(theme.breakpoints.down("sm"));
-
   async function loadTrafficIncidents() {
     try {
       const response = await axios.get(
-        "http://localhost:2000/reports/today/recent"
+        "http://localhost:2000/reports/today/all"
       );
       console.log(response.data);
       setIncidents(response.data);
@@ -171,6 +190,34 @@ export default function Map() {
     }
   };
 
+  const theme = useTheme();
+  const isScreenSmall = useMediaQuery(theme.breakpoints.down("sm"));
+
+  async function findPlaceDetails(query: string | undefined): Promise<google.maps.places.PlaceResult[]> {
+    return new Promise((resolve, reject) => {
+      if (!placesService) {
+        reject(new Error('PlacesService is not available'));
+      }
+      if (query!=undefined){
+          const request: google.maps.places.FindPlaceFromQueryRequest = {
+            query,
+            fields: ['name', 'geometry', 'place_id']
+          };
+      
+          placesService!.findPlaceFromQuery(request, (results, status) => {
+            if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+              resolve(results);
+            } else {
+              console.error(`Find place from query request failed with status: ${status}`);
+              reject(new Error(`Find place from query request failed with status: ${status}`));
+            }
+          });
+      }
+    });
+  }
+
+
+
   async function calculateRoute() {
     if (
       originRef.current?.value === "" ||
@@ -178,16 +225,162 @@ export default function Map() {
     ) {
       return;
     }
+
     const directionsService = new google.maps.DirectionsService();
     const results = await directionsService.route({
       origin: originRef.current!.value,
       destination: destinationRef.current!.value,
       travelMode: google.maps.TravelMode.DRIVING,
     });
+
     setDirectionsResponse(results);
+
+    
+  if (
+    originRef.current?.value === "" ||
+    destinationRef.current?.value === ""
+  ) {
+    return;
   }
 
-  function clearRender() {
+  const originQuery = originRef.current?.value;
+  const destinationQuery = destinationRef.current?.value;
+
+  const [originResults, destinationResults] = await Promise.all([
+    findPlaceDetails(originQuery),
+    findPlaceDetails(destinationQuery),
+  ]);
+
+  const originLocation = extractCoordinates(originResults);
+  const destinationLocation = extractCoordinates(destinationResults);
+
+  const newRouteData: RouteData = {
+        favourited_by: userId,
+        source: {
+          longitude: originLocation?.lng,
+          latitude: originLocation?.lat,
+          address: originRef.current!.value,
+        },
+        destination: {
+          longitude: destinationLocation?.lng,
+          latitude: destinationLocation?.lat,
+          address: destinationRef.current!.value,
+        },
+  };
+
+  setRouteData(newRouteData);
+
+  }
+  
+  function extractCoordinates(results: google.maps.places.PlaceResult[]): google.maps.LatLngLiteral | null {
+    if (results.length > 0) {
+      const location = results[0]?.geometry?.location;
+      if (location) {
+        return {
+          lat: location.lat(),
+          lng: location.lng(),
+        };
+      }
+    }
+    return null;
+  }
+
+  /*async function calculateRoute() {
+    try {
+      if (!originRef.current || !destinationRef.current) {
+        return;
+      }
+  
+      const originQuery = originRef.current.value;
+      const destinationQuery = destinationRef.current.value;
+  
+      if (!originQuery || !destinationQuery) {
+        return;
+      }
+  
+      clearRender();
+  
+      const [originResults, destinationResults] = await Promise.all([
+        findPlaceDetails(originQuery),
+        findPlaceDetails(destinationQuery),
+      ]);
+  
+      const originLocation = extractCoordinates(originResults);
+      const destinationLocation = extractCoordinates(destinationResults);
+  
+      console.log("Origin Location:", originLocation, originRef.current!.value);
+      console.log("Destination Location:", destinationLocation, destinationRef.current!.value);
+  
+      if (!originLocation || !destinationLocation) {
+        console.error('Failed to get details for origin or destination');
+        return;
+      }
+  
+      const directionsService = new google.maps.DirectionsService();
+  
+      const results = await directionsService.route({
+        origin: originLocation,
+        destination: destinationLocation,
+        travelMode: google.maps.TravelMode.DRIVING,
+      });
+  
+      setDirectionsResponse(results);
+      const newRouteData: RouteData = {
+        favourited_by: userId,
+        source: {
+          longitude: originLocation.lng,
+          latitude: originLocation.lat,
+          address: originRef.current!.value,
+        },
+        destination: {
+          longitude: destinationLocation.lng,
+          latitude: destinationLocation.lat,
+          address: destinationRef.current!.value,
+        },
+      };
+      setRouteData(newRouteData);
+    } catch (error) {
+      console.error('Error in calculateRoute:', error);
+    }
+  }*/
+
+function clearRender(){
+  if (directionsRenderer) {
+  directionsRenderer.setMap(null);
+  setDirectionsRenderer(null);
+}}
+
+async function saveRoute() {
+
+  setClickSaved(true)
+
+  if (!routeData){
+    setRouteSaved(false)
+    return;
+  }
+
+  try {
+    const response = await axios.post('http://localhost:2000/routes', routeData);
+    setRouteSaved(true)
+  } catch (error) {
+    console.error('Error saving route:', error);
+    setRouteSaved(false)
+  }
+}
+
+const SaveRouteMessage= () => {
+  if (clickSaved){
+    if (routeSaved){
+      return <Alert severity="info">Route successfully saved.</Alert>
+    } else {
+      return <Alert severity="info">Route failed to save.</Alert>
+    }
+  }
+  return null
+}
+
+//for dev
+/*function clearRoute() {
     if (directionsRenderer) {
       directionsRenderer.setMap(null);
       setDirectionsRenderer(null);
@@ -201,7 +394,7 @@ export default function Map() {
     }
     originRef.current!.value = "";
     destinationRef.current!.value = "";
-  }
+  }*/
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -280,11 +473,14 @@ export default function Map() {
             >
               Search
             </Button>
-            <Button variant="contained">Save Route</Button>
-            <Button variant="contained">View Favourites</Button>
+            <Button variant="contained" onClick={() => routeData && saveRoute()}>Save Route</Button>
+            <Button variant="contained" onClick={() => navigate('/favouriteroutes')}>View Favourites</Button>
             {/* For dev purposes
             <Button variant="contained"onClick={clearRoute}>Clear Route</Button>*/}
           </Stack>
+          <Box sx={{ pt: 3 }}>
+          <SaveRouteMessage />
+          </Box>
         </Container>
         <Container>
           <MapComponent

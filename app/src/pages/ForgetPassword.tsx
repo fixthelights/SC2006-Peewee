@@ -15,7 +15,6 @@ import { AuthManager} from '../classes/AuthManager';
 import axios from 'axios';
 import Photo from '../assets/LoginBackground.jpg'
 import Paper from '@mui/material/Paper';
-import e from 'cors';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
@@ -206,11 +205,27 @@ export default function ForgetPasswordOld() {
 
     return (
       <ThemeProvider theme={defaultTheme}>
-        <Container component="main" maxWidth="xs">
+        <Grid container component="main" sx={{ height: '100vh' }}>
           <CssBaseline />
+          <Grid
+          item
+          xs={false}
+          sm={4}
+          md={7}
+          sx={{
+            backgroundImage: `url(${Photo})`,
+            backgroundRepeat: 'no-repeat',
+            backgroundColor: (t) =>
+              t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+          <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
           <Box
             sx={{
-              marginTop: 8,
+              my: 8,
+              mx: 4,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -267,7 +282,8 @@ export default function ForgetPasswordOld() {
                 </Grid>
               </Box>
             </Box>
-          </Container>
+            </Grid>
+          </Grid>
         </ThemeProvider>
     );
   };
@@ -299,11 +315,27 @@ export default function ForgetPasswordOld() {
 
     return (
       <ThemeProvider theme={defaultTheme}>
-        <Container component="main" maxWidth="xs">
+         <Grid container component="main" sx={{ height: '100vh' }}>
           <CssBaseline />
+          <Grid
+          item
+          xs={false}
+          sm={4}
+          md={7}
+          sx={{
+            backgroundImage: `url(${Photo})`,
+            backgroundRepeat: 'no-repeat',
+            backgroundColor: (t) =>
+              t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+          <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
           <Box
             sx={{
-              marginTop: 8,
+              my: 8,
+              mx: 4,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -378,7 +410,8 @@ export default function ForgetPasswordOld() {
                 </Grid>
               </Grid>
             </Box>
-          </Container>
+           </Grid>
+          </Grid>
         </ThemeProvider>
     );
   };

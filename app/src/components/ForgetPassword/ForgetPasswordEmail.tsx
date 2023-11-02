@@ -14,7 +14,6 @@ import Link from '@mui/material/Link';
 import axios from 'axios';
 import Photo from '../assets/LoginBackground.jpg'
 import Paper from '@mui/material/Paper';
-import e from 'cors';
 import { RecoveryContext, delayTime } from "../../pages/PasswordRecovery";
 
 // TODO remove, this demo shouldn't need to reset the theme.
