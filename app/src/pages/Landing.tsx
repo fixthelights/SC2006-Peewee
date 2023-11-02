@@ -20,11 +20,17 @@ function Landing() {
 
     function testBackend(): void {
 
-        axios.get("http://localhost:2000/reports")
+        axios.delete("http://localhost:2000/reports/654352e32b792a5a0811abf7")
         .then((res) => console.log(res.data))
         .catch(function (error) {
             console.log(error);
         });
+
+        /*axios.get("http://localhost:2000/reports")
+        .then((res) => console.log(res.data))
+        .catch(function (error) {
+            console.log(error);
+        });*/
 
         /*axios
         .delete("http://localhost:2000/reports/65413b92090a35bacfb7bff4")
