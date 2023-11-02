@@ -133,7 +133,6 @@ export default function Dashboard() {
     }
   }
   const getFavouriteRouteList = () => {
-     console.log(userId)
       axios
       .post("http://localhost:2000/routes/list",
       {
@@ -163,7 +162,6 @@ export default function Dashboard() {
       const response = await axios.get(
         "http://localhost:2000/reports/today/all"
       );
-      console.log(response.data);
       setIncidents(response.data);
     } catch (error) {
       console.log(error);
@@ -186,7 +184,6 @@ export default function Dashboard() {
       const response = await axios.get(
         "http://localhost:2000/traffic/conditions"
       );
-      console.log(response.data);
       const allCameras = response.data.cameras;
 
       let cameraArray: Array<Camera>= [];

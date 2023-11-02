@@ -28,7 +28,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
  
   // States for checking the errors
-  const [isValidUser, setIsValidUser] = useState(false);
+  const [isValidUser, setIsValidUser] = useState(true);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   useEffect( () => {
@@ -44,9 +44,10 @@ export default function Login() {
       
       // Make login request to server
       const response = await axios.post('http://localhost:2000/users/login', {
-        email: email,
-        password: password
-      });
+          email: email,
+          password: password
+        })
+  
 
       // Get JWT from backend
       const userJwt = JSON.parse(JSON.stringify(response.data.token));
@@ -54,21 +55,24 @@ export default function Login() {
       // Store User JWT into local storage
       localStorage.setItem('token', JSON.stringify(userJwt));
 
-      console.log(userJwt);
+      console.log(userJwt)
+
+      if (userJwt==null){
+        return
+      }
       // Validate JWT with backend - Check if token still valid
       const loggedIn = await axios.post(`http://localhost:2000/users/auth`, { jwt: userJwt });
 
-      // Redirect to dashboard
-      if (loggedIn.data === true) {
-        navigate("/dashboard");
-      } else {
-        // display message for invalid user
-       setIsValidUser(true)
-      }
-
+       // Redirect to dashboard
+        if (loggedIn.data === true) {
+          navigate("/dashboard");
+        } 
+      
     } catch (error) {
-      setIsValidUser(false)  
       console.log("Invalid login");
+    }
+    if (isSubmitted){
+      setIsValidUser(false)
     }
   }
   

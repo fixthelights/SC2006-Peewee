@@ -32,6 +32,6 @@ router.put('/update-user', userController.updateUser);
 router.put('/update-password', userController.updateUserPassword);
 
 // DELETE request to delete the users
-router.delete('/delete-user', userController.deleteUser);
+router.delete('/:userId', userController.deleteUser);
 
 module.exports = router;
