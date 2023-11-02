@@ -10,25 +10,24 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useState, useContext  } from 'react'
 import Alert from '@mui/material/Alert';
 import { AuthManager} from '../../classes/AuthManager';
-import { RecoveryContext } from "../../pages/PasswordRecovery";
+import { RecoveryContext, delayTime } from "../../pages/PasswordRecovery";
+import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 const authController = new AuthManager()
 
-
 export default function ResetPassword() {
-
-
   // Importing States
   const [password, setPassword] = useState('')
   const [retypedPassword, setRetypedPassword] = useState('')
-  const [isPasswordValid, setIsPasswordValid] = useState(false)
-  const [isRetypedPasswordValid, setIsRetypedPasswordValid] = useState(false)
+  const [isPasswordValid, setIsPasswordValid] = useState({} as boolean)
+  const [isRetypedPasswordValid, setIsRetypedPasswordValid] = useState({} as boolean)
   const [isPasswordSubmitted, setIsPasswordSubmitted] = useState(false)
   const [isPasswordUpdated, setIsPasswordUpdated] = useState(false)
   const { email, setPage } = useContext(RecoveryContext)
+  const navigate = useNavigate();
 
   // Handle changes to Password Input
   const handlePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,11 +46,11 @@ export default function ResetPassword() {
 
     event.preventDefault()
 
-
-    let validOTP = false
     let validPassword = false
     let validRetypedPassword = false
-    let savedNewPassword = false
+
+    console.log(email);
+    console.log(password, retypedPassword);
 
     if (authController.checkPasswordValidity(password)){ 
       validPassword = true
@@ -59,48 +58,38 @@ export default function ResetPassword() {
     if (validPassword && password===retypedPassword){
       validRetypedPassword = true
     }
-    if (validOTP && validPassword && validRetypedPassword){
-      
-      axios.put('http://localhost:2000/users/reset-password', {
+    if (validPassword && validRetypedPassword){
+      axios.put('http://localhost:2000/users/update-password', {
         email: email,
-        newPassword: password
+        password: password
       })
       .then(res => console.log(res.data))
       .then(res => setIsPasswordUpdated(true))
       .then(res => setIsPasswordSubmitted(true))
-      .catch(function(error) {
+      .then(res => setTimeout(() => navigate("/login"),delayTime))
+      .catch(error => {
           console.log(error);
           setIsPasswordUpdated(false);
           setIsPasswordSubmitted(true)
         })
-        
-        // Navigate to Login
-        setPage("login");
     }
-
-    setIsPasswordValid(validPassword)
-    setIsRetypedPasswordValid(validRetypedPassword)
-    setIsPasswordUpdated(savedNewPassword)
-
   };
   
   const PasswordMessage = () => {
     if (isPasswordSubmitted){
       if (!isPasswordValid){
-        return <Alert severity="info">Password does not meet the requirements.</Alert>
+        return <Alert severity="error">Password does not meet the requirements.</Alert>
       } else if(!isRetypedPasswordValid){
-        return <Alert severity="info">Retyped password has to be the same as password.</Alert>
+        return <Alert severity="error">Retyped password has to be the same as password.</Alert>
       } else if (!isPasswordUpdated){
-        return <Alert severity="info">Failed to update password. Please try again.</Alert>
+        return <Alert severity="error">Failed to update password. Please try again.</Alert>
       } else {
-        return <Alert severity="info">Password has been changed.</Alert>
+        return <Alert severity="success">Password has been changed.</Alert>
       }
     }
     return null;
   }
 
-
-  // ResetPasswordStep is the third step in the forget password flow
 
     return (
       <ThemeProvider theme={defaultTheme}>
@@ -142,7 +131,7 @@ export default function ResetPassword() {
             fullWidth
             name="retypedPassword"
             label="Retype Password"
-            type="retypedPassword"
+            type="Password"
             id="retypedPassword"
             onChange={handleRetypedPassword} />
         </Grid><Grid item xs={12}>

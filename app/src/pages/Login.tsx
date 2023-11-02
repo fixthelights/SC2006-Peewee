@@ -81,7 +81,7 @@ export default function Login() {
   async function isUserLoggedIn() {
     // Check if JWT exists in local storage
     let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
-    // userJwt = "";
+
     // Validate JWT with backend - Check if token still valid
     const loggedIn = await axios.post(`http://localhost:2000/users/auth`, { jwt: userJwt });
     
