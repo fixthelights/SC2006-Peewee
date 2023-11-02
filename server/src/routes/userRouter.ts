@@ -28,6 +28,9 @@ router.post('/forget-password', userController.forgetPassword);
 // PUT request to update user details
 router.put('/update-user', userController.updateUser);
 
+// PUT request to update user password
+router.put('/update-password', userController.updateUserPassword);
+
 // DELETE request to delete the users
 router.delete('/delete-user', userController.deleteUser);
 
