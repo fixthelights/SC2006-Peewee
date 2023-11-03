@@ -19,6 +19,8 @@ import {jwtDecode} from 'jwt-decode';
 import Box from '@mui/material/Box';
 import {ViewRoute} from '../pages/ViewRoute'
 import Title from "../components/Title";
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import Fab from '@mui/material/Fab';
 
 interface User{
     userId: string,
@@ -121,10 +123,10 @@ export default function FavouriteRoutes() {
   interface RouteListItemProps {
    source: string, 
    destination: string
-   reportId: string
+   routeId: string
   }
 
-  const RouteListItem: FC<RouteListItemProps> = ({source, destination, reportId}) => {
+  const RouteListItem: FC<RouteListItemProps> = ({source, destination, routeId}) => {
     return <React.Fragment>
             <Grid item xs={12} md={12} lg={8}>
             <Paper
@@ -169,9 +171,14 @@ export default function FavouriteRoutes() {
                         >
                         View on map
                     </Button>
+                    {/*<Box sx={{ '& > :not(style)': { m: 1 } }}>
+                    <Fab aria-label="like" onClick={() => unfavouriteRoute(routeId)}>
+                      <FavoriteIcon />
+                    </Fab>
+                    </Box>*/}
                     <Button 
                             variant="contained" 
-                            onClick={() => unfavouriteRoute(reportId)}
+                            onClick={() => unfavouriteRoute(routeId)}
                         >
                         Unfavourite
                     </Button>
@@ -199,7 +206,7 @@ export default function FavouriteRoutes() {
                         <RouteListItem 
                         source={route.source.address}
                         destination={route.destination.address}
-                        reportId={route._id}
+                        routeId={route._id}
                         />
                         ))}
                         <Grid item sx={{pt:2}}>

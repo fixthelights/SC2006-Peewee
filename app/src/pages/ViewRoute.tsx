@@ -142,9 +142,7 @@ const ViewRoute: FC<ViewRouteProps> = ({source, destination, setViewMap}) => {
   };
 
   React.useEffect(() => {
-    loadTrafficIncidents();
-    loadTrafficConditions();
-    calculateRoute();
+   calculateRoute()
   }, []);
 
   async function loadTrafficIncidents() {
@@ -189,6 +187,11 @@ const ViewRoute: FC<ViewRouteProps> = ({source, destination, setViewMap}) => {
   const isScreenSmall = useMediaQuery(theme.breakpoints.down("sm"));
 
   async function calculateRoute() {
+
+    await loadTrafficConditions()
+    await loadTrafficIncidents()
+
+    console.log(incidents.length)
 
     const directionsService = new google.maps.DirectionsService();
     const results = await directionsService.route({

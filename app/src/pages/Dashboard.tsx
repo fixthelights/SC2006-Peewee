@@ -224,14 +224,18 @@ export default function Dashboard() {
         i++;
       }
       if (time[i+1]==':'){
-          if (time.slice(-2)==='pm'){
+          if (time.toLowerCase().slice(-2)==='pm'){
             currentHour += parseInt(time[i])
           }
           else {
             currentHour = parseInt(time[i])
           }
       } else {
-            currentHour = parseInt(time.substring(i,i+2))
+        if (time.substring(i,i+2)==='12' && time.toLowerCase().slice(-2)==='am'){
+          currentHour=0
+        } else {
+          currentHour = parseInt(time.substring(i,i+2))
+        }
       }
 
       let data: Array<{ time: string; trend: number | null; current: number | null }> = [];

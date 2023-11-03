@@ -205,7 +205,7 @@ export default function ReportIncident() {
             },
             address : incidentLocation,
             description: incidentDescription,
-            time: date.toLocaleTimeString(),
+            time: reformatTime(date.toLocaleTimeString()),
             date: date.toDateString()
         })
         .then((res)=> console.log(res.data))
@@ -282,6 +282,41 @@ const DisplayErrorMessage = () => {
     setIncidentDescription('');
     setValidSubmission(false)
     setSubmissionStatus(false)
+  }
+
+  function reformatTime(time: string){
+    if (time.slice(-2).toLowerCase().slice(-2)==='pm' || time.slice(-2).toLowerCase().slice(-2)==='am' ){
+      let currentHour = 12
+      let i=0
+      let timeString
+      while (isNaN(parseInt(time[i]))){
+        i++;
+      }
+      if (time[i+1]==':'){
+          if (time.toLowerCase().slice(-2)==='pm'){
+            currentHour += parseInt(time[i])
+          }
+          else {
+            currentHour = parseInt(time[i])
+          }
+      } else{
+        if (time.substring(i,i+2)==='12' && time.toLowerCase().slice(-2)==='am'){
+          currentHour=0
+        } else {
+          currentHour = parseInt(time.substring(i,i+2))
+        }
+        i++
+      }
+      if (currentHour.toString().length===1){
+        timeString = "0" + currentHour.toString() + time.substring(i+1, time.length-3)
+      } else {
+        timeString = currentHour.toString() + time.substring(i+1, time.length-3)
+      }
+      return timeString
+    } else {
+      return time
+    }
+    
   }
 
   return (
