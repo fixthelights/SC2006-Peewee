@@ -68,7 +68,6 @@ export default function OTPResetEmail() {
       setTest(test+1);
       console.log("Email is " + toEmail);
       const response = axios.post('http://localhost:2000/users/forget-password', { email : toEmail });
-      console.log("Response" + response);
       // Return OTP 
       return response;
   };

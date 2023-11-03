@@ -191,8 +191,6 @@ const ViewRoute: FC<ViewRouteProps> = ({source, destination, setViewMap}) => {
     await loadTrafficConditions()
     await loadTrafficIncidents()
 
-    console.log(incidents.length)
-
     const directionsService = new google.maps.DirectionsService();
     const results = await directionsService.route({
       origin: source,
