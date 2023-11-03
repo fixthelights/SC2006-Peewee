@@ -20,11 +20,11 @@ function Landing() {
 
     function testBackend(): void {
 
-        /*axios.get("http://localhost:2000/users")
+        axios.delete("http://localhost:2000/reports/6544e07cbd8a9bcd2f16f534")
         .then((res) => console.log(res.data))
         .catch(function (error) {
             console.log(error);
-        });*/
+        });
 
         /*axios.delete("http://localhost:2000/reports/654352e32b792a5a0811abf7")
         .then((res) => console.log(res.data))
@@ -108,40 +108,6 @@ function Landing() {
         })*/
     }
 
-    function reformatTime(time: string){
-        if (time.slice(-2).toLowerCase().slice(-2)==='pm' || time.slice(-2).toLowerCase().slice(-2)==='am' ){
-            let currentHour = 12
-            let i=0
-            let timeString
-            while (isNaN(parseInt(time[i]))){
-              i++;
-            }
-            if (time[i+1]==':'){
-                if (time.toLowerCase().slice(-2)==='pm'){
-                  currentHour += parseInt(time[i])
-                }
-                else {
-                  currentHour = parseInt(time[i])
-                }
-            } else{
-              if (time.substring(i,i+2)==='12' && time.toLowerCase().slice(-2)==='am'){
-                currentHour=0
-              } else {
-                currentHour = parseInt(time.substring(i,i+2))
-              }
-              i++
-            }
-            if (currentHour.toString().length===1){
-              timeString = "0" + currentHour.toString() + time.substring(i+1, time.length-3)
-            } else {
-              timeString = currentHour.toString() + time.substring(i+1, time.length-3)
-            }
-            return timeString
-          } else {
-            return time
-          }
-      }
-
     return (
         <div className='Landing'>
             <h1>Take Control of Your Journey</h1>
@@ -159,12 +125,12 @@ function Landing() {
                 >
                     Log In
                 </Button>
-                <Button 
+                {/*<Button 
                     variant="contained" 
                     onClick={testBackend}
                 >
                     Log In
-                </Button>
+                </Button>*/}
             </Stack>
         </div>
     );

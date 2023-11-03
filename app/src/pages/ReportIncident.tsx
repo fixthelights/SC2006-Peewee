@@ -45,18 +45,10 @@ export default function ReportIncident() {
           navigator.geolocation.getCurrentPosition(function(position) {
             console.log("Latitude is :", position.coords.latitude);
             console.log("Longitude is :", position.coords.longitude);
-            //setLatitude(position.coords.latitude)
-           // setLongitude(position.coords.longitude)
-            //1.373210, 103.752203
-            // 1.373202747626978, 103.75235792157387
-            // 1.323331, 103.746198
-            // 1.3247821180436887, 103.74252003735413
-            // 1.307851, 103.791531
-            // 1.375671, 103.828393
-            // 1.368708, 103.861171
-            // 1.329250, 103.855133
-            setLatitude(1.329250)
-            setLongitude(103.855133)
+            setLatitude(position.coords.latitude)
+            setLongitude(position.coords.longitude)
+            //setLatitude(1.329250)
+            //setLongitude(103.855133)
             setCoordinatesDetected(true)
             setCoordinatesToBeConverted(true)
             setLocationPermission(true)
@@ -285,7 +277,7 @@ const DisplayErrorMessage = () => {
   }
 
   function reformatTime(time: string){
-    if (time.slice(-2).toLowerCase().slice(-2)==='pm' || time.slice(-2).toLowerCase().slice(-2)==='am' ){
+    if (time.slice(-2).toLowerCase().includes('pm') || time.slice(-2).toLowerCase().includes('am')){
       let currentHour = 12
       let i=0
       let timeString
@@ -293,14 +285,14 @@ const DisplayErrorMessage = () => {
         i++;
       }
       if (time[i+1]==':'){
-          if (time.toLowerCase().slice(-2)==='pm'){
+          if (time.toLowerCase().includes('pm')){
             currentHour += parseInt(time[i])
           }
           else {
             currentHour = parseInt(time[i])
           }
       } else{
-        if (time.substring(i,i+2)==='12' && time.toLowerCase().slice(-2)==='am'){
+        if (time.substring(i,i+2)==='12' && time.toLowerCase().includes('am')){
           currentHour=0
         } else {
           currentHour = parseInt(time.substring(i,i+2))

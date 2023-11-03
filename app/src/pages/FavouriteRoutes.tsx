@@ -128,7 +128,7 @@ export default function FavouriteRoutes() {
 
   const RouteListItem: FC<RouteListItemProps> = ({source, destination, routeId}) => {
     return <React.Fragment>
-            <Grid item xs={12} md={12} lg={8}>
+            <Grid item xs={12} md={12} lg={10}>
             <Paper
             sx={{
                 p: 2,
@@ -171,11 +171,6 @@ export default function FavouriteRoutes() {
                         >
                         View on map
                     </Button>
-                    {/*<Box sx={{ '& > :not(style)': { m: 1 } }}>
-                    <Fab aria-label="like" onClick={() => unfavouriteRoute(routeId)}>
-                      <FavoriteIcon />
-                    </Fab>
-                    </Box>*/}
                     <Button 
                             variant="contained" 
                             onClick={() => unfavouriteRoute(routeId)}

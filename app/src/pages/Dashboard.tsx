@@ -224,14 +224,14 @@ export default function Dashboard() {
         i++;
       }
       if (time[i+1]==':'){
-          if (time.toLowerCase().slice(-2)==='pm'){
+          if (time.toLowerCase().includes("pm")){
             currentHour += parseInt(time[i])
           }
           else {
             currentHour = parseInt(time[i])
           }
       } else {
-        if (time.substring(i,i+2)==='12' && time.toLowerCase().slice(-2)==='am'){
+        if (time.substring(i,i+2)==='12' && time.toLowerCase().includes("am")){
           currentHour=0
         } else {
           currentHour = parseInt(time.substring(i,i+2))
