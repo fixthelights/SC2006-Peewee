@@ -1,6 +1,5 @@
-import React from 'react';
-import { FC } from 'react';
-import ImageAPI from '../components/ImageAPI'; // Import the ImageAPI component
+import React, { FC, useState, useEffect, Component } from "react";
+import ReactDOM from "react-dom";
 import AppBar from '@mui/material/AppBar';
 import Button from '@mui/material/Button';
 import TrafficOutlinedIcon from '@mui/icons-material/TrafficOutlined';
@@ -18,114 +17,133 @@ import Container from '@mui/material/Container';
 import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
+import { Photo } from '@mui/icons-material';
+import PhotoContainer from '../components/PhotoContainer';
+import CameraAPI from '../components/CameraAPI';
 
-interface CardProps {
-    card: number;
+interface RoadConditionsProps {
+  photos: string[];
 }
 
-const cards: number[] = [1];
+interface RoadConditionsState {
+  photos: string[];
+}
 
 const defaultTheme = createTheme();
 
-const RoadConditions: FC = () => {
-  return (
-    <ThemeProvider theme={defaultTheme}>
-      <CssBaseline />
-      <AppBar position="relative">
-        <Toolbar>
-        <TrafficOutlinedIcon sx={{ fontSize: 40, color: 'blue' }} />
-          <Typography variant="h6" color="inherit" noWrap>
-            Road Conditions
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <main>
-        <Box
-          sx={{
-            bgcolor: 'background.paper',
-            pt: 8,
-            pb: 6,
-          }}
-        >
-          <Container maxWidth="sm">
-          <TrafficOutlinedIcon sx={{ fontSize: 40, color: 'blue' }} />
-            <Typography
-              component="h1"
-              variant="h2"
-              align="center"
-              color="text.primary"
-              gutterBottom
-            >
+class RoadConditions extends Component<RoadConditionsProps, RoadConditionsState> {
+  constructor(props: RoadConditionsProps) {
+    super(props);
+    this.state = {
+      photos: [],
+    };
+  }
+
+  componentDidMount(): void {
+    fetch('https://github.com/fixthelights/SC2006-Peewee/tree/main/server#cameras')
+      .then((response: Response) => {
+        if (!response.ok) {
+          throw Error('Error found');
+        }
+        return response.json();
+      })
+      .then((allData: string[]) => {
+        this.setState({ photos: allData });
+      })
+      .catch((err: Error) => {
+        throw Error(err.message);
+      });
+  }
+
+  render(): JSX.Element {
+    return (
+      <ThemeProvider theme={defaultTheme}>
+        <CssBaseline />
+        <AppBar position="relative">
+          <Toolbar>
+            <TrafficOutlinedIcon sx={{ fontSize: 40, color: 'blue' }} />
+            <Typography variant="h6" color="inherit" noWrap>
               Road Conditions
             </Typography>
-            <Typography variant="h5" align="center" color="text.secondary" paragraph>
-              What is traffic looking like today?
-            </Typography>
-            <Stack
-              sx={{ pt: 4 }}
-              direction="row"
-              spacing={2}
-              justifyContent="center"
-            >
-              <Button variant="contained">Traffic Trends</Button>
-              <Button variant="outlined">Traffic Images</Button>
-            </Stack>
-          </Container>
-        </Box>
-        <Container sx={{ py: 8 }} maxWidth="md">
-          <Grid container spacing={4}>
-            {cards.map((card: number) => (
-              <Grid item key={card} xs={12} sm={6} md={4}>
-                <Card
-                  sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-                >
-                  <CardMedia
-                    component="div"
+          </Toolbar>
+        </AppBar>
+        <main>
+          <Box
+            sx={{
+              bgcolor: 'background.paper',
+              pt: 8,
+              pb: 6,
+            }}
+          >
+            <Container maxWidth="sm">
+              <TrafficOutlinedIcon sx={{ fontSize: 40, color: 'blue' }} />
+              <Typography component="h1" variant="h2" align="center" color="text.primary" gutterBottom>
+                Road Conditions
+              </Typography>
+              <Typography variant="h5" align="center" color="text.secondary" paragraph>
+                What is traffic looking like today?
+              </Typography>
+              <Stack sx={{ pt: 4 }} direction="row" spacing={2} justifyContent="center">
+                <Button variant="contained">Traffic Trends</Button>
+                <Button variant="outlined">Traffic Images</Button>
+              </Stack>
+            </Container>
+          </Box>
+          <Container sx={{ py: 8 }} maxWidth="md">
+            <Grid container spacing={4}>
+              {[1, 2, 3, 4, 5, 6].map((card: number) => (
+                <Grid item key={card} xs={12} sm={6} md={4}>
+                  <Card
                     sx={{
-                      // 16:9
-                      pt: '56.25%',
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      borderWidth: 1,
                     }}
-                    image="https://source.unsplash.com/random?wallpapers"
-                  />
-                  <CardContent sx={{ flexGrow: 1 }}>
-                    <Typography gutterBottom variant="h5" component="h2">
-                      Traffic Images
-                    </Typography>
-                    <Typography>
-                      This is a media card. You can use this section to describe the
-                      content.
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button size="small">View</Button>
-                    <Button size="small">Edit</Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
+                  >
+                    <CardMedia
+                      component="div"
+                      sx={{
+                        // 16:9
+                        pt: '70%',
+                        borderWidth: 0.1,
+                      }}
+                      image="https://images.data.gov.sg/api/traffic-images/2023/10/e461432d-7643-4735-9504-86048e8af35d.jpg"
+                    />
+                    <CardContent sx={{ flexGrow: 1 }}>
+                      <Typography gutterBottom variant="h5" component="h2">
+                        Traffic Images
+                      </Typography>
+                      <Typography>
+                        This is a media card. You can use this section to describe the content.
+                      </Typography>
+                    </CardContent>
+                    <CardActions>
+                      <Button size="small">View</Button>
+                      <Button size="small">Edit</Button>
+                    </CardActions>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Container>
 
-        {/* Render the ImageAPI component here */}
-        <ImageAPI />
-      </main>
+          {/* Render the ImageAPI component here */}
+          <PhotoContainer photos={this.state.photos} />
+        </main>
 
-      <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
-        <Typography variant="h6" align="center" gutterBottom>
-          Footer
-        </Typography>
-        <Typography
-          variant="subtitle1"
-          align="center"
-          color="text.secondary"
-          component="p"
-        >
-          Something here to give the footer a purpose!
-        </Typography>
-        {/* Add your Copyright component here */}
-      </Box>
-    </ThemeProvider>
-  );
-};
+        <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
+          <Typography variant="h6" align="center" gutterBottom>
+            Footer
+          </Typography>
+          <Typography variant="subtitle1" align="center" color="text.secondary" component="p">
+            Something here to give the footer a purpose!
+          </Typography>
+          {/* Add your Copyright component here */}
+        </Box>
+      </ThemeProvider>
+    );
+  }
+}
 
 export default RoadConditions;
