@@ -428,8 +428,10 @@ export default function Dashboard() {
                       address: "Singapore",
                     }}
                     incidents={incidents}
-                    zoomLevel={12}
+                    zoomLevel={11}
                     cameras={cameras}
+                    showHeatmap={true}
+                    showCameras={false}
                     showAccidents={incidentFilters.includes("accident")}
                     showRoadClosures={incidentFilters.includes("roadClosure")}
                     showRoadWorks={incidentFilters.includes("roadWork")}
