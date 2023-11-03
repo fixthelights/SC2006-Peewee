@@ -1,18 +1,27 @@
-class AuthManager{
+import {jwtDecode} from 'jwt-decode';
 
+interface User{
+    userId: string,
+    email: string, 
+    iat: number,
+    exp: number
+  }
+
+class AuthManager{
+    
      // check if email is in the correct format
      validateEmailAddressFormat(email: string): boolean { 
         const atSymbol: number = email.indexOf("@"); 
         const dotSymbol: number = email.lastIndexOf("."); 
         const spaceSymbol: number = email.indexOf(" "); 
     
-        if ((atSymbol != -1) && 
-            (atSymbol != 0) && 
-            (dotSymbol != -1) && 
-            (dotSymbol != 0) && 
+        if ((atSymbol !== -1) && 
+            (atSymbol !== 0) && 
+            (dotSymbol !== -1) && 
+            (dotSymbol !== 0) && 
             (dotSymbol > atSymbol + 1) && 
             (email.length > dotSymbol + 1) && 
-            (spaceSymbol == -1)) { 
+            (spaceSymbol === -1)) { 
             return true; 
         } else { 
             return false; 
@@ -44,10 +53,59 @@ class AuthManager{
 
     }
 
-    generateOTP() : string{
-        let otp = Math.floor(Math.random() * 89999999 + 10000000)
-        return otp.toString() // generate integer in the range of 10000000 to 99999999 ( 8 digit OTP )
+    // Get user ID from JWT
+    identifyUser() : string {
+        let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
+        if (userJwt!=null){
+          const userDetails: User = jwtDecode(userJwt)
+          return userDetails.userId
+        }
+        else{
+          return ''
+        }
     }
+
+    // Auth user active login using JWT
+    isAuthenticated() : boolean {
+        try {
+            // Check if JWT exists in local storage
+            let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
+            
+            if (userJwt === null) return false;
+            const decodedJwt = jwtDecode(userJwt);
+            const now = Date.now() / 1000;
+            console.log(decodedJwt.exp, now);
+            if (decodedJwt.exp !== undefined && decodedJwt.exp > now) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (error) {
+            return false;
+        }
+    }
+
+    // Auth with backend 
+    // isAuthenticated(): boolean {
+    //     try {
+    //         // Check if JWT exists in local storage
+    //         let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
+
+    //         let loggedIn = false;
+
+    //         // Validate JWT with backend - Check if token still valid
+    //         axios.post(`http://localhost:2000/users/auth`, { jwt: userJwt })
+    //         .then(res => {loggedIn = res.data});
+
+    //         console.log("User is logged in =", loggedIn);
+    //         return loggedIn;
+    //     } catch (error) {
+    //         console.error("Error checking authentication:", error);
+    //         return false;
+    //     }
+    // }
+    
+      
 }
 
 export {AuthManager}
