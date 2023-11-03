@@ -105,8 +105,8 @@ const TrafficChart: FC<TrafficChartProps> = ({carsNow, average, data}) => {
                 isAnimationActive={true}
                 type="monotone"
                 dataKey="current"
-                stroke={theme.palette.secondary.main}
-                dot={true}
+                stroke="#FF0000"
+                dot={{ stroke: 'red', strokeWidth: 2 }}
                 label="current car count"
               />
             </LineChart>
