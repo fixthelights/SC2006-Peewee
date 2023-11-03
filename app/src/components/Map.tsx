@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   GoogleMap,
   MarkerF,
@@ -6,25 +6,20 @@ import {
   useLoadScript,
   DirectionsRenderer,
   Libraries,
+  MapContext,
 } from "@react-google-maps/api";
 import { useMemo } from "react";
 import { Icon } from "@iconify/react";
 import locationIcon from "@iconify/icons-mdi/map-marker";
 
 import "./map.css";
+import { Stack, Button, Card, Link, Typography, Box } from "@mui/material";
 
-interface LocationPinProps {
-  lat: number;
-  lng: number;
-  text: string;
-}
+import { useGoogleMap } from "@react-google-maps/api";
+import { createPortal } from "react-dom";
 
-const LocationPin: FC<LocationPinProps> = ({ lat, lng, text }) => (
-  <div className="pin">
-    <Icon icon={locationIcon} className="pin-icon" />
-    <p className="pin-text">{text}</p>
-  </div>
-);
+import PropTypes from 'prop-types';
+import { render } from 'react-dom';
 
 enum IncidentType {
   accident = "Accident",
@@ -33,7 +28,7 @@ enum IncidentType {
 }
 
 interface Report {
-  incident: IncidentType,
+  incident: IncidentType;
   location: {
     long: number;
     lat: number;
@@ -68,18 +63,20 @@ interface MapProps {
   showAccidents?: boolean;
   showRoadWorks?: boolean;
   showRoadClosures?: boolean;
+
+  children?: React.ReactNode;
 }
 
 interface InfoData {
   location: {
     lat: number;
     lng: number;
-  }
+  };
 }
 
 // Move array outside of functional component
 // See https://github.com/JustFly1984/react-google-maps-api/issues/238
-const libraries: Libraries = ['places'];
+const libraries: Libraries = ["places"];
 
 const Map: FC<MapProps> = ({
   location,
@@ -87,10 +84,11 @@ const Map: FC<MapProps> = ({
   cameras,
   incidents,
   directionsResponse,
-  showCameras= true,
-  showAccidents= false,
-  showRoadWorks= false,
-  showRoadClosures= false,
+  showCameras = true,
+  showAccidents = false,
+  showRoadWorks = false,
+  showRoadClosures = false,
+  children,
 }) => {
   const [mapRef, setMapRef] = useState<google.maps.Map>();
   const [isOpen, setIsOpen] = useState(false);
@@ -99,15 +97,13 @@ const Map: FC<MapProps> = ({
     data: InfoData;
   }>();
 
-  
-
-  useEffect(()=>{
+  useEffect(() => {
     setIsOpen(false);
-  },[showCameras,showAccidents,showRoadWorks,showRoadClosures]);
+  }, [showCameras, showAccidents, showRoadWorks, showRoadClosures]);
 
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: "AIzaSyCn6_wKG_mP0YI_eVctQ5zB50VuwMmzoWQ",
-    libraries: libraries // Move array outside of functional component
+    googleMapsApiKey: "AIzaSyDm-rTxw55HDBTGxVL5kbYVtQjqHVIiPCE",
+    libraries: libraries,
   });
 
   const onMapLoad = (map: google.maps.Map) => {
@@ -122,135 +118,124 @@ const Map: FC<MapProps> = ({
     setIsOpen(true);
   };
 
-  const peaknessIcon = (peakedness: number | null) => {
-    let url;
-
-    if (peakedness === null) {
-      return {
-        url: "http://maps.google.com/mapfiles/ms/icons/question.png",
-        scaledSize: new google.maps.Size(40, 40),
-      };
-    }
-
-    if (peakedness > 0.8) {
-      url = "http://maps.google.com/mapfiles/ms/icons/red.png";
-    } else if (peakedness <= 0.8 && peakedness > 0.6) {
-      url = "http://maps.google.com/mapfiles/ms/icons/orange.png";
-    } else {
-      url = "http://maps.google.com/mapfiles/ms/icons/green.png";
-    }
-
-    return {
-      url: url,
-      scaledSize: new google.maps.Size(40, 40),
-    };
-  };
-
-  const incidentIcon = (incidentType: IncidentType) => {
-    let url;
-
-    if (incidentType === IncidentType.accident) {
-      url = "http://maps.gstatic.com/mapfiles/ms2/micons/firedept.png";
-    } else if (incidentType === IncidentType.roadWork) {
-      url = "http://maps.gstatic.com/mapfiles/ms2/micons/caution.png";
-    } else if (incidentType === IncidentType.roadClosure) {
-      url = "http://maps.gstatic.com/mapfiles/ms2/micons/earthquake.png";
-    } else {
-      url = "http://maps.google.com/mapfiles/ms/icons/question.png";
-    }
-
-    return {
-      url: url,
-      scaledSize: new google.maps.Size(50, 50),
-    };
-  };
-
   const plotCameraMarkers = (camera: Camera, ind: number) => {
-    const index = `cam${ind}`
+    const index = `cam${ind}`;
 
     const infoData: InfoData = {
       location: {
         lng: camera.lng,
-        lat: camera.lat
-      }
-    }
+        lat: camera.lat,
+      },
+    };
     return (
-    <MarkerF
-      key={index}
-      position={{ lat: camera.lat, lng: camera.lng }}
-      onClick={() => handleMarkerClick(index, infoData)}
-      icon={peaknessIcon(camera.peakedness)}
-    >
-      {isOpen && infoWindowData?.id === index && (
-        <InfoWindowF
-          onCloseClick={() => {
-            setIsOpen(false);
-          }}
-        >
-          <React.Fragment>
-            <h3>{camera.cameraName}</h3>
-            <p>Vehicle Count: {camera.vehicleCount}</p>
-            {camera.peakedness != null && (
-              <p>
-                Peakedness:{` ${(camera.peakedness * 100).toFixed(1)}%`}
-              </p>
-            )}
-          </React.Fragment>
-        </InfoWindowF>
-      )}
-      ;
-    </MarkerF>
-  )}
+      <MarkerF
+        key={index}
+        position={{ lat: camera.lat, lng: camera.lng }}
+        onClick={() => handleMarkerClick(index, infoData)}
+        icon={peaknessIcon(camera.peakedness)}
+      >
+        {isOpen && infoWindowData?.id === index && (
+          <InfoWindowF
+            onCloseClick={() => {
+              setIsOpen(false);
+            }}
+          >
+            <React.Fragment>
+              <Card sx={{ maxWidth: "300px" }}>
+                <Typography variant="h3" mb={1} fontSize={18} fontWeight="bold">
+                  Camera {camera.cameraName}
+                </Typography>
+                <Typography display="inline">Vehicle count </Typography>
+                <Typography display="inline" fontWeight="bold">
+                  {camera.vehicleCount}
+                </Typography>
+                {camera.peakedness != null && (
+                  <Box>
+                    <Typography display="inline">Peakedness </Typography>
+                    <Typography display="inline" fontWeight="bold">
+                      {` ${(camera.peakedness * 100).toFixed(1)}%`}
+                    </Typography>
+                  </Box>
+                )}
+                <Stack my={1}>
+                  <Button variant="contained">
+                    <Typography fontSize={10}>View Camera</Typography>
+                  </Button>
+                </Stack>
+              </Card>
+            </React.Fragment>
+          </InfoWindowF>
+        )}
+        ;
+      </MarkerF>
+    );
+  };
 
   const plotIncidentMarkers = (incident: Report, ind: number) => {
-    const index = `incident${ind}`
-    
-    if(incident.incident === IncidentType.roadClosure && showRoadClosures == false){
+    const index = `incident${ind}`;
+    if (
+      incident.incident === IncidentType.roadClosure &&
+      showRoadClosures == false
+    ) {
       return null;
     }
-
-    if(incident.incident === IncidentType.roadWork && showRoadWorks == false){
+    if (incident.incident === IncidentType.roadWork && showRoadWorks == false) {
       return null;
     }
-
-    if(incident.incident === IncidentType.accident && showAccidents == false){
+    if (incident.incident === IncidentType.accident && showAccidents == false) {
       return null;
     }
 
     const infoData: InfoData = {
       location: {
         lng: incident.location.long,
-        lat: incident.location.lat
-      }
-    }
+        lat: incident.location.lat,
+      },
+    };
 
     return (
-    <MarkerF
-      key={index}
-      position={{ lat: incident.location.lat, lng: incident.location.long }}
-      onClick={() => handleMarkerClick(index, infoData)}
-      icon={incidentIcon(incident.incident)}
-    >
-      {isOpen && infoWindowData?.id === index && (
-        <InfoWindowF
-          onCloseClick={() => {
-            setIsOpen(false);
-          }}
-        >
-          <React.Fragment>
-            <h3>{incident.incident}</h3>
-            <p>{incident.description}</p>
-            <p>{incident.address}</p>
-          </React.Fragment>
-        </InfoWindowF>
-      )}
-      ;
-    </MarkerF>
-  )
-}
+      <MarkerF
+        key={index}
+        position={{ lat: incident.location.lat, lng: incident.location.long }}
+        onClick={() => handleMarkerClick(index, infoData)}
+        icon={incidentIcon(incident.incident)}
+      >
+        {isOpen && infoWindowData?.id === index && (
+          <InfoWindowF
+            onCloseClick={() => {
+              setIsOpen(false);
+            }}
+          >
+            <React.Fragment>
+              <Card sx={{ maxWidth: "300px", p: "5px" }}>
+                <Typography variant="h3" fontSize={18} fontWeight="bold">
+                  {incident.incident}
+                </Typography>
+                <Typography my={1}>{incident.description}</Typography>
+                <Typography fontSize={10}>{incident.address}</Typography>
+              </Card>
+            </React.Fragment>
+          </InfoWindowF>
+        )}
+        ;
+      </MarkerF>
+    );
+  };
+
+  // https://developers.google.com/maps/documentation/javascript/controls
+  const mapOptions = {
+    mapTypeControl: false,
+    mapId: "871aac80ceb2f843",
+  };
+
+  //TODO
+  /*
+    - Get bounds zoom level (https://itecnote.com/tecnote/google-maps-to-show-a-country-map-using-google-maps-api/)
+    - Nicer Icons for incidents
+  */
 
   return (
-    <div className="map">
+    <>
       {!isLoaded ? (
         <h1>Loading...</h1>
       ) : (
@@ -259,16 +244,111 @@ const Map: FC<MapProps> = ({
           center={center}
           zoom={zoomLevel}
           onLoad={onMapLoad}
+          options={mapOptions}
         >
           {showCameras && cameras.map(plotCameraMarkers)}
           {incidents && incidents.map(plotIncidentMarkers)}
           {directionsResponse && (
             <DirectionsRenderer directions={directionsResponse} />
           )}
+          {children && <CustomControl>{children}</CustomControl>}
         </GoogleMap>
       )}
-    </div>
+    </>
   );
 };
+
+/* Helper Functions */
+
+const peaknessIcon = (peakedness: number | null) => {
+  let url;
+
+  if (peakedness === null) {
+    return {
+      url: "http://maps.google.com/mapfiles/ms/icons/question.png",
+      scaledSize: new google.maps.Size(40, 40),
+    };
+  }
+
+  if (peakedness > 0.8) {
+    url = "http://maps.google.com/mapfiles/ms/icons/red.png";
+  } else if (peakedness <= 0.8 && peakedness > 0.6) {
+    url = "http://maps.google.com/mapfiles/ms/icons/orange.png";
+  } else {
+    url = "http://maps.google.com/mapfiles/ms/icons/green.png";
+  }
+
+  return {
+    url: url,
+    scaledSize: new google.maps.Size(40, 40),
+  };
+};
+
+const incidentIcon = (incidentType: IncidentType) => {
+  let url;
+
+  if (incidentType === IncidentType.accident) {
+    url = "http://maps.gstatic.com/mapfiles/ms2/micons/firedept.png";
+  } else if (incidentType === IncidentType.roadWork) {
+    url = "http://maps.gstatic.com/mapfiles/ms2/micons/caution.png";
+  } else if (incidentType === IncidentType.roadClosure) {
+    url = "http://maps.gstatic.com/mapfiles/ms2/micons/earthquake.png";
+  } else {
+    url = "http://maps.google.com/mapfiles/ms/icons/question.png";
+  }
+
+  return {
+    url: url,
+    scaledSize: new google.maps.Size(50, 50),
+  };
+};
+
+/* End of Helper Functions */
+
+interface CustomControlProps {
+  children?: React.ReactNode;
+  position?: google.maps.ControlPosition;
+  zIndex?: number
+}
+
+/* 
+  Modified Heavily from:
+  https://github.com/tomchentw/react-google-maps/issues/818
+  https://gist.github.com/jgimbel/6a36d60e28aaf453d0093ddc47f36533
+  https://github.com/JustFly1984/react-google-maps-api/blob/master/packages/react-google-maps-api/src/map-context.ts
+  https://developers.google.com/maps/documentation/javascript/controls#CustomDrawing
+
+  Finally:
+  https://github.com/JustFly1984/react-google-maps-api/issues/213#issuecomment-603800374
+  
+  Help me it's 7am I haven't slept - Guang
+*/
+
+function CustomControl({
+  position = google.maps.ControlPosition.TOP_LEFT,
+  children,
+}: CustomControlProps) {
+
+  const map = useGoogleMap();
+  const [container] = useState(document.createElement("div"));
+
+  useEffect(() => {
+    if (!map) {
+      console.log("Waiting for map to refresh controls")
+      return
+    };
+
+    const controls = map.controls[position];
+    controls.push(container);
+    return () => {
+      controls.clear()
+    };
+  },[map]);
+
+  return createPortal(
+    children,
+    container
+  );
+}
 
 export default Map;

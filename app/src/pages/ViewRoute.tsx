@@ -87,7 +87,7 @@ const ViewRoute: FC<ViewRouteProps> = ({source, destination, setViewMap}) => {
   const [cameras, setCameras] = React.useState<Array<Camera>>([]);
   
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: 'AIzaSyCn6_wKG_mP0YI_eVctQ5zB50VuwMmzoWQ',
+    googleMapsApiKey: 'AIzaSyDm-rTxw55HDBTGxVL5kbYVtQjqHVIiPCE',
     libraries: ['places']
   });
 
@@ -146,10 +146,12 @@ const ViewRoute: FC<ViewRouteProps> = ({source, destination, setViewMap}) => {
       }
     };
 
-    getData();
-
-    return () => {};
-  });
+    if(isLoaded){
+      getData();
+      calculateRoute();
+    }
+    
+  },[isLoaded]);
 
   const theme = useTheme();
   const isScreenSmall = useMediaQuery(theme.breakpoints.down("sm"));
@@ -280,7 +282,7 @@ function clearRender(){
                   
                 </Stack>
               </Container>
-              <Container>
+              <Container sx={{height: "80vh"}}>
                 <MapComponent
                   location={{ lng: 103.7992246, lat: 1.3687004, address: "Singapore" }}
                   zoomLevel={12}
