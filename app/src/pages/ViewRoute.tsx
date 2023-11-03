@@ -108,7 +108,7 @@ const ViewRoute: FC<ViewRouteProps> = ({source, destination, setViewMap}) => {
   const [incidents, setIncidents] = React.useState<Array<Report>>([]);
   
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: 'AIzaSyCn6_wKG_mP0YI_eVctQ5zB50VuwMmzoWQ',
+    googleMapsApiKey: 'AIzaSyDm-rTxw55HDBTGxVL5kbYVtQjqHVIiPCE',
     libraries: ['places']
   });
 
@@ -244,7 +244,7 @@ const ViewRoute: FC<ViewRouteProps> = ({source, destination, setViewMap}) => {
                     <ToggleButton value="hide-all">Hide all</ToggleButton>
                   </ToggleButtonGroup>
                 </Container>
-              <Container>
+              <Container sx={{ height: "90vh" }}>
               <MapComponent
                 location={{
                   lng: 103.7992246,
