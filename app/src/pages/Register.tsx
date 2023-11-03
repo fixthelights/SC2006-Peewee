@@ -38,27 +38,6 @@ export default function Register() {
   const [isRegistrationSuccessful, setIsRegistrationSuccessful] = useState(false)
   const [userList, setUserList] = useState([])
 
-  const getUserList = async () => {
-    const { data } = await axios.get('http://localhost:2000/users');
-    setUserList(data);
-  };
-
-  useEffect(() => {
-    getUserList();
-  }, []);
-
-  function checkMatchingEmail(): boolean{
-    let i = 0;
-    let foundMatching = false;
-    while (i < userList.length) {
-      if (userList[i]["email"]===email && foundMatching===false){
-        foundMatching = true;
-      } 
-      i++;
-    }
-    return foundMatching;
-  };
-
   const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
   };
@@ -73,30 +52,28 @@ export default function Register() {
 
     setIsSubmitted(true);
 
-    let userExists = false;
-    let emailFormatValid = authManager.validateEmailAddressFormat(email)
-    let passwordValid = authManager.checkPasswordValidity(password)
-
-    if (emailFormatValid){
-      userExists = checkMatchingEmail()
-    }
+    let emailFormatValid = validateEmailAddressFormat(email)
+    let passwordValid = checkPasswordValidity(password)
 
     // save user in database
-    if (!userExists && passwordValid){
+    if (emailFormatValid && passwordValid){
       axios.post('http://localhost:2000/users/register', {
         email: email,
         password: password,
       })
       .then((res)=> console.log(res.data))
+      .then ((res)=>setIsExistingUser(false))
       .then ((res) => setIsRegistrationSuccessful(true))
       .catch(function(error) {
         console.log(error);
+        setIsExistingUser(true)
         setIsRegistrationSuccessful(false)
       })
+    } else {
+      setIsRegistrationSuccessful(false)
     }
 
     // save validity states for display of corresponding message
-    setIsExistingUser(userExists);
     setIsInvalidEmailFormat(!emailFormatValid);
     setIsInvalidPssword(!passwordValid);
   }
@@ -128,16 +105,60 @@ export default function Register() {
 
   const RegistrationStatusMessage = () => {
     if (isSubmitted){
-      if (!isExistingUser && !isInvalidPassword && isRegistrationSuccessful) {
+      if (isRegistrationSuccessful) {
         return <Alert severity="info">Registration is successful.</Alert>
-      }
-      if (!isExistingUser && !isInvalidPassword && !isRegistrationSuccessful){
+      } else {
         return <Alert severity="info">Error in Registration.</Alert>
       }
      return null;
     }
     return null;
   }
+
+    // check if email is in the correct format
+  function validateEmailAddressFormat(email: string): boolean { 
+      const atSymbol: number = email.indexOf("@"); 
+      const dotSymbol: number = email.lastIndexOf("."); 
+      const spaceSymbol: number = email.indexOf(" "); 
+
+      if ((atSymbol != -1) && 
+          (atSymbol != 0) && 
+          (dotSymbol != -1) && 
+          (dotSymbol != 0) && 
+          (dotSymbol > atSymbol + 1) && 
+          (email.length > dotSymbol + 1) && 
+          (spaceSymbol == -1)) { 
+          return true; 
+      } else { 
+          return false; 
+      } 
+  }
+
+  // check if password meets requirements
+  function checkPasswordValidity(password: string) : boolean {
+
+      let upper: number = 0;
+      let lower: number = 0;
+      let special: number = 0;
+
+      for (let i: number = 0; i < password.length; i++) {
+          if (password[i] >= "A" && password[i] <= "Z") {
+              upper++;
+          } else if (password[i] >= "a" && password[i] <= "z") {
+              lower++;
+          } else {
+              special++;
+          }
+      }
+
+      if (password.length>=8 && upper>0 && lower>0 && special>0){
+          return true;
+      }
+
+      return false;
+
+  }
+
 
   return (
     <ThemeProvider theme={defaultTheme}>

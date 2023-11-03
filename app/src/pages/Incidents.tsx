@@ -9,6 +9,7 @@ import {IncidentListItem} from '../components/IncidentListItem';
 import Alert from '@mui/material/Alert';
 import AppFrame from '../components/AppFrame'
 import { useNavigate } from "react-router-dom";
+import Typography from '@mui/material/Typography';
 
 interface Report {
   incident: String,
@@ -56,11 +57,11 @@ export default function Incidents() {
   }
   
   const DisplayNoIncidentMessage = () => {
-    return <Alert severity="info">There are no incidents reported today.</Alert>
+    return <Alert severity="info"><Typography>There are no incidents reported today.</Typography></Alert>
   }
 
   const DisplayErrorMessage = () => {
-    return <Alert severity="info">Error in loading. Please refresh the page.</Alert>
+    return <Alert severity="info"><Typography>Error in loading. Please refresh the page.</Typography></Alert>
   }
 
   return (

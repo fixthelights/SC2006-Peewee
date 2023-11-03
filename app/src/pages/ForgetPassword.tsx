@@ -422,16 +422,32 @@ export default function ForgetPasswordOld() {
     // Add password reset logic here
     return (
       <ThemeProvider theme={defaultTheme}>
-        <Container component="main" maxWidth="xs">
+        <Grid container component="main" sx={{ height: '100vh' }}>
           <CssBaseline />
+          <Grid
+          item
+          xs={false}
+          sm={4}
+          md={7}
+          sx={{
+            backgroundImage: `url(${Photo})`,
+            backgroundRepeat: 'no-repeat',
+            backgroundColor: (t) =>
+              t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+          <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
           <Box
             sx={{
-              marginTop: 8,
+              my: 8,
+              mx: 4,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
             }}
-          >
+          />
             <Typography component="h1" variant="h5" fontWeight={'bold'}>
               Reset your password
             </Typography>
@@ -476,8 +492,8 @@ export default function ForgetPasswordOld() {
                 </Grid>
                 </Grid>
               </Box>
-            </Box>
-          </Container>
+              </Grid>
+              </Grid>
         </ThemeProvider>
       
       
