@@ -20,7 +20,7 @@ function Landing() {
 
     function testBackend(): void {
 
-        axios.get("http://localhost:2000/users")
+        axios.delete("http://localhost:2000/reports/6544e07cbd8a9bcd2f16f534")
         .then((res) => console.log(res.data))
         .catch(function (error) {
             console.log(error);
@@ -107,6 +107,7 @@ function Landing() {
           console.log(error);
         })*/
     }
+
     return (
         <div className='Landing'>
             <h1>Take Control of Your Journey</h1>
@@ -124,12 +125,12 @@ function Landing() {
                 >
                     Log In
                 </Button>
-                <Button 
+                {/*<Button 
                     variant="contained" 
                     onClick={testBackend}
                 >
                     Log In
-                </Button>
+                </Button>*/}
             </Stack>
         </div>
     );

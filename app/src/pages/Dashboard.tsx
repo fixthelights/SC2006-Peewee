@@ -217,7 +217,6 @@ export default function Dashboard() {
 
   const TrafficTrend = () => {
     if (isTrafficLoaded && isCurrentTrafficLoaded) {
-      console.log(timeRetrieved);
       let time = timeRetrieved.split(",")[1]
       let currentHour = 12
       let i=0
@@ -225,14 +224,24 @@ export default function Dashboard() {
         i++;
       }
       if (time[i+1]==':'){
-          if (time.toLowerCase().includes("pm")){
+          if (time.toLowerCase().includes("pm")){ //1-9pm => 13-21:00
             currentHour += parseInt(time[i])
           }
           else {
-            currentHour = parseInt(time[i])
+            currentHour = parseInt(time[i]) //1-9am => 1-9:00
           }
       } else {
-            currentHour = parseInt(time.substring(i,i+2))
+        if (time.substring(i,i+2)==='12'){
+          if (time.toLowerCase().includes('am')){ //12am -> 0:00
+            currentHour=0 
+          } else {
+            currentHour=12 //12pm -> 12:00
+          } 
+        } else if(time.toLowerCase().includes("pm")){
+          currentHour += parseInt(time.substring(i,i+2)) //10-11pm -> 22-23:00
+        } else {
+          currentHour = parseInt(time.substring(i,i+2)) // 10-11am -> 10-11:00
+        }
       }
 
       let data: Array<{ time: string; trend: number | null; current: number | null }> = [];

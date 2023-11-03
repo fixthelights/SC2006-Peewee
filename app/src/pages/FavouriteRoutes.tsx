@@ -3,15 +3,12 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import FmdGoodOutlinedIcon from '@mui/icons-material/FmdGoodOutlined';
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 import { useState, useEffect} from 'react'
 import axios from 'axios'
-import {IncidentListItem} from '../components/IncidentListItem';
 import Alert from '@mui/material/Alert';
 import AppFrame from '../components/AppFrame'
 import { useNavigate } from "react-router-dom";
@@ -121,12 +118,12 @@ export default function FavouriteRoutes() {
   interface RouteListItemProps {
    source: string, 
    destination: string
-   reportId: string
+   routeId: string
   }
 
-  const RouteListItem: FC<RouteListItemProps> = ({source, destination, reportId}) => {
+  const RouteListItem: FC<RouteListItemProps> = ({source, destination, routeId}) => {
     return <React.Fragment>
-            <Grid item xs={12} md={12} lg={8}>
+            <Grid item xs={12} md={12} lg={10}>
             <Paper
             sx={{
                 p: 2,
@@ -171,7 +168,7 @@ export default function FavouriteRoutes() {
                     </Button>
                     <Button 
                             variant="contained" 
-                            onClick={() => unfavouriteRoute(reportId)}
+                            onClick={() => unfavouriteRoute(routeId)}
                         >
                         Unfavourite
                     </Button>
@@ -199,7 +196,7 @@ export default function FavouriteRoutes() {
                         <RouteListItem 
                         source={route.source.address}
                         destination={route.destination.address}
-                        reportId={route._id}
+                        routeId={route._id}
                         />
                         ))}
                         <Grid item sx={{pt:2}}>

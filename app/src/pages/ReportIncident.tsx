@@ -45,18 +45,10 @@ export default function ReportIncident() {
           navigator.geolocation.getCurrentPosition(function(position) {
             console.log("Latitude is :", position.coords.latitude);
             console.log("Longitude is :", position.coords.longitude);
-            //setLatitude(position.coords.latitude)
-           // setLongitude(position.coords.longitude)
-            //1.373210, 103.752203
-            // 1.373202747626978, 103.75235792157387
-            // 1.323331, 103.746198
-            // 1.3247821180436887, 103.74252003735413
-            // 1.307851, 103.791531
-            // 1.375671, 103.828393
-            // 1.368708, 103.861171
-            // 1.329250, 103.855133
-            setLatitude(1.329250)
-            setLongitude(103.855133)
+            setLatitude(position.coords.latitude)
+            setLongitude(position.coords.longitude)
+            //setLatitude(1.329250)
+            //setLongitude(103.855133)
             setCoordinatesDetected(true)
             setCoordinatesToBeConverted(true)
             setLocationPermission(true)
@@ -205,7 +197,7 @@ export default function ReportIncident() {
             },
             address : incidentLocation,
             description: incidentDescription,
-            time: date.toLocaleTimeString(),
+            time: reformatTime(date.toLocaleTimeString()),
             date: date.toDateString()
         })
         .then((res)=> console.log(res.data))
@@ -282,6 +274,47 @@ const DisplayErrorMessage = () => {
     setIncidentDescription('');
     setValidSubmission(false)
     setSubmissionStatus(false)
+  }
+
+  function reformatTime(time: string){
+    if (time.toLowerCase().includes('pm') || time.toLowerCase().includes('am')){
+      let currentHour = 12
+      let i=0
+      let timeString
+      while (isNaN(parseInt(time[i]))){
+        i++;
+      }
+      if (time[i+1]==':'){
+        if (time.toLowerCase().includes("pm")){ //1-9pm => 13-21:00
+          currentHour += parseInt(time[i])
+        }
+        else {
+          currentHour = parseInt(time[i]) //1-9am => 1-9:00
+        }
+        } else {
+          if (time.substring(i,i+2)==='12'){
+            if (time.toLowerCase().includes('am')){ //12am -> 0:00
+              currentHour=0 
+            } else {
+              currentHour=12 //12pm -> 12:00
+            } 
+          } else if(time.toLowerCase().includes("pm")){
+            currentHour += parseInt(time.substring(i,i+2)) //10-11pm -> 22-23:00
+          } else {
+            currentHour = parseInt(time.substring(i,i+2)) // 10-11am -> 10-11:00
+          }
+          i++
+          }
+          if (currentHour.toString().length===1){
+            timeString = "0" + currentHour.toString() + time.substring(i+1, time.length-3)
+          } else {
+            timeString = currentHour.toString() + time.substring(i+1, time.length-3)
+          }
+          return timeString
+    } else {
+      return time
+    }
+    
   }
 
   return (
