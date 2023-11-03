@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import {
   GoogleMap,
   MarkerF,
@@ -6,20 +6,17 @@ import {
   useLoadScript,
   DirectionsRenderer,
   Libraries,
-  MapContext,
 } from "@react-google-maps/api";
 import { useMemo } from "react";
-import { Icon } from "@iconify/react";
-import locationIcon from "@iconify/icons-mdi/map-marker";
 
 import "./map.css";
 import { Stack, Button, Card, Link, Typography, Box } from "@mui/material";
-
 import { useGoogleMap } from "@react-google-maps/api";
 import { createPortal } from "react-dom";
 
-import PropTypes from 'prop-types';
-import { render } from 'react-dom';
+import HeatmapDrawer from "./HeatmapDrawer";
+
+import { latLngToCell } from "h3-js"
 
 enum IncidentType {
   accident = "Accident",
@@ -58,12 +55,22 @@ interface MapProps {
   incidents?: Report[];
   directionsResponse?: google.maps.DirectionsResult | null;
 
+  showHeatmap?: boolean;
   showCameras?: boolean;
   showAccidents?: boolean;
   showRoadWorks?: boolean;
   showRoadClosures?: boolean;
 
   children?: React.ReactNode;
+}
+
+interface HexIndexPeak{
+  hexIndex: string,
+  avgPeakedness: number
+}
+
+interface HexagonList {
+  [hexIndex: string]: number[]
 }
 
 interface InfoData {
@@ -83,12 +90,14 @@ const Map: FC<MapProps> = ({
   cameras,
   incidents,
   directionsResponse,
+  showHeatmap = false,
   showCameras = true,
   showAccidents = false,
   showRoadWorks = false,
   showRoadClosures = false,
   children,
 }) => {
+  const [hexagons, setHexagons] = React.useState<Array<HexIndexPeak>>([]);
   const [mapRef, setMapRef] = useState<google.maps.Map>();
   const [isOpen, setIsOpen] = useState(false);
   const [infoWindowData, setInfoWindowData] = useState<{
@@ -99,6 +108,10 @@ const Map: FC<MapProps> = ({
   useEffect(() => {
     setIsOpen(false);
   }, [showCameras, showAccidents, showRoadWorks, showRoadClosures]);
+
+  useEffect(() => {
+    hexagonGenerator();
+  }, [cameras]);
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: "AIzaSyDm-rTxw55HDBTGxVL5kbYVtQjqHVIiPCE",
@@ -221,6 +234,35 @@ const Map: FC<MapProps> = ({
     );
   };
 
+  const hexagonGenerator = () => {
+    const hexagons: HexagonList = {};
+    cameras.map((camera) => {
+      if(!camera.peakedness){
+        return;
+      }
+
+      const lat = camera.lat;
+      const lng = camera.lng;
+      const hexIndex = latLngToCell(lat,lng, 7);
+
+      if(Object.hasOwn(hexagons, hexIndex)){
+        hexagons[hexIndex].push(camera.peakedness);
+      }else{
+        hexagons[hexIndex] = [camera.peakedness]
+      }
+    })
+
+    const peakHexList: HexIndexPeak[] = []
+    for(let hexIndex in hexagons){
+      const peakList = hexagons[hexIndex];
+      let avgPeak = 0;
+      for(let peak of peakList){avgPeak += peak}
+      avgPeak = avgPeak / peakList.length;
+      peakHexList.push({ hexIndex: hexIndex, avgPeakedness: avgPeak });
+    }
+    setHexagons(peakHexList);
+  }
+
   // https://developers.google.com/maps/documentation/javascript/controls
   const mapOptions = {
     mapTypeControl: false,
@@ -250,7 +292,8 @@ const Map: FC<MapProps> = ({
           {directionsResponse && (
             <DirectionsRenderer directions={directionsResponse} />
           )}
-          {children && <CustomControl>{children}</CustomControl>}
+          {showHeatmap && <HeatmapDrawer peakMap={hexagons}/>}
+          {children && <CustomControl position={google.maps.ControlPosition.TOP_CENTER}>{children}</CustomControl>}
         </GoogleMap>
       )}
     </>

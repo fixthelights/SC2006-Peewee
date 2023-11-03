@@ -1,5 +1,5 @@
 import * as React from "react";
-import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
@@ -13,6 +13,9 @@ import {
   Button,
   Stack,
   Card,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@mui/material";
 import MapComponent from "../components/Map";
 import axios from "axios";
@@ -20,9 +23,72 @@ import { jwtDecode } from "jwt-decode";
 import { useState } from "react";
 import Alert from "@mui/material/Alert";
 import { useNavigate } from "react-router-dom";
-import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import { Autocomplete, Libraries, useLoadScript } from "@react-google-maps/api";
+import { ExpandMore } from "@mui/icons-material";
+
+interface User {
+  userId: string;
+  email: string;
+  iat: number;
+  exp: number;
+}
+
+interface CameraFromAPI {
+  camera_name: string;
+  location: {
+    long: number;
+    lat: number;
+  };
+  vehicle_count: number;
+  peakedness: number | null;
+}
+
+interface Camera {
+  cameraName: string;
+  lng: number;
+  lat: number;
+  vehicleCount: number;
+  peakedness: number | null;
+}
+
+interface RouteData {
+  favourited_by: string;
+  source: {
+    longitude: number | undefined;
+    latitude: number | undefined;
+    address: string;
+  };
+  destination: {
+    longitude: number | undefined;
+    latitude: number | undefined;
+    address: string;
+  };
+}
+
+interface HexIndexPeak {
+  hexIndex: string;
+  avgPeakedness: number;
+}
+
+enum IncidentType {
+  accident = "Accident",
+  roadWork = "RoadWork",
+  roadClosure = "RoadClosure",
+}
+
+interface Report {
+  incident: IncidentType;
+  location: {
+    long: number;
+    lat: number;
+  };
+  address: string;
+  duration_hours: number;
+  description: string;
+  time: string;
+  reported_by: string;
+}
 
 // Move array outside of functional component
 // See https://github.com/JustFly1984/react-google-maps-api/issues/238
@@ -46,66 +112,8 @@ export default function Map() {
     }
   }
 
-  interface User {
-    userId: string;
-    email: string;
-    iat: number;
-    exp: number;
-  }
-
-  interface CameraFromAPI {
-    camera_name: string;
-    location: {
-      long: number;
-      lat: number;
-    };
-    vehicle_count: number;
-    peakedness: number | null;
-  }
-
-  interface Camera {
-    cameraName: string;
-    lng: number;
-    lat: number;
-    vehicleCount: number;
-    peakedness: number | null;
-  }
-
-  interface RouteData {
-    favourited_by: string;
-    source: {
-      longitude: number | undefined;
-      latitude: number | undefined;
-      address: string;
-    };
-    destination: {
-      longitude: number | undefined;
-      latitude: number | undefined;
-      address: string;
-    };
-  }
-
-  enum IncidentType {
-    accident = "Accident",
-    roadWork = "RoadWork",
-    roadClosure = "RoadClosure",
-  }
-
-  interface Report {
-    incident: IncidentType;
-    location: {
-      long: number;
-      lat: number;
-    };
-    address: string;
-    duration_hours: number;
-    description: string;
-    time: string;
-    reported_by: string;
-  }
-
   const [routeData, setRouteData] = React.useState<RouteData | null>(null);
-  const [trafficFilters, setTrafficFilters] = React.useState(["show-all"]);
+  const [trafficFilters, setTrafficFilters] = React.useState(["camera","heatmap"]);
   const [incidentFilters, setIncidentFilters] = React.useState([
     "accident",
     "roadWork",
@@ -138,7 +146,7 @@ export default function Map() {
     event: React.MouseEvent<HTMLElement>,
     newFilters: string[]
   ) => {
-    if (newFilters.includes("hide-all")) newFilters = [];
+    if (newFilters.includes("off")) newFilters = [];
 
     setTrafficFilters(newFilters);
   };
@@ -255,8 +263,8 @@ export default function Map() {
 
     setDirectionsResponse(results);
 
-  const originQuery = originRef.current?.value;
-  const destinationQuery = destinationRef.current?.value;
+    const originQuery = originRef.current?.value;
+    const destinationQuery = destinationRef.current?.value;
 
     const [originResults, destinationResults] = await Promise.all([
       findPlaceDetails(originQuery),
@@ -298,16 +306,16 @@ export default function Map() {
     return null;
   }
 
-/*function clearRender(){
+  /*function clearRender(){
   if (directionsRenderer) {
   directionsRenderer.setMap(null);
   setDirectionsRenderer(null);
 }}*/
 
-function clearRoute(){
-  directionsRenderer?.setMap(null)
-  setDirectionsResponse(null)
-}
+  function clearRoute() {
+    directionsRenderer?.setMap(null);
+    setDirectionsResponse(null);
+  }
 
   async function saveRoute() {
     setClickSaved(true);
@@ -372,104 +380,119 @@ function clearRoute(){
             cameras={cameras}
             incidents={incidents}
             directionsResponse={directionsResponse}
-            showCameras={trafficFilters.includes("show-all")}
+            showHeatmap={trafficFilters.includes("heatmap")}
+            showCameras={trafficFilters.includes("camera")}
             showAccidents={incidentFilters.includes("accident")}
             showRoadClosures={incidentFilters.includes("roadClosure")}
             showRoadWorks={incidentFilters.includes("roadWork")}
           >
-            <Card sx={{m:"20px"}}>
-              <Container sx={{ my: 3 }} maxWidth={false}>
-                <Typography fontWeight="Bold" sx={{ my: 2 }}>
-                  Traffic Camera Filters
-                </Typography>
-                <ToggleButtonGroup
-                  value={trafficFilters}
-                  onChange={handleTrafficFilters}
-                  size={isScreenSmall ? "small" : "medium"}
-                  color="primary"
+            <Card sx={{ m: "10px" }}>
+              <Accordion>
+                <AccordionSummary
+                  expandIcon={<ExpandMore />}
+                  aria-controls="panel1a-content"
+                  id="panel1a-header"
                 >
-                  <ToggleButton value="show-all">Show all</ToggleButton>
-                  <ToggleButton value="hide-all">Hide all</ToggleButton>
-                </ToggleButtonGroup>
-              </Container>
-              <Container sx={{ my: 3 }} maxWidth={false}>
-                <Typography fontWeight="Bold" sx={{ my: 2 }}>
-                  Incidents Filters
-                </Typography>
-                <ToggleButtonGroup
-                  value={incidentFilters}
-                  onChange={handleIncidentFilters}
-                  size={isScreenSmall ? "small" : "medium"}
-                  color="primary"
-                >
-                  <ToggleButton value="accident">Accidents</ToggleButton>
-                  <ToggleButton value="roadWork">Roadworks</ToggleButton>
-                  <ToggleButton value="roadClosure">Closure</ToggleButton>
-                  <ToggleButton value="show-all">Show all</ToggleButton>
-                  <ToggleButton value="hide-all">Hide all</ToggleButton>
-                </ToggleButtonGroup>
-              </Container>
-              <Container sx={{ my: 3 }} maxWidth={false}>
-                <Typography fontWeight="Bold" sx={{ my: 2 }}>
-                  Search Route
-                </Typography>
-                <Stack
-                  direction="row"
-                  spacing={2}
-                  sx={{ "& > :not(style)": { width: "35ch" }, my: 2 }}
-                >
-                  {isLoaded && (
-                    <Autocomplete
-                      options={{ componentRestrictions: { country: "SG" } }}
+                  <Container disableGutters>
+                  <Typography align="center" fontWeight="bold">Search and Filter</Typography>  
+                  </Container>
+                  </AccordionSummary>
+                <AccordionDetails>
+                  <Container sx={{ my: 3 }} maxWidth={false}>
+                    <Typography fontWeight="Bold" sx={{ my: 2 }}>
+                      Traffic Camera Filters
+                    </Typography>
+                    <ToggleButtonGroup
+                      value={trafficFilters}
+                      onChange={handleTrafficFilters}
+                      size="small"
+                      color="primary"
                     >
-                      <TextField
-                        label="Source"
-                        variant="outlined"
-                        inputRef={originRef}
-                      />
-                    </Autocomplete>
-                  )}
-                  {isLoaded && (
-                    <Autocomplete
-                      options={{ componentRestrictions: { country: "SG" } }}
+                      <ToggleButton value="camera">Camera</ToggleButton>
+                      <ToggleButton value="heatmap">Heatmap</ToggleButton>
+                      <ToggleButton value="off">Off</ToggleButton>
+                    </ToggleButtonGroup>
+                  </Container>
+                  <Container sx={{ my: 3 }} maxWidth={false}>
+                    <Typography fontWeight="Bold" sx={{ my: 2 }}>
+                      Incidents Filters
+                    </Typography>
+                    <ToggleButtonGroup
+                      value={incidentFilters}
+                      onChange={handleIncidentFilters}
+                      size="small"
+                      color="primary"
                     >
-                      <TextField
-                        label="Destination"
-                        variant="outlined"
-                        inputRef={destinationRef}
-                      />
-                    </Autocomplete>
-                  )}
-                </Stack>
-                <Stack direction="row" spacing={2}>
-                  <Button
-                    variant="contained"
-                    onClick={() => {
-                      clearRoute();
-                      calculateRoute();
-                    }}
-                  >
-                    Search
-                  </Button>
-                  <Button
-                    variant="contained"
-                    onClick={() => routeData && saveRoute()}
-                  >
-                    Save Route
-                  </Button>
-                  <Button
-                    variant="contained"
-                    onClick={() => navigate("/favouriteroutes")}
-                  >
-                    View Favourites
-                  </Button>
-                  {/* For dev purposes
+                      <ToggleButton value="accident">Accidents</ToggleButton>
+                      <ToggleButton value="roadWork">Roadworks</ToggleButton>
+                      <ToggleButton value="roadClosure">Closure</ToggleButton>
+                      <ToggleButton value="show-all">Show all</ToggleButton>
+                      <ToggleButton value="hide-all">Hide all</ToggleButton>
+                    </ToggleButtonGroup>
+                  </Container>
+                  <Container sx={{ my: 3 }} maxWidth={false}>
+                    <Typography fontWeight="Bold" sx={{ my: 2 }}>
+                      Search Route
+                    </Typography>
+                    <Stack
+                      direction="row"
+                      spacing={2}
+                      sx={{ "& > :not(style)": { width: "35ch" }, my: 2 }}
+                    >
+                      {isLoaded && (
+                        <Autocomplete
+                          options={{ componentRestrictions: { country: "SG" } }}
+                        >
+                          <TextField
+                            label="Source"
+                            variant="outlined"
+                            inputRef={originRef}
+                          />
+                        </Autocomplete>
+                      )}
+                      {isLoaded && (
+                        <Autocomplete
+                          options={{ componentRestrictions: { country: "SG" } }}
+                        >
+                          <TextField
+                            label="Destination"
+                            variant="outlined"
+                            inputRef={destinationRef}
+                          />
+                        </Autocomplete>
+                      )}
+                    </Stack>
+                    <Stack direction="row" spacing={2}>
+                      <Button
+                        variant="contained"
+                        onClick={() => {
+                          clearRoute();
+                          calculateRoute();
+                        }}
+                      >
+                        Search
+                      </Button>
+                      <Button
+                        variant="contained"
+                        onClick={() => routeData && saveRoute()}
+                      >
+                        Save Route
+                      </Button>
+                      <Button
+                        variant="contained"
+                        onClick={() => navigate("/favouriteroutes")}
+                      >
+                        View Favourites
+                      </Button>
+                      {/* For dev purposes
             <Button variant="contained"onClick={clearRoute}>Clear Route</Button>*/}
-                </Stack>
-                <Box sx={{ pt: 3 }}>
-                  <SaveRouteMessage />
-                </Box>
-              </Container>
+                    </Stack>
+                    <Box sx={{ pt: 3 }}>
+                      <SaveRouteMessage />
+                    </Box>
+                  </Container>
+                </AccordionDetails>
+              </Accordion>
             </Card>
           </MapComponent>
         </Container>
