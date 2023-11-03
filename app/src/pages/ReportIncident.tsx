@@ -277,7 +277,7 @@ const DisplayErrorMessage = () => {
   }
 
   function reformatTime(time: string){
-    if (time.slice(-2).toLowerCase().includes('pm') || time.slice(-2).toLowerCase().includes('am')){
+    if (time.toLowerCase().includes('pm') || time.toLowerCase().includes('am')){
       let currentHour = 12
       let i=0
       let timeString
@@ -285,26 +285,32 @@ const DisplayErrorMessage = () => {
         i++;
       }
       if (time[i+1]==':'){
-          if (time.toLowerCase().includes('pm')){
-            currentHour += parseInt(time[i])
-          }
-          else {
-            currentHour = parseInt(time[i])
-          }
-      } else{
-        if (time.substring(i,i+2)==='12' && time.toLowerCase().includes('am')){
-          currentHour=0
-        } else {
-          currentHour = parseInt(time.substring(i,i+2))
+        if (time.toLowerCase().includes("pm")){ //1-9pm => 13-21:00
+          currentHour += parseInt(time[i])
         }
-        i++
-      }
-      if (currentHour.toString().length===1){
-        timeString = "0" + currentHour.toString() + time.substring(i+1, time.length-3)
-      } else {
-        timeString = currentHour.toString() + time.substring(i+1, time.length-3)
-      }
-      return timeString
+        else {
+          currentHour = parseInt(time[i]) //1-9am => 1-9:00
+        }
+        } else {
+          if (time.substring(i,i+2)==='12'){
+            if (time.toLowerCase().includes('am')){ //12am -> 0:00
+              currentHour=0 
+            } else {
+              currentHour=12 //12pm -> 12:00
+            } 
+          } else if(time.toLowerCase().includes("pm")){
+            currentHour += parseInt(time.substring(i,i+2)) //10-11pm -> 22-23:00
+          } else {
+            currentHour = parseInt(time.substring(i,i+2)) // 10-11am -> 10-11:00
+          }
+          i++
+          }
+          if (currentHour.toString().length===1){
+            timeString = "0" + currentHour.toString() + time.substring(i+1, time.length-3)
+          } else {
+            timeString = currentHour.toString() + time.substring(i+1, time.length-3)
+          }
+          return timeString
     } else {
       return time
     }
