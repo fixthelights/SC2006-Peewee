@@ -22,7 +22,7 @@ import PhotoContainer from '../components/PhotoContainer';
 import CameraAPI from '../components/CameraAPI';
 
 interface RoadConditionsProps {
-  photos: string[];
+  photos?: string[];
 }
 
 interface RoadConditionsState {
@@ -39,20 +39,40 @@ class RoadConditions extends Component<RoadConditionsProps, RoadConditionsState>
     };
   }
 
-  componentDidMount(): void {
-    fetch('https://github.com/fixthelights/SC2006-Peewee/tree/main/server#cameras')
-      .then((response: Response) => {
-        if (!response.ok) {
-          throw Error('Error found');
-        }
-        return response.json();
-      })
-      .then((allData: string[]) => {
-        this.setState({ photos: allData });
-      })
-      .catch((err: Error) => {
-        throw Error(err.message);
-      });
+  // componentDidMount(): void {
+  //   fetch('http://localhost:2000/traffic/conditions')
+  //     .then((response: Response) => {
+  //       if (!response.ok) {
+  //         throw Error('Error found');
+  //       }
+  //       return response.json();
+  //     })
+  //     .then((allData: any) => {
+  //       this.setState({ photos: allData.cameras });
+  //     })
+  //     .catch((err: Error) => {
+  //       //throw Error(err.message);
+  //       console.log(err)
+  //     });
+  // }
+
+  // Add async to enable "await". Simplier syntax just need to add async if you wanna use await
+  async componentDidMount() {
+    try{
+      // Use await
+      const response = await fetch('http://localhost:2000/traffic/conditions');
+      // Now no need .then(), can just use the response as if you waited
+      if (!response.ok) {
+        throw Error('Error found');
+      }
+      // Everytime smth returns a promise, just await
+      const allData = await response.json();
+      console.log(allData)
+      this.setState({photos: allData.cameras})
+    }catch(err: any){
+      alert("OMG ERROR")
+      console.log(err);
+    }
   }
 
   render(): JSX.Element {
@@ -129,7 +149,8 @@ class RoadConditions extends Component<RoadConditionsProps, RoadConditionsState>
           </Container>
 
           {/* Render the ImageAPI component here */}
-          <PhotoContainer photos={this.state.photos} />
+          {this.state.photos.length !== 0 && <PhotoContainer photos={this.state.photos} />}
+          
         </main>
 
         <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
