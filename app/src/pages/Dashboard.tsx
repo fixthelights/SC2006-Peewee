@@ -29,18 +29,22 @@ interface User{
   exp: number
 }
 
+enum IncidentType {
+  accident = "Accident",
+  roadWork = "RoadWork",
+  roadClosure = "RoadClosure",
+}
+
 interface Report {
-  incident: String;
+  incident: IncidentType,
   location: {
-    long: Number;
-    lat: Number;
+    long: number;
+    lat: number;
   };
-  address: String;
-  duration_hours: Number;
-  description: String;
-  time: String;
-  timestamp: Date;
-  reported_by: String;
+  address: string;
+  description: string;
+  time: string;
+  reported_by: string;
 }
 
 interface Route {
@@ -88,15 +92,17 @@ export default function Dashboard() {
 
   const [open, setOpen] = useState(true);
   const [routeList, setRouteList] = useState([]);
-  const [incidentList, setIncidentList] = useState([]);
+  const [incidents, setIncidents] = useState<Array<Report>>([]);
+  const [recentIncidents, setRecentIncidents] = useState([])
   const [trafficData, setTrafficData] = useState([]);
   const [currentCarCount, setCurrentCarCount] = useState(0)
   const [timeRetrieved, setTimeRetrieved] = useState("")
   const [isRouteLoaded, setIsRouteLoaded] = useState(false);
-  const [isIncidentLoaded, setIsIncidentLoaded] = useState(false);
+  const [isRecentIncidentLoaded, setIsRecentIncidentLoaded] = useState(false);
   const [isTrafficLoaded, setIsTrafficLoaded] = useState(false);
   const [isCurrentTrafficLoaded, setIsCurrentTrafficLoaded] = useState(false);
   const [cameras, setCameras] = React.useState<Array<Camera>>([]);
+  const [incidentFilters, setIncidentFilters] = React.useState(["accident", "roadWork", "roadClosure"]);
 
   const toggleDrawer = () => {
     setOpen(!open);
@@ -109,6 +115,7 @@ export default function Dashboard() {
   useEffect(() => {
     identifyUser();
     getRecentIncidentList();
+    loadTrafficIncidents();
     getTrafficData();
     getTrafficCameraData();
     getCurrentData()
@@ -126,7 +133,6 @@ export default function Dashboard() {
     }
   }
   const getFavouriteRouteList = () => {
-     console.log(userId)
       axios
       .post("http://localhost:2000/routes/list",
       {
@@ -143,13 +149,24 @@ export default function Dashboard() {
   const getRecentIncidentList = () => {
     axios
       .get("http://localhost:2000/reports/today/recent")
-      .then((res) => setIncidentList(res.data))
-      .then((res) => setIsIncidentLoaded(true))
+      .then((res) => setRecentIncidents(res.data))
+      .then((res) => setIsRecentIncidentLoaded(true))
       .catch(function (error) {
         console.log(error);
-        setIsIncidentLoaded(false);
+        setIsRecentIncidentLoaded(false);
       });
   };
+
+  async function loadTrafficIncidents() {
+    try {
+      const response = await axios.get(
+        "http://localhost:2000/reports/today/all"
+      );
+      setIncidents(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const getTrafficData = () => {
     axios
@@ -167,7 +184,6 @@ export default function Dashboard() {
       const response = await axios.get(
         "http://localhost:2000/traffic/conditions"
       );
-      console.log(response.data);
       const allCameras = response.data.cameras;
 
       let cameraArray: Array<Camera>= [];
@@ -215,12 +231,7 @@ export default function Dashboard() {
             currentHour = parseInt(time[i])
           }
       } else {
-        if (time.slice(-2)==='pm'){
-          currentHour += parseInt(time.substring(i,i+2))
-        }
-        else {
-          currentHour = parseInt(time.substring(i,i+2))
-        }
+            currentHour = parseInt(time.substring(i,i+2))
       }
 
       let data: Array<{ time: string; trend: number | null; current: number | null }> = [];
@@ -277,7 +288,7 @@ export default function Dashboard() {
   };
 
   const IncidentList = () => {
-    if (isIncidentLoaded && incidentList.length>0) {
+    if (isRecentIncidentLoaded && recentIncidents.length>0) {
       return (
         <React.Fragment>
           <Title>Recent Incidents</Title>
@@ -290,7 +301,7 @@ export default function Dashboard() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {incidentList.map((report: Report) => (
+              {recentIncidents.map((report: Report) => (
                 <TableRow>
                   <TableCell width="20%">
                     {report.incident.toUpperCase()}
@@ -312,10 +323,10 @@ export default function Dashboard() {
         </React.Fragment>
       );
     }
-    if (isIncidentLoaded && incidentList.length == 0) {
+    if (isRecentIncidentLoaded && recentIncidents.length == 0) {
       return <Title>There are no incidents reported today</Title>;
     }
-    if (!isIncidentLoaded) {
+    if (!isRecentIncidentLoaded) {
       return <Title>Error in loading. Please refresh the page.</Title>;
     }
     return null;
@@ -406,12 +417,16 @@ export default function Dashboard() {
                       lat: 1.3687004,
                       address: "Singapore",
                     }}
+                    incidents={incidents}
                     zoomLevel={12}
                     cameras={cameras}
+                    showAccidents={incidentFilters.includes("accident")}
+                    showRoadClosures={incidentFilters.includes("roadClosure")}
+                    showRoadWorks={incidentFilters.includes("roadWork")}
                   />
                 </Paper>
               </Grid>
-              <Grid item xs={12} md={6} lg={8}>
+              <Grid item xs={12} md={6} lg={7}>
                 <Paper
                   sx={{
                     p: 2,
@@ -424,7 +439,7 @@ export default function Dashboard() {
                   <IncidentList />
                 </Paper>
               </Grid>
-              <Grid item xs={12} md={6} lg={4}>
+              <Grid item xs={12} md={6} lg={5}>
                 <Paper
                   sx={{
                     p: 2,

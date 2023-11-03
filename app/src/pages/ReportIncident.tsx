@@ -52,8 +52,11 @@ export default function ReportIncident() {
             // 1.323331, 103.746198
             // 1.3247821180436887, 103.74252003735413
             // 1.307851, 103.791531
-            setLatitude(1.307851)
-            setLongitude(103.791531)
+            // 1.375671, 103.828393
+            // 1.368708, 103.861171
+            // 1.329250, 103.855133
+            setLatitude(1.329250)
+            setLongitude(103.855133)
             setCoordinatesDetected(true)
             setCoordinatesToBeConverted(true)
             setLocationPermission(true)
@@ -85,7 +88,9 @@ export default function ReportIncident() {
                 <Alert 
                   severity="info"
                 >
+                  <Typography>
                   Location detected. 
+                  </Typography>
                 <Box sx={{ pt: 3 }}>
                 <Stack spacing={2} direction="row">
                   <Button 
@@ -103,11 +108,16 @@ export default function ReportIncident() {
 
   const DisplayLocationAccessRequest = () => {
     return <Box sx={{ pl: 3, pt: 3 }}>
-                <Grid item xs={12} md={6} lg={10}>
+                <Grid item xs={12} md={6} lg={6}>
                 <Alert 
                   severity="info"
                 >
-                  Location access is needed to set incident location. Ensure that location access has been allowed on your device. 
+                  <Typography>
+                  Location access is needed to set incident location. 
+                  </Typography>
+                  <Typography>
+                  Ensure that location access has been allowed on your device. 
+                  </Typography>
                 <Box sx={{ pt: 3 }}>
                 <Stack spacing={2} direction="row">
                   <Button 
@@ -136,9 +146,11 @@ export default function ReportIncident() {
 
   const DisplayRetry = () => {
     return <Box sx={{ pl: 3, pt: 3 }}>
-            <Grid item xs={12} md={6} lg={5}>
+            <Grid item xs={12} md={6} lg={6}>
             <Alert severity="info">
+              <Typography>
                 Failed to detect address. Redetect current location?
+              </Typography>
               <Box sx={{ pt: 3 }}>
               <Stack spacing={2} direction="row">
                 <Button 
@@ -222,7 +234,9 @@ const DisplaySuccessfulSubmission = () => {
   return <Box sx={{ pl: 3, pt: 3 }}>
           <Grid item xs={12} md={6} lg={7}>
           <Alert severity="info"> 
+          <Typography>
           Incident is successfully reported. 
+          </Typography>
          <Box sx={{ pt: 3 }}>
          <Button 
           variant="contained" 
@@ -240,7 +254,9 @@ const DisplayErrorMessage = () => {
     return <Box sx={{ pl: 3, pt: 3 }}>
             <Grid item xs={12} md={6} lg={7}>
             <Alert severity="info"> 
+            <Typography>
             Error in report submission
+            </Typography>
             <Box sx={{ pt: 3 }}>
              <Stack spacing={2} direction="row">
              <Button 

@@ -39,7 +39,6 @@ interface Report {
     lat: number;
   };
   address: string;
-  duration_hours: number;
   description: string;
   time: string;
   reported_by: string;
