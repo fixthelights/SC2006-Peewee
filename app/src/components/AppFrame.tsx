@@ -11,6 +11,7 @@ import {
   useMediaQuery,
   Box,
   Container,
+  ContainerOwnProps,
 } from "@mui/material";
 import MuiDrawer from "@mui/material/Drawer";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -25,7 +26,7 @@ import {
   MapOutlinedIcon,
   TrafficOutlinedIcon,
   LogoutOutlinedIcon,
-} from "./ListButtonIndex";
+} from "./AppFrameIndex";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 
@@ -82,13 +83,13 @@ const StyledDrawer = styled(MuiDrawer, {
   },
 }));
 
-interface AppFrameProps {
-  open?: boolean;
+interface AppFrameProps extends ContainerOwnProps{
+  defaultOpen?: boolean;
   pageName?: string;
   children?: React.ReactNode;
 }
 
-export default function AppFrame(props: AppFrameProps) {
+export default function AppFrame({defaultOpen, pageName, children ,...props}: AppFrameProps) {
   const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
@@ -149,6 +150,8 @@ export default function AppFrame(props: AppFrameProps) {
     </React.Fragment>
   );
 
+  const { maxWidth="lg", sx = {mt: 4, mb: 4} } = props;
+
   return (
     <Box sx={{ display: "flex" }}>
       <AppBar position="absolute" open={open}>
@@ -186,7 +189,7 @@ export default function AppFrame(props: AppFrameProps) {
             noWrap
             sx={{ flexGrow: 1 }}
           >
-            {props.pageName}
+            {pageName}
           </Typography>
           <IconButton color="inherit">
             <AccountCircleOutlinedIcon />
@@ -223,8 +226,8 @@ export default function AppFrame(props: AppFrameProps) {
         }}
       >
         <Toolbar />
-        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-          {props.children}
+        <Container maxWidth={maxWidth} sx={sx} {...props}>
+          {children}
         </Container>
       </Box>
     </Box>

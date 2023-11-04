@@ -29,7 +29,7 @@
 }
 
 .LandingPageImage {
-  background-image: url("./components/Background.png");
+  background-image: url("../../app/src/assets/Background.png");
   background-size: "cover";
   height: 100vh;
   margin-top: -70px;

@@ -1,22 +1,10 @@
 import * as React from 'react';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useContext } from 'react'
-import Alert from '@mui/material/Alert';
-import Link from '@mui/material/Link';
-import { AuthManager} from '../../classes/AuthManager';
 import { RecoveryContext, delayTime } from '../../pages/PasswordRecovery';
 import axios, { AxiosResponse } from 'axios';
 import { MuiOtpInput } from 'mui-one-time-password-input'
-import Photo from '../../assets/LoginBackground.jpg'
-import Paper from '@mui/material/Paper';
+import {createTheme, ThemeProvider, CssBaseline, Box, Typography, Button, Alert, Grid, Paper, Link, Photo} from '../ComponentsIndex'
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();

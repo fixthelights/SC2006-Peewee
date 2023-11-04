@@ -1,24 +1,12 @@
 import * as React from "react";
-import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
-import Grid from "@mui/material/Grid";
-import Paper from "@mui/material/Paper";
 import { useNavigate } from "react-router-dom";
-import Link from "@mui/material/Link";
 import axios from "axios";
 import { useState, useEffect } from "react";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Title from "../components/Title";
-import { useTheme } from "@mui/material/styles";
 import MapComponent from "../components/Map";
-import Stack from "@mui/material/Stack";
-import AppFrame from "../components/AppFrame";
 import {TrafficChart} from "../components/TrafficChart"
 import {jwtDecode} from 'jwt-decode';
+import {Table, TableBody, TableCell, TableHead, TableRow} from '../components/TableIndex'
+import {useTheme, createTheme, ThemeProvider, CssBaseline, Grid, Paper, Link, Stack, AppFrame, Title} from '../components/ComponentsIndex'
 
 const drawerWidth: number = 240;
 
@@ -224,14 +212,24 @@ export default function Dashboard() {
         i++;
       }
       if (time[i+1]==':'){
-          if (time.slice(-2)==='pm'){
+          if (time.toLowerCase().includes("pm")){ //1-9pm => 13-21:00
             currentHour += parseInt(time[i])
           }
           else {
-            currentHour = parseInt(time[i])
+            currentHour = parseInt(time[i]) //1-9am => 1-9:00
           }
       } else {
-            currentHour = parseInt(time.substring(i,i+2))
+        if (time.substring(i,i+2)==='12'){
+          if (time.toLowerCase().includes('am')){ //12am -> 0:00
+            currentHour=0 
+          } else {
+            currentHour=12 //12pm -> 12:00
+          } 
+        } else if(time.toLowerCase().includes("pm")){
+          currentHour += parseInt(time.substring(i,i+2)) //10-11pm -> 22-23:00
+        } else {
+          currentHour = parseInt(time.substring(i,i+2)) // 10-11am -> 10-11:00
+        }
       }
 
       let data: Array<{ time: string; trend: number | null; current: number | null }> = [];
@@ -418,8 +416,10 @@ export default function Dashboard() {
                       address: "Singapore",
                     }}
                     incidents={incidents}
-                    zoomLevel={12}
+                    zoomLevel={11}
                     cameras={cameras}
+                    showHeatmap={true}
+                    showCameras={false}
                     showAccidents={incidentFilters.includes("accident")}
                     showRoadClosures={incidentFilters.includes("roadClosure")}
                     showRoadWorks={incidentFilters.includes("roadWork")}
