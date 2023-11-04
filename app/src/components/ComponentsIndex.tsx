@@ -19,7 +19,7 @@ import {
     Avatar,
     TextField,
     Link,
-    Card
+    Card,
   } from "@mui/material";
 import AppFrame from '../components/AppFrame'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
