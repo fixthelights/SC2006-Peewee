@@ -6,7 +6,6 @@ import {
   Route,
 } from 'react-router-dom';
 //import MapSection from './components/Map' // import the map here
-import './App.css'
   
 function App() {
   return (

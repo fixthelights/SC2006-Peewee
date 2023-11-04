@@ -79,17 +79,6 @@ const TrafficChart: FC<TrafficChartProps> = ({carsNow, average, data}) => {
                 stroke={theme.palette.text.secondary}
                 style={theme.typography.body2}
               >
-                <Label
-                  angle={270}
-                  position="left"
-                  style={{
-                    textAnchor: "middle",
-                    fill: theme.palette.text.primary,
-                    ...theme.typography.body1,
-                  }}
-                >
-                  Total cars
-                </Label>
               </YAxis>
               <Tooltip/>
               <Legend/>
