@@ -16,13 +16,13 @@
 }
 
 .Landing-content-2 {
-    height: 40%;
+    height: 30%;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: bottom;
-    padding: 10px;
-    color: white
+    padding-right: 80px;
+    color: black
 }
 
 @media (min-width: 650px ) {
@@ -31,6 +31,10 @@
     }
 
     .Landing-content {
+        align-items: flex-end;
+        justify-content: center;
+    }
+    .Landing-content-2 {
         align-items: flex-end;
         justify-content: center;
     }

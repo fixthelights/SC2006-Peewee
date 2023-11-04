@@ -2,13 +2,14 @@ import React from "react";
 import './Landing.css'
 import { useNavigate } from "react-router-dom";
 import axios from 'axios'
-import {Button, Stack, Box} from '../components/ComponentsIndex'
+import {Button, Stack, Box, Container} from '../components/ComponentsIndex'
 import {ActionAreaCard} from "../components/ActionAreaCard";
 import Photo from '../assets/Landing2.jpg'
 import DataPhoto from '../assets/Data2.png'
 import AIPhoto from '../assets/AI.jpg'
 import HMPhoto from '../assets/Heatmap.png'
 import SearchPhoto from '../assets/Search.png'
+import StickyFooter from "../components/StickyFooter";
 
 interface user{
     userId: String,
@@ -136,17 +137,15 @@ function Landing() {
                 </Button>*/}
             </Stack>
             </div>
-            <div className="Landing-content-2">
-            <Box 
+            <Box
                 sx={{
                     display: "flex",
                     flexDirection:"row",
                     alignItems: "center",
                     alignContent: "center",
                     justifyContent: "center",
-                    height: "400px",
-                    pt: 10, 
-                    pb: 10
+                    height: "100px",
+                    pt: 23
                 }}
             >
             <Stack 
@@ -154,7 +153,8 @@ function Landing() {
                 direction='row'
                 alignContent='center'
                 justifyContent='center'
-                >
+                useFlexGap flexWrap="wrap"
+            >
                 <ActionAreaCard 
                     image={DataPhoto}
                     title='Data-driven'
@@ -173,7 +173,7 @@ function Landing() {
                     description='Seamless searching of driving routes'/>
                 </Stack>
                 </Box>
-                </div>
+                <StickyFooter />
         </div>
     );
 };

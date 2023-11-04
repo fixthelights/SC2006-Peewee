@@ -6,6 +6,8 @@ import Typography from '@mui/material/Typography';
 import { CardActionArea } from '@mui/material';
 import { StringDecoder } from 'string_decoder';
 import {Grid} from '../components/ComponentsIndex'
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 
 interface ActionAreaCardProps{
   image: string
@@ -24,11 +26,9 @@ const ActionAreaCard: React.FC<ActionAreaCardProps> = ({image, title, descriptio
           alt="green iguana"
         />
         <CardContent>
-        <Grid sx={{alignItems:'center', justifyContent:'center'}}>
           <Typography gutterBottom variant="h5" component="div">
             {title}
           </Typography>
-          </Grid>
           <Typography variant="body2" color="text.secondary">
             {description}
           </Typography>
