@@ -1,170 +1,128 @@
-import React, { FC, useState, useEffect, Component } from "react";
-import ReactDOM from "react-dom";
-import AppBar from '@mui/material/AppBar';
-import Button from '@mui/material/Button';
-import TrafficOutlinedIcon from '@mui/icons-material/TrafficOutlined';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import CssBaseline from '@mui/material/CssBaseline';
-import Grid from '@mui/material/Grid';
-import Stack from '@mui/material/Stack';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import Link from '@mui/material/Link';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import MenuIcon from '@mui/icons-material/Menu';
-import { Photo } from '@mui/icons-material';
-import PhotoContainer from '../components/PhotoContainer';
-import CameraAPI from '../components/CameraAPI';
+import * as React from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
+import AppFrame from "../components/AppFrame";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import { Alert } from "@mui/material";
+import Grid from "@mui/material/Grid";
 
-interface RoadConditionsProps {
-  photos?: string[];
+interface Geocode {
+  lat: number | null;
+  long: number | null;
 }
 
-interface RoadConditionsState {
-  photos: string[];
+interface CameraData {
+  cameraId: string;
+  location: {
+    lat: number;
+    long: number;
+  };
+  picture?: string;
 }
 
 const defaultTheme = createTheme();
 
-class RoadConditions extends Component<RoadConditionsProps, RoadConditionsState> {
-  constructor(props: RoadConditionsProps) {
-    super(props);
-    this.state = {
-      photos: [],
-    };
-  }
+export default function RoadConditionsPage() {
+  const [locationInput, setLocationInput] = useState<string>("");
+  const [geocode, setGeocode] = useState<Geocode>({ lat: null, long: null });
+  const [cameraData, setCameraData] = useState<CameraData | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  // componentDidMount(): void {
-  //   fetch('http://localhost:2000/traffic/conditions')
-  //     .then((response: Response) => {
-  //       if (!response.ok) {
-  //         throw Error('Error found');
-  //       }
-  //       return response.json();
-  //     })
-  //     .then((allData: any) => {
-  //       this.setState({ photos: allData.cameras });
-  //     })
-  //     .catch((err: Error) => {
-  //       //throw Error(err.message);
-  //       console.log(err)
-  //     });
-  // }
-
-  // Add async to enable "await". Simplier syntax just need to add async if you wanna use await
-  async componentDidMount() {
-    try{
-      // Use await
-      const response = await fetch('http://localhost:2000/traffic/conditions');
-      // Now no need .then(), can just use the response as if you waited
-      if (!response.ok) {
-        throw Error('Error found');
-      }
-      // Everytime smth returns a promise, just await
-      const allData = await response.json();
-      console.log(allData)
-      this.setState({photos: allData.cameras})
-    }catch(err: any){
-      alert("OMG ERROR")
-      console.log(err);
+  const fetchCameraData = async () => {
+    try {
+      const response = await axios.get<CameraData>(
+        `http://localhost:2000/cameras`
+      );
+      setCameraData(response.data);
+    } catch (error) {
+      setError(
+        "Error fetching camera data. Please check the location and try again."
+      );
     }
-  }
+  };
 
-  render(): JSX.Element {
-    return (
-      <ThemeProvider theme={defaultTheme}>
-        <CssBaseline />
-        <AppBar position="relative">
-          <Toolbar>
-            <TrafficOutlinedIcon sx={{ fontSize: 40, color: 'blue' }} />
-            <Typography variant="h6" color="inherit" noWrap>
-              Road Conditions
-            </Typography>
-          </Toolbar>
-        </AppBar>
-        <main>
-          <Box
-            sx={{
-              bgcolor: 'background.paper',
-              pt: 8,
-              pb: 6,
-            }}
-          >
-            <Container maxWidth="sm">
-              <TrafficOutlinedIcon sx={{ fontSize: 40, color: 'blue' }} />
-              <Typography component="h1" variant="h2" align="center" color="text.primary" gutterBottom>
-                Road Conditions
-              </Typography>
-              <Typography variant="h5" align="center" color="text.secondary" paragraph>
-                What is traffic looking like today?
-              </Typography>
-              <Stack sx={{ pt: 4 }} direction="row" spacing={2} justifyContent="center">
-                <Button variant="contained">Traffic Trends</Button>
-                <Button variant="outlined">Traffic Images</Button>
-              </Stack>
-            </Container>
-          </Box>
-          <Container sx={{ py: 8 }} maxWidth="md">
-            <Grid container spacing={4}>
-              {[1, 2, 3, 4, 5, 6].map((card: number) => (
-                <Grid item key={card} xs={12} sm={6} md={4}>
-                  <Card
-                    sx={{
-                      height: '100%',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      borderWidth: 1,
-                    }}
-                  >
-                    <CardMedia
-                      component="div"
-                      sx={{
-                        // 16:9
-                        pt: '70%',
-                        borderWidth: 0.1,
-                      }}
-                      image="https://images.data.gov.sg/api/traffic-images/2023/10/e461432d-7643-4735-9504-86048e8af35d.jpg"
-                    />
-                    <CardContent sx={{ flexGrow: 1 }}>
-                      <Typography gutterBottom variant="h5" component="h2">
-                        Traffic Images
-                      </Typography>
-                      <Typography>
-                        This is a media card. You can use this section to describe the content.
-                      </Typography>
-                    </CardContent>
-                    <CardActions>
-                      <Button size="small">View</Button>
-                      <Button size="small">Edit</Button>
-                    </CardActions>
-                  </Card>
-                </Grid>
-              ))}
+  const handleLocationInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setLocationInput(event.target.value);
+  };
+
+  const getGeocode = async () => {
+    try {
+      const response = await axios.get(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${locationInput}&key=YOUR_GOOGLE_MAPS_API_KEY`
+      );
+      const { results } = response.data;
+      if (results && results.length > 0) {
+        const { lat, lng } = results[0].geometry.location;
+        setGeocode({ lat, long: lng });
+      } else {
+        setError("Location not found. Please enter a valid location.");
+      }
+    } catch (error) {
+      setError("Error fetching geocode. Please try again later.");
+    }
+  };
+
+  return (
+    <ThemeProvider theme={defaultTheme}>
+      <CssBaseline />
+      <AppFrame pageName="Road Conditions Page">
+        <Container sx={{ my: 3 }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Search for Camera Location
+          </Typography>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                id="locationInput"
+                label="Location Input"
+                variant="outlined"
+                value={locationInput}
+                onChange={handleLocationInputChange}
+              />
             </Grid>
+            <Grid item xs={12} sm={6}>
+              <Button variant="contained" onClick={getGeocode}>
+                Search
+              </Button>
+            </Grid>
+          </Grid>
+        </Container>
+        {error && (
+          <Container sx={{ my: 3 }}>
+            <Alert severity="error">{error}</Alert>
           </Container>
-
-          {/* Render the ImageAPI component here */}
-          {this.state.photos.length !== 0 && <PhotoContainer photos={this.state.photos} />}
-          
-        </main>
-
-        <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
-          <Typography variant="h6" align="center" gutterBottom>
-            Footer
-          </Typography>
-          <Typography variant="subtitle1" align="center" color="text.secondary" component="p">
-            Something here to give the footer a purpose!
-          </Typography>
-          {/* Add your Copyright component here */}
-        </Box>
-      </ThemeProvider>
-    );
-  }
+        )}
+        {geocode.lat && geocode.long && (
+          <Container sx={{ my: 3 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Camera Details
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 1 }}>
+              Latitude: {geocode.lat}
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 1 }}>
+              Longitude: {geocode.long}
+            </Typography>
+            <Button variant="contained" onClick={fetchCameraData}>
+              Fetch Camera Data
+            </Button>
+          </Container>
+        )}
+        {cameraData && (
+          <Container sx={{ my: 3 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Camera Data
+            </Typography>
+            {/* Display the camera data here */}
+          </Container>
+        )}
+      </AppFrame>
+    </ThemeProvider>
+  );
 }
-
-export default RoadConditions;
