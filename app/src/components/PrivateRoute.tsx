@@ -1,42 +1,77 @@
 import * as React from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, redirect } from "react-router-dom";
 import { AuthManager} from '../classes/AuthManager';
+import Stack from '@mui/material/Stack';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+import IconButton from '@mui/material/IconButton';
+import Collapse from '@mui/material/Collapse';
+import CloseIcon from '@mui/icons-material/Close';
+import Login from "../pages/Login";
+import Fade from '@mui/material/Fade';
 
 const auth = new AuthManager()
 
 interface PrivateRouteProps {
-    redirectPath?: string;
     children: React.ReactNode;
 }
 
-const PrivateRoute = ({ redirectPath = '/', children }: PrivateRouteProps) => {
+const PrivateRoute = ({ children }: PrivateRouteProps) => {
     const [loggedIn, setLoggedIn] = React.useState<boolean | null>(null);
-
-    // React.useEffect(() => {
-    //     auth.isAuthenticated()
-    //         .then(res => {
-    //             const isAuthenticated = res.data;
-    //             console.log("User login return =", isAuthenticated);
-    //             setLoggedIn(isAuthenticated);
-    //         })
-    //         .catch(error => {
-    //             console.error("Error:", error);
-    //             // Handle the error, e.g., redirect to an error page
-    //         });
-    // }, []); // Empty dependency array to run the effect only once
+    const [open, setOpen] = React.useState(true);
+  
+    const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+      if (reason === 'clickaway') {
+        return;
+      }
+      setOpen(false);
+    };
 
     React.useEffect(() => {
         const isAuthenticated = auth.isAuthenticated();
         setLoggedIn(isAuthenticated);
         console.log("User login return =", isAuthenticated);
-    }, []); // Empty dependency array to run the effect only once
+    }, [loggedIn]);
 
-    if (loggedIn === null) {
-        // Loading state, you can render a loading spinner or some other UI
-        return <div>Loading...</div>;
+
+    if(loggedIn) {
+        return <>{children}</>;
+    } else {
+        return (
+            <>
+                <Snackbar
+                    open={open}
+                    autoHideDuration={5000}
+                    onClose={handleClose}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                >
+                    <Collapse in={open}>
+                        <Alert
+                            severity="error"
+                            action={
+                                <IconButton
+                                    aria-label="close"
+                                    color="inherit"
+                                    size="small"
+                                    onClick={handleClose}
+                                >
+                                    <CloseIcon fontSize="inherit" />
+                                </IconButton>
+                            }
+                            sx={{ mb: 2 }}
+                        >
+                            Please sign in to continue
+                        </Alert>
+                    </Collapse>
+                </Snackbar>
+                <Login /> 
+                
+                {/* {loggedIn ? <>{children}</> : <Navigate to={redirectPath} />} */}
+            </>
+        );
+        
     }
-
-    return loggedIn ? <>{children}</> : <Navigate to={redirectPath} />;
+    
 };
 
 

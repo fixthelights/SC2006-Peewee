@@ -93,7 +93,7 @@ export default function OTPInput() {
     if (isOTPSent && !isCorrectOTP) {
       return <Alert severity="error"> Wrong OTP entered, please try again </Alert> ;
     } else if (isOTPSent && isCorrectOTP) {
-      return <Alert severity="success"> Correct OTP, please reset your password </Alert> ;
+      return <Alert severity="success"> Verified, please reset your password </Alert> ;
     }
     return null;
   };
