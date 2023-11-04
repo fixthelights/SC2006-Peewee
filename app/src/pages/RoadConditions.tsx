@@ -7,13 +7,19 @@ import Container from "@mui/material/Container";
 import AppFrame from "../components/AppFrame";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import { Alert, Card } from "@mui/material";
+import { Alert, Card, Link } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
+import {TrafficChart} from "../components/SpecificTrafficChart"
+import React from "react";
+import Title from "../components/Title";
 
-
+interface Traffic {
+  vehicle_count: number;
+  time_of_day: string;
+}
 
 interface CameraData {
   camera_id: string;
@@ -26,13 +32,16 @@ interface CameraData {
   vehicle_count: number;
   peakedness: number;
   url?: string;
+
 }
+
 
 const defaultTheme = createTheme();
 
 
 export default function CameraPage() {
-  const [camera, setCamera] = useState<Array<CameraData>>([]);
+  const [camera, setCamera] = useState<CameraData[]>([]);
+
   const [cameraName, setCameraName] = useState<string>("");
   const [cameraData, setCameraData] = useState<CameraData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -45,11 +54,148 @@ export default function CameraPage() {
     "https://via.placeholder.com/150",
   ];
   const cameraIds = ['6529c76346a5bed445508243', '6529c76546a5bed44550824f', '6529c77146a5bed445508299', '6529c77646a5bed4455082b7'];
+  const [isTrafficLoaded, setIsTrafficLoaded] = useState(false);
+  const [isCurrentTrafficLoaded, setIsCurrentTrafficLoaded] = useState(false);
+  const [trafficData, setTrafficData] = useState([]);
+  const [currentCarCount, setCurrentCarCount] = useState<number | null>(null);
+
+  const [timeRetrieved, setTimeRetrieved] = useState<string>("");
   
 
-  
-  
+  const getTrafficData = () => {
+    axios
+      .get("http://localhost:2000/traffic/combined-trends")
+      .then((res) => setTrafficData(res.data.hourly_counts))
+      .then((res) => setIsTrafficLoaded(true))
+      .catch(function (error) {
+        console.log(error);
+        setIsTrafficLoaded(false);
+      });
+  };
 
+  const getTrafficCameraData = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:2000/traffic/conditions"
+      );
+      console.log(response.data);
+      const allCameras: CameraData[] = response.data.cameras;
+
+      let cameraArray: Array<CameraData>= [];
+
+      allCameras.forEach(({ camera_name, location, vehicle_count, peakedness} : CameraData)=> {
+        cameraArray.push({
+          camera_id: "",
+          date: new Date(), 
+          camera_name: camera_name,
+          location: {
+            lat: location.lat,
+            long: location.long,
+          },
+          vehicle_count: vehicle_count,
+          peakedness: peakedness,
+        })
+      });
+
+      setCamera(cameraArray);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getCurrentData = () => {
+    axios
+      .get("http://localhost:2000/traffic/combined-conditions")
+      .then((res) => {
+        setCurrentCarCount(res.data['vehicle_total'] ?? 0);
+        setTimeRetrieved(res.data['taken_at']);
+      })
+      .then((res) => setIsCurrentTrafficLoaded(true))
+      .catch(function (error) {
+        console.log(error);
+        setIsCurrentTrafficLoaded(false);
+      });
+  };
+  function createData(
+    time: string,
+    trend: number,
+    currentCarCount: number | null
+  ): { time: string; trend: number | null; current: number | null } {
+    return {
+      time: time,
+      trend: trend,
+      current: currentCarCount !== null ? currentCarCount : null,
+    };
+  }
+
+
+  const TrafficTrend = () => {
+    if (isTrafficLoaded && isCurrentTrafficLoaded) {
+      let time = timeRetrieved ? timeRetrieved.split(",")[1] : "";
+      let currentHour = 12;
+      let i = 0;
+      while (isNaN(parseInt(time[i]))) {
+        i++;
+      }
+      if (time[i + 1] === ":") {
+        if (time.slice(-2) === "pm") {
+          currentHour += parseInt(time[i]);
+        } else {
+          currentHour = parseInt(time[i]);
+        }
+      } else {
+        if (time.slice(-2) === "pm") {
+          currentHour += parseInt(time.substring(i, i + 2));
+        } else {
+          currentHour = parseInt(time.substring(i, i + 2));
+        }
+      }
+      
+  
+      let data: Array<{ time: string; trend: number | null; current: number | null }> = [];
+      let average = 0;
+      trafficData.forEach((traffic: Traffic) => {
+        if (parseInt(traffic["time_of_day"]) < 10) {
+          if (currentHour == parseInt(traffic["time_of_day"])) {
+            data.push(
+              createData(
+                "0" + traffic["time_of_day"] + ":00",
+                traffic["vehicle_count"],
+                currentCarCount!
+              )
+            );
+          } else {
+            data.push(
+              createData("0" + traffic["time_of_day"] + ":00", traffic["vehicle_count"], null)
+            );
+          }
+        } else {
+          if (currentHour == parseInt(traffic["time_of_day"])) {
+            data.push(
+              createData(traffic["time_of_day"] + ":00", traffic["vehicle_count"], currentCarCount!)
+            );
+          } else {
+            data.push(createData(traffic["time_of_day"] + ":00", traffic["vehicle_count"], null));
+          }
+        }
+        average += traffic["vehicle_count"];
+      });
+      average /= 24;
+  
+      return (
+        <React.Fragment>
+          <TrafficChart carsNow={currentCarCount!} average={average} data={data} />
+          <Link color="primary" href="#" sx={{ mt: 3 }}>
+            See specific camera trends
+          </Link>
+        </React.Fragment>
+      );
+    } else {
+      return <Title>Error in loading. Please refresh the page.</Title>;
+    }
+  };
+
+  
   // const fetchCameraData = async () => {
   //   try {
   //     const response = await axios.get<CameraData>(
@@ -250,3 +396,9 @@ export default function CameraPage() {
 
   
 }
+
+
+function createData(arg0: string, arg1: number, currentCarCount: number): { time: string; trend: number | null; current: number | null; } {
+  throw new Error("Function not implemented.");
+}
+
