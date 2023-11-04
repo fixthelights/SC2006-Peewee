@@ -52,7 +52,6 @@ export default function OTPResetEmail() {
         setEmail(enteredEmail);
         const otpPromise = sendForgetPassword(enteredEmail);
         const otp = await otpPromise; // Async (?)
-        console.log(otp?.data.otp.token);
         setOTP(otp?.data.otp.token);
         setIsEmailValid(true);
         setPage("otpinput"); // Move to next step
@@ -65,7 +64,6 @@ export default function OTPResetEmail() {
 
   // Send OTP to email
   function sendForgetPassword(toEmail: string) {
-      setTest(test+1);
       console.log("Email is " + toEmail);
       const response = axios.post('http://localhost:2000/users/forget-password', { email : toEmail });
       console.log(response);
