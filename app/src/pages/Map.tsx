@@ -1,28 +1,11 @@
 import * as React from "react";
-import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import AppFrame from "../components/AppFrame";
-import {
-  ToggleButtonGroup,
-  ToggleButton,
-  useTheme,
-  useMediaQuery,
-  TextField,
-  Button,
-  Stack,
-  Card,
-} from "@mui/material";
 import MapComponent from "../components/Map";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { useState } from "react";
-import Alert from "@mui/material/Alert";
 import { useNavigate } from "react-router-dom";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
 import { Autocomplete, Libraries, useLoadScript } from "@react-google-maps/api";
+import {useTheme, createTheme, ThemeProvider, CssBaseline, Box, Typography, Button, Stack, Alert, Container, AppFrame, TextField, ToggleButton, ToggleButtonGroup, useMediaQuery, Card} from '../components/ComponentsIndex'
 
 // Move array outside of functional component
 // See https://github.com/JustFly1984/react-google-maps-api/issues/238

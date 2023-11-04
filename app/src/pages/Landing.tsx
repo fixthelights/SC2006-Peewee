@@ -1,12 +1,8 @@
 import React from "react";
 import './Landing.css'
 import { useNavigate } from "react-router-dom";
-import Button from '@mui/material/Button';
-import Stack from '@mui/material/Stack';
 import axios from 'axios'
-import Photo from '../assets/LoginBackground.jpg'
-import {useState} from 'react'
-import jwt from 'jsonwebtoken';
+import {Button, Stack} from '../components/ComponentsIndex'
 
 interface user{
     userId: String,

@@ -1,32 +1,16 @@
-import React, { FC } from 'react';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import React from 'react';
 import { useNavigate } from "react-router-dom";
-import {AuthManager} from "../classes/AuthManager"
-import Alert from '@mui/material/Alert';
-import 'reactjs-popup/dist/index.css';
-import { useState, useEffect } from 'react';
+import { useState} from 'react';
 import axios from 'axios'
-import Paper from '@mui/material/Paper';
-import Photo from '../assets/LoginBackground.jpg'
+import {createTheme, ThemeProvider, CssBaseline, Box, Typography, Button, Alert, Grid, Paper, Avatar, TextField, Link, LockOutlinedIcon, Photo} from '../components/ComponentsIndex'
+
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
-const authManager = new AuthManager()
 
 export default function Register() {
   
   const navigate = useNavigate();
-  const [username, setUsername] = useState('')
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
  
@@ -36,7 +20,6 @@ export default function Register() {
   const [isInvalidPassword, setIsInvalidPssword] = useState(true);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isRegistrationSuccessful, setIsRegistrationSuccessful] = useState(false)
-  const [userList, setUserList] = useState([])
 
   const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
@@ -50,12 +33,11 @@ export default function Register() {
 
     event.preventDefault();
 
-    setIsSubmitted(true);
-
     let emailFormatValid = validateEmailAddressFormat(email)
     let passwordValid = checkPasswordValidity(password)
 
-    // save user in database
+    setIsSubmitted(true)
+
     if (emailFormatValid && passwordValid){
       axios.post('http://localhost:2000/users/register', {
         email: email,
@@ -69,11 +51,11 @@ export default function Register() {
         setIsExistingUser(true)
         setIsRegistrationSuccessful(false)
       })
+
     } else {
       setIsRegistrationSuccessful(false)
     }
 
-    // save validity states for display of corresponding message
     setIsInvalidEmailFormat(!emailFormatValid);
     setIsInvalidPssword(!passwordValid);
   }

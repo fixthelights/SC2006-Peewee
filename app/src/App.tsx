@@ -1,17 +1,11 @@
 import React from 'react';
-import {Landing, Login, Register, ForgetPasswordOld, Dashboard, Incidents, ReportIncident, Map, ForgetPassword, FavouriteRoutes} from './pages/PageIndex'
-
+import {Landing, Login, Register, ForgetPasswordOld, Dashboard, Incidents, ReportIncident, Map, ForgetPassword, FavouriteRoutes, RoadConditions} from './pages/PageIndex'
 import {
   BrowserRouter as Router,
   Routes,
   Route,
 } from 'react-router-dom';
-import axios from 'axios'
-import RoadConditions from './pages/RoadConditions';
-
 //import MapSection from './components/Map' // import the map here
-
-
 import './App.css'
   
 function App() {

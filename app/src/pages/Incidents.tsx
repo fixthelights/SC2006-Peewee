@@ -1,15 +1,9 @@
-import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid';
-import Button from '@mui/material/Button';
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import {IncidentListItem} from '../components/IncidentListItem';
-import Alert from '@mui/material/Alert';
-import AppFrame from '../components/AppFrame'
 import { useNavigate } from "react-router-dom";
-import Typography from '@mui/material/Typography';
+import {createTheme, ThemeProvider , CssBaseline, Typography, Button, Alert, Grid, Container, AppFrame} from '../components/ComponentsIndex'
+
 
 interface Report {
   incident: String,

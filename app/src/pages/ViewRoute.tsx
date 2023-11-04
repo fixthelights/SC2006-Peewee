@@ -1,28 +1,9 @@
 import * as React from "react";
-import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import AppFrame from "../components/AppFrame";
-import {
-  ToggleButtonGroup,
-  ToggleButton,
-  useTheme,
-  useMediaQuery,
-  TextField,
-  Button,
-  Stack,
-} from "@mui/material";
 import MapComponent from "../components/Map";
 import axios from "axios";
-import { Autocomplete,useLoadScript } from "@react-google-maps/api";
-import {jwtDecode} from 'jwt-decode';
-import {useState, FC} from 'react';
-import FavouriteRoutes from '../pages/FavouriteRoutes'
-import { useNavigate } from "react-router-dom";
-import {useEffect} from 'react'
-
-
+import { useLoadScript } from "@react-google-maps/api";
+import {FC} from 'react';
+import {createTheme, ThemeProvider , CssBaseline, Typography, Button, Container, AppFrame, Stack, ToggleButton, ToggleButtonGroup, useTheme, useMediaQuery} from '../components/ComponentsIndex'
 
 interface User{
   userId: string,
@@ -41,8 +22,6 @@ interface ViewRouteProps{
 const defaultTheme = createTheme();
 
 const ViewRoute: FC<ViewRouteProps> = ({source, destination, setViewMap}) => {
-
-  const navigate = useNavigate()
 
   interface User{
     userId: string,

@@ -1,30 +1,12 @@
-import React, { useCallback } from 'react';
-import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import { useNavigate } from "react-router-dom";
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import Button from '@mui/material/Button';
-import { useState, useEffect } from 'react';
-import Stack from '@mui/material/Stack';
-import Alert from '@mui/material/Alert';
+import { useState} from 'react';
 import axios from 'axios'
 import {MouseEvent} from 'react'
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
-import Container from '@mui/material/Container';
-import AppFrame from '../components/AppFrame'
+import {createTheme, ThemeProvider, CssBaseline, Box, Typography, InputLabel, MenuItem, FormControl, Select, Button, Stack, Alert, Grid, Paper, Container, AppFrame} from '../components/ComponentsIndex'
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 export default function ReportIncident() {
-
-  const navigate = useNavigate();
 
   const [incidentType, setIncidentType] = useState('');
   const [incidentLocation, setIncidentLocation] = useState('');
@@ -43,8 +25,6 @@ export default function ReportIncident() {
     try{
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(function(position) {
-            console.log("Latitude is :", position.coords.latitude);
-            console.log("Longitude is :", position.coords.longitude);
             setLatitude(position.coords.latitude)
             setLongitude(position.coords.longitude)
             //setLatitude(1.329250)
@@ -52,14 +32,14 @@ export default function ReportIncident() {
             setCoordinatesDetected(true)
             setCoordinatesToBeConverted(true)
             setLocationPermission(true)
+            return
           })
         }
     } catch (error){
       console.log(error)
-      setCoordinatesDetected(false)
-      setLocationPermission(false)
     }
-
+    setCoordinatesDetected(false)
+    setLocationPermission(false)
   }
 
   const DisplayLocationMessage = () => {
@@ -72,30 +52,6 @@ export default function ReportIncident() {
       } else {
         return <DisplayRetry />
       }
-  }
-
-  const DisplayViewLocation = () => {
-    return <Box sx={{ pl: 3, pt: 3 }}>
-                <Grid item xs={12} md={6} lg={5}>
-                <Alert 
-                  severity="info"
-                >
-                  <Typography>
-                  Location detected. 
-                  </Typography>
-                <Box sx={{ pt: 3 }}>
-                <Stack spacing={2} direction="row">
-                  <Button 
-                      variant="contained" 
-                      onClick={() => handleLocationAccess()}
-                  >
-                      Set location
-                  </Button>
-                </Stack>
-                </Box>
-                </Alert>
-              </Grid>
-              </Box>
   }
 
   const DisplayLocationAccessRequest = () => {
@@ -111,19 +67,40 @@ export default function ReportIncident() {
                   Ensure that location access has been allowed on your device. 
                   </Typography>
                 <Box sx={{ pt: 3 }}>
-                <Stack spacing={2} direction="row">
                   <Button 
                       variant="contained" 
                       onClick={() => getUserLocation()}
                   >
                       Detect location
                   </Button>
-                </Stack>
                 </Box>
                 </Alert>
               </Grid>
               </Box>
   }
+
+  const DisplayViewLocation = () => {
+    return <Box sx={{ pl: 3, pt: 3 }}>
+                <Grid item xs={12} md={6} lg={5}>
+                <Alert 
+                  severity="info"
+                >
+                  <Typography>
+                  Location detected. 
+                  </Typography>
+                <Box sx={{ pt: 3 }}>
+                  <Button 
+                      variant="contained" 
+                      onClick={() => handleLocationAccess()}
+                  >
+                      Set location
+                  </Button>
+                </Box>
+                </Alert>
+              </Grid>
+              </Box>
+  }
+
   
   const DisplayLocation = () => {
     return <Box sx={{ pl: 3, pt: 3 }}>
@@ -144,14 +121,12 @@ export default function ReportIncident() {
                 Failed to detect address. Redetect current location?
               </Typography>
               <Box sx={{ pt: 3 }}>
-              <Stack spacing={2} direction="row">
                 <Button 
                     variant="contained" 
                     onClick={() => getUserLocation()}
                 >
                     Yes
                 </Button>
-              </Stack>
               </Box>
               </Alert>
             </Grid>
@@ -187,8 +162,8 @@ export default function ReportIncident() {
 }
 
   const handleSubmission = async(e: MouseEvent<HTMLButtonElement>) =>{
+
     const date = new Date();
-    setSubmissionStatus(true);
     axios.post('http://localhost:2000/reports', {
             incident: incidentType,
             location: {
@@ -208,6 +183,47 @@ export default function ReportIncident() {
             setValidSubmission(false)
             setSubmissionStatus(true)
         });
+    
+  }
+
+  function reformatTime(time: string){
+    if (time.toLowerCase().includes('pm') || time.toLowerCase().includes('am')){
+      let currentHour = 12
+      let i=0
+      let timeString
+      while (isNaN(parseInt(time[i]))){
+        i++;
+      }
+      if (time[i+1]==':'){
+        if (time.toLowerCase().includes("pm")){ //1-9pm => 13-21:00
+          currentHour += parseInt(time[i])
+        }
+        else {
+          currentHour = parseInt(time[i]) //1-9am => 1-9:00
+        }
+        } else {
+          if (time.substring(i,i+2)==='12'){
+            if (time.toLowerCase().includes('am')){ //12am -> 0:00
+              currentHour=0 
+            } else {
+              currentHour=12 //12pm -> 12:00
+            } 
+          } else if(time.toLowerCase().includes("pm")){
+            currentHour += parseInt(time.substring(i,i+2)) //10-11pm -> 22-23:00
+          } else {
+            currentHour = parseInt(time.substring(i,i+2)) // 10-11am -> 10-11:00
+          }
+          i++
+          }
+          if (currentHour.toString().length===1){
+            timeString = "0" + currentHour.toString() + time.substring(i+1, time.length-3)
+          } else {
+            timeString = currentHour.toString() + time.substring(i+1, time.length-3)
+          }
+          return timeString
+    } else {
+      return time
+    }
     
   }
 
@@ -276,46 +292,7 @@ const DisplayErrorMessage = () => {
     setSubmissionStatus(false)
   }
 
-  function reformatTime(time: string){
-    if (time.toLowerCase().includes('pm') || time.toLowerCase().includes('am')){
-      let currentHour = 12
-      let i=0
-      let timeString
-      while (isNaN(parseInt(time[i]))){
-        i++;
-      }
-      if (time[i+1]==':'){
-        if (time.toLowerCase().includes("pm")){ //1-9pm => 13-21:00
-          currentHour += parseInt(time[i])
-        }
-        else {
-          currentHour = parseInt(time[i]) //1-9am => 1-9:00
-        }
-        } else {
-          if (time.substring(i,i+2)==='12'){
-            if (time.toLowerCase().includes('am')){ //12am -> 0:00
-              currentHour=0 
-            } else {
-              currentHour=12 //12pm -> 12:00
-            } 
-          } else if(time.toLowerCase().includes("pm")){
-            currentHour += parseInt(time.substring(i,i+2)) //10-11pm -> 22-23:00
-          } else {
-            currentHour = parseInt(time.substring(i,i+2)) // 10-11am -> 10-11:00
-          }
-          i++
-          }
-          if (currentHour.toString().length===1){
-            timeString = "0" + currentHour.toString() + time.substring(i+1, time.length-3)
-          } else {
-            timeString = currentHour.toString() + time.substring(i+1, time.length-3)
-          }
-          return timeString
-    } else {
-      return time
-    }
-    
-  }
+  
 
   return (
     <ThemeProvider theme={defaultTheme}>

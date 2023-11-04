@@ -1,21 +1,10 @@
 import React, { FC } from 'react';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import Container from '@mui/material/Container';
-import Button from '@mui/material/Button';
 import { useState, useEffect} from 'react'
 import axios from 'axios'
-import Alert from '@mui/material/Alert';
-import AppFrame from '../components/AppFrame'
 import { useNavigate } from "react-router-dom";
 import {jwtDecode} from 'jwt-decode';
-import Box from '@mui/material/Box';
 import {ViewRoute} from '../pages/ViewRoute'
-import Title from "../components/Title";
+import {createTheme, ThemeProvider , CssBaseline, Typography, Button, Alert, Grid, Container, AppFrame, Paper, Stack, Title, Box} from '../components/ComponentsIndex'
 
 interface User{
     userId: string,

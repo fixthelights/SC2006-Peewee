@@ -1,24 +1,12 @@
 import * as React from "react";
-import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
-import Grid from "@mui/material/Grid";
-import Paper from "@mui/material/Paper";
 import { useNavigate } from "react-router-dom";
-import Link from "@mui/material/Link";
 import axios from "axios";
 import { useState, useEffect } from "react";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Title from "../components/Title";
-import { useTheme } from "@mui/material/styles";
 import MapComponent from "../components/Map";
-import Stack from "@mui/material/Stack";
-import AppFrame from "../components/AppFrame";
 import {TrafficChart} from "../components/TrafficChart"
 import {jwtDecode} from 'jwt-decode';
+import {Table, TableBody, TableCell, TableHead, TableRow} from '../components/TableIndex'
+import {useTheme, createTheme, ThemeProvider, CssBaseline, Grid, Paper, Link, Stack, AppFrame, Title} from '../components/ComponentsIndex'
 
 const drawerWidth: number = 240;
 
