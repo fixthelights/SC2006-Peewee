@@ -118,6 +118,8 @@ export default function Map() {
   const originRef = React.useRef<HTMLInputElement>(null);
   const destinationRef = React.useRef<HTMLInputElement>(null);
 
+  const routePolyline: React.MutableRefObject<any> = React.useRef();
+
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: "AIzaSyCn6_wKG_mP0YI_eVctQ5zB50VuwMmzoWQ",
     libraries: libraries, // Move array outside of functional component
@@ -235,14 +237,6 @@ export default function Map() {
 
     setDirectionsResponse(results);
 
-    
-  if (
-    originRef.current?.value === "" ||
-    destinationRef.current?.value === ""
-  ) {
-    return;
-  }
-
   const originQuery = originRef.current?.value;
   const destinationQuery = destinationRef.current?.value;
 
@@ -285,70 +279,16 @@ export default function Map() {
     return null;
   }
 
-  /*async function calculateRoute() {
-    try {
-      if (!originRef.current || !destinationRef.current) {
-        return;
-      }
-  
-      const originQuery = originRef.current.value;
-      const destinationQuery = destinationRef.current.value;
-  
-      if (!originQuery || !destinationQuery) {
-        return;
-      }
-  
-      clearRender();
-  
-      const [originResults, destinationResults] = await Promise.all([
-        findPlaceDetails(originQuery),
-        findPlaceDetails(destinationQuery),
-      ]);
-  
-      const originLocation = extractCoordinates(originResults);
-      const destinationLocation = extractCoordinates(destinationResults);
-  
-      console.log("Origin Location:", originLocation, originRef.current!.value);
-      console.log("Destination Location:", destinationLocation, destinationRef.current!.value);
-  
-      if (!originLocation || !destinationLocation) {
-        console.error('Failed to get details for origin or destination');
-        return;
-      }
-  
-      const directionsService = new google.maps.DirectionsService();
-  
-      const results = await directionsService.route({
-        origin: originLocation,
-        destination: destinationLocation,
-        travelMode: google.maps.TravelMode.DRIVING,
-      });
-  
-      setDirectionsResponse(results);
-      const newRouteData: RouteData = {
-        favourited_by: userId,
-        source: {
-          longitude: originLocation.lng,
-          latitude: originLocation.lat,
-          address: originRef.current!.value,
-        },
-        destination: {
-          longitude: destinationLocation.lng,
-          latitude: destinationLocation.lat,
-          address: destinationRef.current!.value,
-        },
-      };
-      setRouteData(newRouteData);
-    } catch (error) {
-      console.error('Error in calculateRoute:', error);
-    }
-  }*/
-
-function clearRender(){
+/*function clearRender(){
   if (directionsRenderer) {
   directionsRenderer.setMap(null);
   setDirectionsRenderer(null);
-}}
+}}*/
+
+function clearRoute(){
+  directionsRenderer?.setMap(null)
+  setDirectionsResponse(null)
+}
 
 async function saveRoute() {
 
@@ -467,7 +407,7 @@ const SaveRouteMessage= () => {
             <Button
               variant="contained"
               onClick={() => {
-                clearRender();
+                clearRoute();
                 calculateRoute();
               }}
             >

@@ -310,7 +310,7 @@ exports.updateUser = async (req :Request, res :Response) => {
 // Delete a user by ID
 exports.deleteUser = async (req :Request, res :Response) => {
     try {
-        const userId = req.body.userId;
+        const userId = req.params.userId;
         const user = await User.findByIdAndDelete({_id : userId});
 
         if (!user) {
