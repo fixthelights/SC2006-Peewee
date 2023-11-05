@@ -73,11 +73,9 @@ export default function ResetPassword() {
         return <Alert severity="error">Password does not meet the requirements.</Alert>
       } else if(!isRetypedPasswordValid){
         return <Alert severity="error">Retyped password has to be the same as password.</Alert>
-      } else if (!isPasswordUpdated){
-        return <Alert severity="error">Failed to update password. Please try again.</Alert>
-      } else {
+      } else if (isPasswordUpdated){
         return <Alert severity="success">Password has been changed.</Alert>
-      }
+      } 
     }
     return null;
   }
@@ -152,7 +150,7 @@ export default function ResetPassword() {
             Reset Password
           </Button>
         </Grid></>
-                <Grid item>
+                <Grid item xs={12}>
                   <PasswordMessage />
                 </Grid>
                 </Grid>

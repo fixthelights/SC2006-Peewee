@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useContext } from 'react'
 import { RecoveryContext, delayTime } from '../../pages/PasswordRecovery';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { MuiOtpInput } from 'mui-one-time-password-input'
 import {createTheme, ThemeProvider, CssBaseline, Box, Typography, Button, Alert, Grid, Paper, Link, Photo} from '../ComponentsIndex'
 
@@ -18,7 +18,7 @@ export default function OTPInput() {
   const [enteredOTP, setEnteredOTP] = useState('');
   const [isCorrectOTP, setIsCorrectOTP] = useState({} as boolean)
   const [isOTPSent, setIsOTPSent] = useState(false);
-  const { email, otp, setPage, page } = useContext(RecoveryContext)
+  const { email, otp, setOTP, setPage } = useContext(RecoveryContext)
   const [timerCount, setTimer] = React.useState(60);
   const [disable, setDisable] = useState(true);
 
@@ -45,12 +45,18 @@ export default function OTPInput() {
   function resendOTP() {
     if (disable) return;
     axios.post('http://localhost:2000/users/forget-password', { email : email })
+    .then((response : AxiosResponse) => setOTP(response?.data.otp.token))
     .then(() => setDisable(true))
     .then(() => alert("A new OTP has succesfully been sent to your email."))
     .then(() => setTimer(60))
     .catch(console.log);
   }
 
+  // Print OTP when updated
+  useEffect(() => {
+    console.log(otp);
+  }, [otp]);
+  
   // Countdown timer for resend OTP
   useEffect(() => {
     let interval = setInterval(() => {
@@ -81,7 +87,7 @@ export default function OTPInput() {
     if (isOTPSent && !isCorrectOTP) {
       return <Alert severity="error"> Wrong OTP entered, please try again </Alert> ;
     } else if (isOTPSent && isCorrectOTP) {
-      return <Alert severity="success"> Correct OTP, please reset your password </Alert> ;
+      return <Alert severity="success"> Verified, please reset your password </Alert> ;
     }
     return null;
   };

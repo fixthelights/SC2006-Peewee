@@ -1,19 +1,34 @@
 import React, { FC } from 'react';
 import { useState , useEffect } from 'react';
+import PropTypes from 'prop-types';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
-import {createTheme, ThemeProvider, CssBaseline, Box, Typography, Button, Alert, Grid, Paper, Avatar, TextField, Link, LockOutlinedIcon, Photo} from '../components/ComponentsIndex'
+import {createTheme, ThemeProvider, CssBaseline, Box, Typography, Button, Alert, Grid, Paper, Avatar, TextField, Link, LockOutlinedIcon, Photo} from '../components/ComponentsIndex';
+import { AuthManager } from '../classes/AuthManager';
+import { error } from 'console';
 
+const authController = new AuthManager();
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
-export default function Login() {
+interface LoginProps {
+  redirectPath?: string;
+  // setLoggedIn?: (value: boolean) => void;
+}
+Login.propTypes = {
+  redirectPath: PropTypes.string,
+  // setLoggedIn: PropTypes.func
+}
+
+// export default function Login({redirectPath, setLoggedIn} : LoginProps) {
+export default function Login({redirectPath} : LoginProps) {
+// export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
  
   // States for checking the errors
-  const [isValidUser, setIsValidUser] = useState(true);
+  const [isValidUser, setIsValidUser] = useState({} as boolean);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   useEffect( () => {
@@ -22,42 +37,48 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      // If user logged in, redirect to next page and end function call
-      if (await isUserLoggedIn()) {
-        return;
-      };
-      
-      // Make login request to server
-      const response = await axios.post('http://localhost:2000/users/login', {
+      // If user not logged in, make login request
+      if (!authController.isAuthenticated()) {
+        // Check if email or password is null
+        if (email === "" || password === "") {throw new Error("User not logged in")}
+        
+        // Make login request to server
+        const response = await axios.post('http://localhost:2000/users/login', {
           email: email,
           password: password
         })
-  
 
-      // Get JWT from backend
-      const userJwt = JSON.parse(JSON.stringify(response.data.token));
+        // Get JWT from backend
+        const userJwt = JSON.parse(JSON.stringify(response.data.token));
 
-      // Store User JWT into local storage
-      localStorage.setItem('token', JSON.stringify(userJwt));
+        console.log(userJwt);
+        // Store User JWT into local storage
+        localStorage.setItem('token', JSON.stringify(userJwt));
 
-      console.log(userJwt)
 
-      if (userJwt==null){
-        return
+        // // Validate JWT with backend - Check if token still valid
+        // const loggedIn = await axios.post(`http://localhost:2000/users/auth`, { jwt: userJwt });
+
       }
-      // Validate JWT with backend - Check if token still valid
-      const loggedIn = await axios.post(`http://localhost:2000/users/auth`, { jwt: userJwt });
 
-       // Redirect to dashboard
-        if (loggedIn.data === true) {
-          navigate("/dashboard");
-        } 
-      
-    } catch (error) {
+      // If user is logged in, redirect to dashboard
+      // if (setLoggedIn) {
+      //   setLoggedIn(true);
+      // }
+
+      setIsValidUser(true);
+      navigate(redirectPath? redirectPath : "/dashboard");
+      reloadPage();
+
+      // window.location.reload();
+      // return <Navigate replace={true} to={redirectPath? redirectPath : "/dashboard"} />;
+
+    } catch (error : any) {
+      if (error.response?error.response.status:null === 401) {
+        setIsValidUser(false);
+      }
+      console.log(error);
       console.log("Invalid login");
-    }
-    if (isSubmitted){
-      setIsValidUser(false)
     }
   }
   
@@ -67,22 +88,24 @@ export default function Login() {
     handleLogin();
   };
 
-  async function isUserLoggedIn() {
-    // Check if JWT exists in local storage
-    let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
+  // async function isUserLoggedIn() {
+  //   // Check if JWT exists in local storage
+  //   let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
 
-    // Validate JWT with backend - Check if token still valid
-    const loggedIn = await axios.post(`http://localhost:2000/users/auth`, { jwt: userJwt });
+  //   // Validate JWT with backend - Check if token still valid
+  //   const loggedIn = await axios.post(`http://localhost:2000/users/auth`, { jwt: userJwt });
     
-    console.log(userJwt);
+  //   console.log(userJwt);
     
-    // If already logged in, redirect to next page
-    if (loggedIn.data === true) {
-      navigate("/dashboard");
-      return true;
-    }
-    return false;
-  }
+  //   // If already logged in, redirect to next page
+  //   if (loggedIn.data === true) {
+  //     setLoggedIn(true);
+  //     setIsValidUser(true);
+  //     navigate("/dashboard");
+  //     return true;
+  //   }
+  //   return false;
+  // }
 
   // Handling the email change
   function handleEmail(event: React.ChangeEvent<HTMLInputElement>) {
@@ -103,9 +126,22 @@ export default function Login() {
     });
   };
 
+  function reloadPage() {
+    // The last "domLoading" Time
+    var currentDocumentTimestamp = new Date(performance.timing.domLoading).getTime();
+    // Current Time 
+    var now = Date.now();
+    // Allow reload every 1 second
+    var oneSecondDelay = currentDocumentTimestamp + 1000;
+    if (now > oneSecondDelay) {
+      window.location.reload();
+    } else {}
+  }
+
   const Message = () => {
     if (isSubmitted){
       if (!isValidUser) {
+        console.log("Is valid user = ", isValidUser);
         return <Alert severity="info">Invalid User.</Alert>
       }
       return null;
@@ -202,3 +238,4 @@ export default function Login() {
     </ThemeProvider>
   );
 }
+
