@@ -129,45 +129,46 @@ function Landing() {
                 >
                     Log In
                 </Button>
+                </Stack>
                 {/*<Button 
                     variant="contained" 
                     onClick={testBackend}
                 >
                     Log In
                 </Button>*/}
-            </Stack>
             </div>
-            <div>
             <div className="Landing-content-2">
-            <Stack direction='column'>
-            <Stack 
-                spacing={15}
-                direction='row'
-                useFlexGap flexWrap="wrap"
-                sx={{pl: 5, pb:2}}
-        >
+            <Stack direction="column">
+                <Grid container spacing={5} style={{marginTop:"20px"}} sx={{justifyContent:'center'}}>
+                <Grid item>
                 <ActionAreaCard 
                     image={DataPhoto}
                     title='Data-driven'
                     description='Harness real-time traffic image data to show the latest traffic conditions'/>
+                </Grid>
+                <Grid item>
                 <ActionAreaCard 
                     image={AIPhoto}
                     title='AI-powered'
                     description='Utilises artificial intelligence to provide real-time analysis of traffic'/>
+                </Grid>
+                <Grid item>
                 <ActionAreaCard 
                     image={HMPhoto}
                     title='Traffic visualisation'
                     description='Plots heatmaps and traffic pointers to enable better visualisation of traffic conditions'/>
+                </Grid>
+                <Grid item>
                 <ActionAreaCard 
                     image={SearchPhoto}
                     title='Route finder'
                     description='Seamless searching of driving routes'/>
-                </Stack>
-                <StickyFooter />
-                </Stack>
+                </Grid>
+                </Grid>
                 {/*</Box>*/}
-        </div>
-        </div>
+                <StickyFooter />
+                    </Stack>
+                </div>
         </div>
     );
 };
