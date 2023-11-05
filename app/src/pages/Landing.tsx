@@ -2,7 +2,7 @@ import React from "react";
 import './Landing.css'
 import { useNavigate } from "react-router-dom";
 import axios from 'axios'
-import {Button, Stack, Box, Container} from '../components/ComponentsIndex'
+import {Button, Stack, Box, Container, Grid} from '../components/ComponentsIndex'
 import {ActionAreaCard} from "../components/ActionAreaCard";
 import Photo from '../assets/Landing2.jpg'
 import DataPhoto from '../assets/Data2.png'
@@ -137,23 +137,14 @@ function Landing() {
                 </Button>*/}
             </Stack>
             </div>
-            <div className="Landing-2">
+            <div>
             <div className="Landing-content-2">
-            {/*<Box
-                sx={{
-                    display: "flex",
-                    flexDirection:"row",
-                    alignItems: "center",
-                    alignContent: "center",
-                    justifyContent: "center",
-                    height: "100px",
-                    pt: 23
-                }}
-            >*/}
+            <Stack direction='column'>
             <Stack 
-                spacing={10}
+                spacing={15}
                 direction='row'
                 useFlexGap flexWrap="wrap"
+                sx={{pl: 5, pb:2}}
         >
                 <ActionAreaCard 
                     image={DataPhoto}
@@ -172,10 +163,9 @@ function Landing() {
                     title='Route finder'
                     description='Seamless searching of driving routes'/>
                 </Stack>
+                <StickyFooter />
+                </Stack>
                 {/*</Box>*/}
-        </div>
-        <div>
-        <StickyFooter />
         </div>
         </div>
         </div>

@@ -7,9 +7,6 @@
 
 .Landing-2 {
     height: 22vh;
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: top center;
 }
 
 .Landing-content {
@@ -27,8 +24,6 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    align-items: bottom;
-    padding-right: 80px;
     color: black;
 }
 
@@ -46,7 +41,6 @@
         justify-content: center;
     }
     .Landing-content-2 {
-        align-items: flex-end;
         justify-content: center;
     }
 }
