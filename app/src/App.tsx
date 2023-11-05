@@ -8,7 +8,7 @@ import {
 //import MapSection from './components/Map' // import the map here
 import './App.css'
 import PrivateRoute from './components/PrivateRoute';
-  
+
 function App() {
   return (
     <div>
