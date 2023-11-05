@@ -12,12 +12,14 @@ import Grid from "@mui/material/Grid";
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
-import {TrafficChart} from "../components/SpecificTrafficChart"
+import {TrafficChart} from "../components/TrafficChart"
 import React from "react";
 import Title from "../components/Title";
+import {Paper} from '../components/ComponentsIndex'
 
 interface Traffic {
-  vehicle_count: number;
+  vehicle_avg: number;
+  vehicle_total: number;
   time_of_day: string;
 }
 
@@ -57,7 +59,7 @@ export default function CameraPage() {
   const [isTrafficLoaded, setIsTrafficLoaded] = useState(false);
   const [isCurrentTrafficLoaded, setIsCurrentTrafficLoaded] = useState(false);
   const [trafficData, setTrafficData] = useState([]);
-  const [currentCarCount, setCurrentCarCount] = useState<number | null>(null);
+  const [currentCarCount, setCurrentCarCount] = useState<number>(0);
 
   const [timeRetrieved, setTimeRetrieved] = useState<string>("");
   
@@ -131,60 +133,76 @@ export default function CameraPage() {
 
   const TrafficTrend = () => {
     if (isTrafficLoaded && isCurrentTrafficLoaded) {
-      let time = timeRetrieved ? timeRetrieved.split(",")[1] : "";
-      let currentHour = 12;
-      let i = 0;
-      while (isNaN(parseInt(time[i]))) {
+      let time = timeRetrieved.split(",")[1]
+      let currentHour = 12
+      let i=0
+      while (isNaN(parseInt(time[i]))){
         i++;
       }
-      if (time[i + 1] === ":") {
-        if (time.slice(-2) === "pm") {
-          currentHour += parseInt(time[i]);
-        } else {
-          currentHour = parseInt(time[i]);
-        }
+      if (time[i+1]==':'){
+          if (time.toLowerCase().includes("pm")){ //1-9pm => 13-21:00
+            currentHour += parseInt(time[i])
+          }
+          else {
+            currentHour = parseInt(time[i]) //1-9am => 1-9:00
+          }
       } else {
-        if (time.slice(-2) === "pm") {
-          currentHour += parseInt(time.substring(i, i + 2));
+        if (time.substring(i,i+2)==='12'){
+          if (time.toLowerCase().includes('am')){ //12am -> 0:00
+            currentHour=0 
+          } else {
+            currentHour=12 //12pm -> 12:00
+          } 
+        } else if(time.toLowerCase().includes("pm")){
+          currentHour += parseInt(time.substring(i,i+2)) //10-11pm -> 22-23:00
         } else {
-          currentHour = parseInt(time.substring(i, i + 2));
+          currentHour = parseInt(time.substring(i,i+2)) // 10-11am -> 10-11:00
         }
       }
-      
-  
+
       let data: Array<{ time: string; trend: number | null; current: number | null }> = [];
       let average = 0;
       trafficData.forEach((traffic: Traffic) => {
         if (parseInt(traffic["time_of_day"]) < 10) {
-          if (currentHour == parseInt(traffic["time_of_day"])) {
+          if (currentHour == parseInt(traffic["time_of_day"])){
             data.push(
               createData(
                 "0" + traffic["time_of_day"] + ":00",
-                traffic["vehicle_count"],
-                currentCarCount!
+                traffic["vehicle_total"], currentCarCount
               )
             );
           } else {
             data.push(
-              createData("0" + traffic["time_of_day"] + ":00", traffic["vehicle_count"], null)
+              createData(
+                "0" + traffic["time_of_day"] + ":00",
+                traffic["vehicle_total"], null
+              )
             );
           }
         } else {
-          if (currentHour == parseInt(traffic["time_of_day"])) {
+          if (currentHour == parseInt(traffic["time_of_day"])){
             data.push(
-              createData(traffic["time_of_day"] + ":00", traffic["vehicle_count"], currentCarCount!)
+              createData(
+                traffic["time_of_day"] + ":00",
+                traffic["vehicle_total"], currentCarCount
+              )
             );
           } else {
-            data.push(createData(traffic["time_of_day"] + ":00", traffic["vehicle_count"], null));
+            data.push(
+              createData(
+                traffic["time_of_day"] + ":00",
+                traffic["vehicle_total"], null
+              )
+            );
           }
         }
-        average += traffic["vehicle_count"];
+        average += traffic["vehicle_total"];
       });
       average /= 24;
-  
+      
       return (
         <React.Fragment>
-          <TrafficChart carsNow={currentCarCount!} average={average} data={data} />
+          <TrafficChart carsNow={currentCarCount} average={average} data={data}/>
           <Link color="primary" href="#" sx={{ mt: 3 }}>
             See specific camera trends
           </Link>
@@ -230,6 +248,8 @@ export default function CameraPage() {
       }
     };
     fetchData();
+    getCurrentData()
+    getTrafficData()
   }, []);
 
 
@@ -388,7 +408,21 @@ export default function CameraPage() {
             )}
           </Container>
         )}
-        
+        <Grid container spacing={3}>
+              {/* Chart */}
+              <Grid item xs={12} md={6} lg={6}>
+                <Paper
+                  sx={{
+                    p: 2,
+                    display: "flex",
+                    flexDirection: "column",
+                    height: 450,
+                  }}
+                >
+                  <TrafficTrend />
+                </Paper>
+              </Grid>
+              </Grid>
       </AppFrame>
     </ThemeProvider>
   );
