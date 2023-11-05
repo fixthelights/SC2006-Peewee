@@ -17,22 +17,11 @@ interface ActionAreaCardProps{
 
 const ActionAreaCard: React.FC<ActionAreaCardProps> = ({image, title, description}) => {
   return (
-    <Box
-    sx={{
-        display: "flex",
-        flexDirection:"row",
-        alignItems: "center",
-        alignContent: "center",
-        justifyContent: "center",
-        height: "100px",
-        pt: 23
-    }}
->
-    <Card sx={{ width: 345, height: 300}}>
+    <Card sx={{ width: 345, height: 320}}>
       <CardActionArea>
         <CardMedia
           component="img"
-          height="190"
+          height="200"
           image={image}
           alt="green iguana"
         />
@@ -46,7 +35,6 @@ const ActionAreaCard: React.FC<ActionAreaCardProps> = ({image, title, descriptio
         </CardContent>
       </CardActionArea>
     </Card>
-    </Box>
   );
 };
 
