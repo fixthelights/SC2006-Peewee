@@ -18,8 +18,9 @@ import Title from "../components/Title";
 import {Paper} from '../components/ComponentsIndex'
 
 interface Traffic {
-  vehicle_avg: number;
-  vehicle_total: number;
+  vehicle_avg?: number;
+  vehicle_total?: number;
+  vehicle_count?: number;
   time_of_day: string;
 }
 
@@ -173,9 +174,10 @@ export default function CameraPage() {
     if (isTrafficLoaded) {
       const data = trafficData.map((item: Traffic) => ({
         time: item.time_of_day,
-        trend: item.vehicle_avg,
+        trend: item.vehicle_count ? item.vehicle_count : null, 
         current: null,
       }));
+      console.log(data);
   
       const carsNow = currentCarCount; // Use the actual current car count
       const average = data.reduce((acc, curr) => acc + (curr.trend || 0), 0) / data.length; // Calculate the average
@@ -277,6 +279,8 @@ export default function CameraPage() {
     if (hasFoundCamera) {
       setCameraName(inputCameraName);
       setError(null);
+
+
     } else {
       setCameraName(inputCameraName);
       setCameraData(null);
