@@ -12,14 +12,16 @@ import Grid from "@mui/material/Grid";
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
-import {TrafficChart} from "../components/TrafficChart"
+import {TrafficChart} from "../components/SpecificTrafficChart"
 import React from "react";
 import Title from "../components/Title";
 import {Paper} from '../components/ComponentsIndex'
+import { animateScroll as scroll } from 'react-scroll';
 
 interface Traffic {
-  vehicle_avg: number;
-  vehicle_total: number;
+  vehicle_avg?: number;
+  vehicle_total?: number;
+  vehicle_count?: number;
   time_of_day: string;
 }
 
@@ -173,18 +175,22 @@ export default function CameraPage() {
     if (isTrafficLoaded) {
       const data = trafficData.map((item: Traffic) => ({
         time: item.time_of_day,
-        trend: item.vehicle_avg,
+        trend: item.vehicle_count ? item.vehicle_count : null, 
         current: null,
       }));
+      console.log(data);
   
       const carsNow = currentCarCount; // Use the actual current car count
       const average = data.reduce((acc, curr) => acc + (curr.trend || 0), 0) / data.length; // Calculate the average
   
+
       return (
-        <React.Fragment>
+          <React.Fragment>
           <TrafficChart data={data} carsNow={carsNow} average={average} />
           <Link color="primary" href="#" sx={{ mt: 3 }}>
-            See overall traffic trends
+          <Container sx={{ my: 3 }}>
+          
+          </Container>
           </Link>
         </React.Fragment>
       );
@@ -277,6 +283,8 @@ export default function CameraPage() {
     if (hasFoundCamera) {
       setCameraName(inputCameraName);
       setError(null);
+
+
     } else {
       setCameraName(inputCameraName);
       setCameraData(null);
@@ -296,10 +304,10 @@ export default function CameraPage() {
   return (
     <ThemeProvider theme={defaultTheme}>
       <CssBaseline />
-      <AppFrame pageName="Camera Page">
+      <AppFrame pageName="Road Conditions Page">
         <Container sx={{ my: 3 }}>
           <Typography variant="h6" sx={{ mb: 2 }}>
-            Search for Camera Location
+            Search for Camera 
           </Typography>
           <Grid container spacing={2} alignItems="center">
             <Grid item xs={12} sm={6}>
@@ -319,9 +327,61 @@ export default function CameraPage() {
             </Grid>
           </Grid>
         </Container>
-        <Container sx={{ my: 3 }}>
+      
+        {showTrafficChart && cameraData && (
+          <Container sx={{ my: 2 }}>
+            <Card sx={{ maxWidth: 800, marginBottom: 1 }}>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Camera Details
+                </Typography>
+                <Typography variant="body1" sx={{ mb: 1 }}>
+                  Camera ID: {cameraData.camera_id}
+                </Typography>
+                {date && (
+                <Typography variant="body1" sx={{ mb: 1 }}>
+                  Date: {date.toLocaleString('en-US')}
+                </Typography>
+              )}
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                Latitude: {cameraData.location.lat}
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                Longitude: {cameraData.location.long}
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                Vehicle Count: {cameraData.vehicle_count}
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                Peakedness: {cameraData.peakedness}
+              </Typography>
+              {cameraData.url && (
+                <img src={cameraData.url} alt="Camera Feed" style={{ maxWidth: "100%" }} />
+              )}
+            </CardContent>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                
+              </Typography>
+              <Paper
+                sx={{
+                p: 2,
+                display: "flex",
+                flexDirection: "column",
+                height: 500,
+                width: 500
+
+              }}
+            >
+          <TrafficTrend cameraId={cameraData.camera_id} />
+        </Paper>
+      </CardContent>
+    </Card>
+  </Container>
+)}
+<Container sx={{ my: 3 }}>
           <Typography variant="h6" sx={{ mb: 2 }}>
-            Active Cameras
+            Live Active Cameras 
           </Typography>
           <Grid container spacing={2}>
             {cameraIds.map((cameraId, index) => {
@@ -339,7 +399,9 @@ export default function CameraPage() {
                         />
                       </CardActions>
                       <CardContent>
-      
+                        <Typography variant="h6" gutterBottom>
+                          Camera: {cameraData.camera_name}
+                        </Typography>
                         <Typography variant="body2" color="text.secondary">
                           Vehicle Count: {cameraData.vehicle_count}
                         </Typography>
@@ -359,59 +421,9 @@ export default function CameraPage() {
             <Alert severity="error">{error}</Alert>
           </Container>
         )}
-        {showTrafficChart && cameraData && (
-          <Container sx={{ my: 3 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              Camera Details
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 1 }}>
-              Camera ID: {cameraData.camera_id}
-            </Typography>
-            {date && (
-              <Typography variant="body1" sx={{ mb: 1 }}>
-                Date: {date.toLocaleString('en-US')}
-              </Typography>
-            )}
-            <Typography variant="body1" sx={{ mb: 1 }}>
-              Latitude: {cameraData.location.lat}
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 1 }}>
-              Longitude: {cameraData.location.long}
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 1 }}>
-              Vehicle Count: {cameraData.vehicle_count}
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 1 }}>
-              Peakedness: {cameraData.peakedness}
-            </Typography>
-            {cameraData.url && (
-              <img src={cameraData.url} alt="Camera Feed" style={{ maxWidth: "100%" }} />
-            )}
-          </Container>
-        )}
-        <Grid container spacing={3}>
-        {/* Chart for Camera 1 */}
-        <Grid item xs={12} md={6} lg={6}>
-          <Paper
-            sx={{
-              p: 2,
-              display: "flex",
-              flexDirection: "column",
-              height: 450,
-            }}
-          >
-            {showTrafficChart && cameraData && (
-              <TrafficTrend cameraId={cameraData.camera_id} />
-            )}
-          </Paper>
-        </Grid>
-      </Grid>
-
-      </AppFrame>
-    </ThemeProvider>
-  );
-
-
+       </AppFrame>
+       </ThemeProvider>
+    );
   
 }
 
