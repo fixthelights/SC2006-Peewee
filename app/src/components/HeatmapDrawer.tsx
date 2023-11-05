@@ -1,5 +1,6 @@
 import { cellToBoundary } from "h3-js";
 import { PolygonF } from "@react-google-maps/api"
+import { memo } from "react";
 
 interface HeatmapDrawerProps{
     peakMap: HexIndexPeak[]
@@ -49,8 +50,9 @@ const generateOptions = (avgPeakedness: number) => {
 
   return (
     <>
-        {peakMap.map((hexIndexPeak) => (
+        {peakMap.map((hexIndexPeak,index) => (
             <PolygonF
+            key={index}
             paths={generatePaths(hexIndexPeak.hexIndex)}
             options={generateOptions(hexIndexPeak.avgPeakedness)}
         />
@@ -60,4 +62,4 @@ const generateOptions = (avgPeakedness: number) => {
 
 };
 
-export default HeatmapDrawer;
+export default memo(HeatmapDrawer);
