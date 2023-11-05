@@ -12,12 +12,14 @@ import Grid from "@mui/material/Grid";
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
-import {TrafficChart} from "../components/SpecificTrafficChart"
+import {TrafficChart} from "../components/TrafficChart"
 import React from "react";
 import Title from "../components/Title";
+import {Paper} from '../components/ComponentsIndex'
 
 interface Traffic {
-  vehicle_count: number;
+  vehicle_avg: number;
+  vehicle_total: number;
   time_of_day: string;
 }
 
@@ -33,6 +35,9 @@ interface CameraData {
   peakedness: number;
   url?: string;
 
+}
+interface TrafficTrendProps {
+  cameraId: string;
 }
 
 
@@ -57,21 +62,31 @@ export default function CameraPage() {
   const [isTrafficLoaded, setIsTrafficLoaded] = useState(false);
   const [isCurrentTrafficLoaded, setIsCurrentTrafficLoaded] = useState(false);
   const [trafficData, setTrafficData] = useState([]);
-  const [currentCarCount, setCurrentCarCount] = useState<number | null>(null);
+  const [currentCarCount, setCurrentCarCount] = useState<number>(0);
+  const [showTrafficChart, setShowTrafficChart] = useState(false);
 
   const [timeRetrieved, setTimeRetrieved] = useState<string>("");
   
 
-  const getTrafficData = () => {
+  const getTrafficData = (cameraId: string) => {
     axios
-      .get("http://localhost:2000/traffic/combined-trends")
-      .then((res) => setTrafficData(res.data.hourly_counts))
-      .then((res) => setIsTrafficLoaded(true))
+      .get(`http://localhost:2000/traffic/trends/${cameraId}`)
+      .then((res) => {
+        if (res.status === 200) {
+          setTrafficData(res.data.hourly_counts);
+          setIsTrafficLoaded(true);
+        } else {
+          console.error("Failed to fetch data: Invalid status code");
+          setIsTrafficLoaded(false);
+        }
+      })
       .catch(function (error) {
-        console.log(error);
+        console.error("Failed to fetch data:", error);
         setIsTrafficLoaded(false);
       });
   };
+  
+  
 
   const getTrafficCameraData = async () => {
     try {
@@ -103,11 +118,11 @@ export default function CameraPage() {
     }
   };
 
-  const getCurrentData = () => {
+  const getCurrentData = (cameraId: string) => {
     axios
-      .get("http://localhost:2000/traffic/combined-conditions")
+      .get(`http://localhost:2000/traffic/trends/6529c74f46a5bed4455081c7`)
       .then((res) => {
-        setCurrentCarCount(res.data['vehicle_total'] ?? 0);
+        setCurrentCarCount(res.data['vehicle_count'] ?? 0);
         setTimeRetrieved(res.data['taken_at']);
       })
       .then((res) => setIsCurrentTrafficLoaded(true))
@@ -129,64 +144,47 @@ export default function CameraPage() {
   }
 
 
-  const TrafficTrend = () => {
-    if (isTrafficLoaded && isCurrentTrafficLoaded) {
-      let time = timeRetrieved ? timeRetrieved.split(",")[1] : "";
-      let currentHour = 12;
-      let i = 0;
-      while (isNaN(parseInt(time[i]))) {
-        i++;
-      }
-      if (time[i + 1] === ":") {
-        if (time.slice(-2) === "pm") {
-          currentHour += parseInt(time[i]);
-        } else {
-          currentHour = parseInt(time[i]);
-        }
-      } else {
-        if (time.slice(-2) === "pm") {
-          currentHour += parseInt(time.substring(i, i + 2));
-        } else {
-          currentHour = parseInt(time.substring(i, i + 2));
-        }
-      }
-      
+  const TrafficTrend: FC<TrafficTrendProps> = ({ cameraId }) => {
+    const [isTrafficLoaded, setIsTrafficLoaded] = useState(false);
+    const [trafficData, setTrafficData] = useState<Traffic[]>([]);
   
-      let data: Array<{ time: string; trend: number | null; current: number | null }> = [];
-      let average = 0;
-      trafficData.forEach((traffic: Traffic) => {
-        if (parseInt(traffic["time_of_day"]) < 10) {
-          if (currentHour == parseInt(traffic["time_of_day"])) {
-            data.push(
-              createData(
-                "0" + traffic["time_of_day"] + ":00",
-                traffic["vehicle_count"],
-                currentCarCount!
-              )
-            );
+    useEffect(() => {
+      getTrafficData(cameraId);
+    }, [cameraId]);
+  
+    const getTrafficData = (cameraId: string) => {
+      axios
+        .get(`http://localhost:2000/traffic/trends/6529c74f46a5bed4455081c7`)
+        .then((res) => {
+          if (res.status === 200) {
+            setTrafficData(res.data.hourly_counts);
+            setIsTrafficLoaded(true);
           } else {
-            data.push(
-              createData("0" + traffic["time_of_day"] + ":00", traffic["vehicle_count"], null)
-            );
+            console.error("Failed to fetch data: Invalid status code");
+            setIsTrafficLoaded(false);
           }
-        } else {
-          if (currentHour == parseInt(traffic["time_of_day"])) {
-            data.push(
-              createData(traffic["time_of_day"] + ":00", traffic["vehicle_count"], currentCarCount!)
-            );
-          } else {
-            data.push(createData(traffic["time_of_day"] + ":00", traffic["vehicle_count"], null));
-          }
-        }
-        average += traffic["vehicle_count"];
-      });
-      average /= 24;
+        })
+        .catch(function (error) {
+          console.error("Failed to fetch data:", error);
+          setIsTrafficLoaded(false);
+        });
+    };
+  
+    if (isTrafficLoaded) {
+      const data = trafficData.map((item: Traffic) => ({
+        time: item.time_of_day,
+        trend: item.vehicle_avg,
+        current: null,
+      }));
+  
+      const carsNow = currentCarCount; // Use the actual current car count
+      const average = data.reduce((acc, curr) => acc + (curr.trend || 0), 0) / data.length; // Calculate the average
   
       return (
         <React.Fragment>
-          <TrafficChart carsNow={currentCarCount!} average={average} data={data} />
+          <TrafficChart data={data} carsNow={carsNow} average={average} />
           <Link color="primary" href="#" sx={{ mt: 3 }}>
-            See specific camera trends
+            See overall traffic trends
           </Link>
         </React.Fragment>
       );
@@ -230,6 +228,8 @@ export default function CameraPage() {
       }
     };
     fetchData();
+    getCurrentData(cameraIds[0]); 
+  getTrafficData(cameraIds[0]);
   }, []);
 
 
@@ -289,6 +289,7 @@ export default function CameraPage() {
         value: cameraName
       }
     };
+    setShowTrafficChart(true);
     handleCameraNameChange(event as React.ChangeEvent<HTMLInputElement>);
   };
 
@@ -358,7 +359,7 @@ export default function CameraPage() {
             <Alert severity="error">{error}</Alert>
           </Container>
         )}
-        {cameraData && (
+        {showTrafficChart && cameraData && (
           <Container sx={{ my: 3 }}>
             <Typography variant="h6" sx={{ mb: 2 }}>
               Camera Details
@@ -388,7 +389,24 @@ export default function CameraPage() {
             )}
           </Container>
         )}
-        
+        <Grid container spacing={3}>
+        {/* Chart for Camera 1 */}
+        <Grid item xs={12} md={6} lg={6}>
+          <Paper
+            sx={{
+              p: 2,
+              display: "flex",
+              flexDirection: "column",
+              height: 450,
+            }}
+          >
+            {showTrafficChart && cameraData && (
+              <TrafficTrend cameraId={cameraData.camera_id} />
+            )}
+          </Paper>
+        </Grid>
+      </Grid>
+
       </AppFrame>
     </ThemeProvider>
   );
@@ -401,4 +419,3 @@ export default function CameraPage() {
 function createData(arg0: string, arg1: number, currentCarCount: number): { time: string; trend: number | null; current: number | null; } {
   throw new Error("Function not implemented.");
 }
-
