@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect, useContext } from 'react'
+import { useState, useContext } from 'react'
 import axios from 'axios';
-import { RecoveryContext, delayTime } from "../../pages/PasswordRecovery";
+import { RecoveryContext } from "../../pages/ForgetPassword";
 import {createTheme, ThemeProvider, CssBaseline, Box, Typography, Button, Alert, Grid, Paper, TextField, Link, Photo} from '../ComponentsIndex'
 
 // TODO remove, this demo shouldn't need to reset the theme.
@@ -15,8 +15,8 @@ export default function OTPResetEmail() {
   const [enteredEmail, setEnteredEmail] = useState('');
   const [isEmailSubmitted, setIsEmailSubmitted] = useState(false);
   const [isEmailValid, setIsEmailValid] = useState({} as boolean);
-  const { email, setEmail, setOTP, setPage } = useContext(RecoveryContext);
-  const [test, setTest] = useState(0);
+  const { setEmail, setOTP, setPage } = useContext(RecoveryContext);
+  const [test] = useState(0);
 
   // useEffect(() => {
   //   console.log("Component mounted or updated");

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState, useContext  } from 'react'
 import { AuthManager} from '../../classes/AuthManager';
-import { RecoveryContext, delayTime } from "../../pages/PasswordRecovery";
+import { RecoveryContext, delayTime } from "../../pages/ForgetPassword";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import {createTheme, ThemeProvider, CssBaseline, Box, Typography, Button, Alert, Grid, Paper, TextField, Photo} from '../ComponentsIndex'

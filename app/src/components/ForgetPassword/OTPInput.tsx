@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useContext } from 'react'
-import { RecoveryContext, delayTime } from '../../pages/PasswordRecovery';
+import { RecoveryContext, delayTime } from '../../pages/ForgetPassword';
 import axios, { AxiosResponse } from 'axios';
 import { MuiOtpInput } from 'mui-one-time-password-input'
 import {createTheme, ThemeProvider, CssBaseline, Box, Typography, Button, Alert, Grid, Paper, Link, Photo} from '../ComponentsIndex'

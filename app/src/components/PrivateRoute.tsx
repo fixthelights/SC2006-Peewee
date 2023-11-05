@@ -1,14 +1,7 @@
 import * as React from "react";
-import { Navigate, redirect } from "react-router-dom";
 import { AuthManager} from '../classes/AuthManager';
-import Stack from '@mui/material/Stack';
-import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
-import IconButton from '@mui/material/IconButton';
-import Collapse from '@mui/material/Collapse';
-import CloseIcon from '@mui/icons-material/Close';
 import Login from "../pages/Login";
-import Fade from '@mui/material/Fade';
+import { Snackbar, Alert, IconButton, Collapse, CloseIcon } from "../components/ComponentsIndex";
 
 const auth = new AuthManager()
 
@@ -30,7 +23,6 @@ const PrivateRoute = ({ children }: PrivateRouteProps) => {
     React.useEffect(() => {
         const isAuthenticated = auth.isAuthenticated();
         setLoggedIn(isAuthenticated);
-        console.log("User login return =", isAuthenticated);
     }, [loggedIn]);
 
 
@@ -64,7 +56,7 @@ const PrivateRoute = ({ children }: PrivateRouteProps) => {
                         </Alert>
                     </Collapse>
                 </Snackbar>
-                <Login /> 
+                <Login children={children}/> 
                 
                 {/* {loggedIn ? <>{children}</> : <Navigate to={redirectPath} />} */}
             </>

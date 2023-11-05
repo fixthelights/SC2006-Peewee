@@ -74,7 +74,7 @@ class AuthManager{
             if (userJwt === null) return false;
             const decodedJwt = jwtDecode(userJwt);
             const now = Date.now() / 1000;
-            console.log(decodedJwt.exp, now);
+            // console.log(decodedJwt.exp, now);
             if (decodedJwt.exp !== undefined && decodedJwt.exp > now) {
                 return true;
             } else {
