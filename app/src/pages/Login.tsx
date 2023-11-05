@@ -1,27 +1,27 @@
-import React, { FC } from 'react';
+import React from 'react';
 import { useState , useEffect } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import {createTheme, ThemeProvider, CssBaseline, Box, Typography, Button, Alert, Grid, Paper, Avatar, TextField, Link, LockOutlinedIcon, Photo} from '../components/ComponentsIndex';
 import { AuthManager } from '../classes/AuthManager';
-import { error } from 'console';
+
 
 const authController = new AuthManager();
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 interface LoginProps {
-  redirectPath?: string;
+  children?: React.ReactNode;
   // setLoggedIn?: (value: boolean) => void;
 }
 Login.propTypes = {
-  redirectPath: PropTypes.string,
+  children: PropTypes.node,
   // setLoggedIn: PropTypes.func
 }
 
 // export default function Login({redirectPath, setLoggedIn} : LoginProps) {
-export default function Login({redirectPath} : LoginProps) {
+export default function Login({ children }: LoginProps) {
 // export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -67,18 +67,24 @@ export default function Login({redirectPath} : LoginProps) {
       // }
 
       setIsValidUser(true);
-      navigate(redirectPath? redirectPath : "/dashboard");
-      reloadPage();
+      if (children) {
+        return (
+          <>
+            {children}
+            {reloadPage()}
+          </>
+        );
+      }
+      navigate("/dashboard");
+      
 
-      // window.location.reload();
       // return <Navigate replace={true} to={redirectPath? redirectPath : "/dashboard"} />;
 
     } catch (error : any) {
       if (error.response?error.response.status:null === 401) {
         setIsValidUser(false);
       }
-      console.log(error);
-      console.log("Invalid login");
+      console.log("User not logged in");
     }
   }
   
