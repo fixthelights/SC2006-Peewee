@@ -137,7 +137,9 @@ function Landing() {
                 </Button>*/}
             </Stack>
             </div>
-            <Box
+            <div className="Landing-2">
+            <div className="Landing-content-2">
+            {/*<Box
                 sx={{
                     display: "flex",
                     flexDirection:"row",
@@ -147,14 +149,12 @@ function Landing() {
                     height: "100px",
                     pt: 23
                 }}
-            >
+            >*/}
             <Stack 
                 spacing={10}
                 direction='row'
-                alignContent='center'
-                justifyContent='center'
                 useFlexGap flexWrap="wrap"
-            >
+        >
                 <ActionAreaCard 
                     image={DataPhoto}
                     title='Data-driven'
@@ -172,8 +172,12 @@ function Landing() {
                     title='Route finder'
                     description='Seamless searching of driving routes'/>
                 </Stack>
-                </Box>
-                <StickyFooter />
+                {/*</Box>*/}
+        </div>
+        <div>
+        <StickyFooter />
+        </div>
+        </div>
         </div>
     );
 };

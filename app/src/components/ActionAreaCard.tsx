@@ -5,7 +5,7 @@ import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import { CardActionArea } from '@mui/material';
 import { StringDecoder } from 'string_decoder';
-import {Grid} from '../components/ComponentsIndex'
+import {Grid, Box} from '../components/ComponentsIndex'
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 
@@ -17,7 +17,18 @@ interface ActionAreaCardProps{
 
 const ActionAreaCard: React.FC<ActionAreaCardProps> = ({image, title, description}) => {
   return (
-    <Card sx={{ width: 345, height: 300 }}>
+    <Box
+    sx={{
+        display: "flex",
+        flexDirection:"row",
+        alignItems: "center",
+        alignContent: "center",
+        justifyContent: "center",
+        height: "100px",
+        pt: 23
+    }}
+>
+    <Card sx={{ width: 345, height: 300}}>
       <CardActionArea>
         <CardMedia
           component="img"
@@ -35,6 +46,7 @@ const ActionAreaCard: React.FC<ActionAreaCardProps> = ({image, title, descriptio
         </CardContent>
       </CardActionArea>
     </Card>
+    </Box>
   );
 };
 
