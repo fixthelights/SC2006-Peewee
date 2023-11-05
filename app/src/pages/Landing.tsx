@@ -1,12 +1,15 @@
 import React from "react";
 import './Landing.css'
 import { useNavigate } from "react-router-dom";
-import Button from '@mui/material/Button';
-import Stack from '@mui/material/Stack';
 import axios from 'axios'
-import Photo from '../assets/LoginBackground.jpg'
-import {useState} from 'react'
-import jwt from 'jsonwebtoken';
+import {Button, Stack, Box, Container, Grid} from '../components/ComponentsIndex'
+import {ActionAreaCard} from "../components/ActionAreaCard";
+import Photo from '../assets/Landing2.jpg'
+import DataPhoto from '../assets/Data2.png'
+import AIPhoto from '../assets/AI.jpg'
+import HMPhoto from '../assets/Heatmap.png'
+import SearchPhoto from '../assets/Search.png'
+import StickyFooter from "../components/StickyFooter";
 
 interface user{
     userId: String,
@@ -109,7 +112,8 @@ function Landing() {
     }
 
     return (
-        <div className='Landing'>
+        <div className="Landing" style={{backgroundImage: `url(${Photo})` }}>
+            <div className="Landing-content">
             <h1>Take Control of Your Journey</h1>
             <p>PEEWEE allows you to view traffic conditions in real-time and provides you with the best routes to your destination.</p>
             <Stack spacing={2} direction="row">
@@ -132,6 +136,38 @@ function Landing() {
                     Log In
                 </Button>*/}
             </Stack>
+            </div>
+            <div>
+            <div className="Landing-content-2">
+            <Stack direction='column'>
+            <Stack 
+                spacing={15}
+                direction='row'
+                useFlexGap flexWrap="wrap"
+                sx={{pl: 5, pb:2}}
+        >
+                <ActionAreaCard 
+                    image={DataPhoto}
+                    title='Data-driven'
+                    description='Harness real-time traffic image data to show the latest traffic conditions'/>
+                <ActionAreaCard 
+                    image={AIPhoto}
+                    title='AI-powered'
+                    description='Utilises artificial intelligence to provide real-time analysis of traffic'/>
+                <ActionAreaCard 
+                    image={HMPhoto}
+                    title='Traffic visualisation'
+                    description='Plots heatmaps and traffic pointers to enable better visualisation of traffic conditions'/>
+                <ActionAreaCard 
+                    image={SearchPhoto}
+                    title='Route finder'
+                    description='Seamless searching of driving routes'/>
+                </Stack>
+                <StickyFooter />
+                </Stack>
+                {/*</Box>*/}
+        </div>
+        </div>
         </div>
     );
 };
