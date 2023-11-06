@@ -15,6 +15,7 @@ import {
 import { useTheme } from "@mui/material/styles";
 import Stack from "@mui/material/Stack";
 
+
 interface TrafficChartProps {
    carsNow: number
    average: number
@@ -59,15 +60,15 @@ const TrafficChart: FC<TrafficChartProps> = ({carsNow, average, data}) => {
             </Typography>
             <DisplayExpectedTraffic />
           </Stack>
-          <ResponsiveContainer>
-            <LineChart
-              data={data}
-              margin={{
-                top: 50,
-                right: 16,
-                bottom: 0,
-                left: 24,
-              }}
+          <ResponsiveContainer width="100%" height={350}>
+        <LineChart
+          data={data}
+          margin={{
+            top: 50,
+            right: 16,
+            bottom: 0,
+            left: 24,
+          }}
             >
               <XAxis
                 dataKey="time"
@@ -88,7 +89,7 @@ const TrafficChart: FC<TrafficChartProps> = ({carsNow, average, data}) => {
                     ...theme.typography.body1,
                   }}
                 >
-                  Total Cars at Camera
+                  Average Cars at Camera
                 </Label>
               </YAxis>
               <Tooltip/>
@@ -101,14 +102,7 @@ const TrafficChart: FC<TrafficChartProps> = ({carsNow, average, data}) => {
                 dot={true}
                 label="trend"
               />
-              <Line
-                isAnimationActive={true}
-                type="monotone"
-                dataKey="current"
-                stroke="#FF0000"
-                dot={{ stroke: 'red', strokeWidth: 2 }}
-                label="current car count"
-              />
+              
             </LineChart>
           </ResponsiveContainer>
           </React.Fragment>

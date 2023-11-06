@@ -304,7 +304,7 @@ export default function CameraPage() {
   return (
     <ThemeProvider theme={defaultTheme}>
       <CssBaseline />
-      <AppFrame pageName="Road Conditions Page">
+      <AppFrame pageName="Road Conditions">
         <Container sx={{ my: 3 }}>
           <Typography variant="h6" sx={{ mb: 2 }}>
             Search for Camera 
@@ -364,14 +364,14 @@ export default function CameraPage() {
                 
               </Typography>
               <Paper
-                sx={{
-                p: 2,
-                display: "flex",
-                flexDirection: "column",
-                height: 500,
-                width: 500
-
-              }}
+        sx={{
+          p: 2,
+          display: "flex",
+          flexDirection: "column",
+          height: "auto",
+          width: "auto",
+          
+        }}
             >
           <TrafficTrend cameraId={cameraData.camera_id} />
         </Paper>
