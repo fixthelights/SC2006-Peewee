@@ -12,6 +12,8 @@ import {
   Box,
   Container,
   ContainerOwnProps,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import MuiDrawer from "@mui/material/Drawer";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -29,6 +31,7 @@ import {
 } from "./AppFrameIndex";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
+import { Logout } from "@mui/icons-material";
 
 const drawerWidth: number = 240;
 
@@ -91,6 +94,7 @@ interface AppFrameProps extends ContainerOwnProps{
 
 export default function AppFrame({defaultOpen, pageName, children ,...props}: AppFrameProps) {
   const [open, setOpen] = React.useState(true);
+  const [openProfile, setOpenProfile] = React.useState(true);
   const [lastOpen, setLastOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
@@ -98,6 +102,7 @@ export default function AppFrame({defaultOpen, pageName, children ,...props}: Ap
 
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   useEffect(()=>{
     if(isSmallScreen){
@@ -109,6 +114,13 @@ export default function AppFrame({defaultOpen, pageName, children ,...props}: Ap
   },[isSmallScreen]);
 
   const navigate = useNavigate();
+
+  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   const drawer = (
     <React.Fragment>
@@ -149,12 +161,6 @@ export default function AppFrame({defaultOpen, pageName, children ,...props}: Ap
             <TrafficOutlinedIcon />
           </ListItemIcon>
           <ListItemText primary="Road Conditions" />
-        </ListItemButton>
-        <ListItemButton onClick={() => {localStorage.removeItem("token"); navigate("/");}}>
-          <ListItemIcon>
-            <LogoutOutlinedIcon />
-          </ListItemIcon>
-          <ListItemText primary="Log Out" />
         </ListItemButton>
       </List>
     </React.Fragment>
@@ -201,9 +207,38 @@ export default function AppFrame({defaultOpen, pageName, children ,...props}: Ap
           >
             {pageName}
           </Typography>
-          <IconButton color="inherit">
-            <AccountCircleOutlinedIcon />
-          </IconButton>
+          <IconButton
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={handleMenu}
+                color="inherit"
+              >
+                <AccountCircleOutlinedIcon />
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
+                <MenuItem  onClick={() => {localStorage.removeItem("token"); navigate("/")}}>
+                  <ListItemIcon>
+                    <Logout fontSize="small" />
+                  </ListItemIcon>
+                  Logout
+                </MenuItem>
+              </Menu>
         </Toolbar>
       </AppBar>
       {isSmallScreen ? (
