@@ -1,20 +1,9 @@
 import * as React from 'react';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect, useContext } from 'react'
-import Alert from '@mui/material/Alert';
-import Link from '@mui/material/Link';
+import { useState, useContext } from 'react'
 import axios from 'axios';
-import Photo from '../../assets/LoginBackground.jpg'
-import Paper from '@mui/material/Paper';
-import { RecoveryContext, delayTime } from "../../pages/PasswordRecovery";
+import { RecoveryContext } from "../../pages/ForgetPassword";
+import {createTheme, ThemeProvider, CssBaseline, Box, Typography, Button, Alert, Grid, Paper, TextField, Link, Photo} from '../ComponentsIndex'
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
@@ -26,8 +15,8 @@ export default function OTPResetEmail() {
   const [enteredEmail, setEnteredEmail] = useState('');
   const [isEmailSubmitted, setIsEmailSubmitted] = useState(false);
   const [isEmailValid, setIsEmailValid] = useState({} as boolean);
-  const { email, setEmail, setOTP, setPage } = useContext(RecoveryContext);
-  const [test, setTest] = useState(0);
+  const { setEmail, setOTP, setPage } = useContext(RecoveryContext);
+  const [test] = useState(0);
 
   // useEffect(() => {
   //   console.log("Component mounted or updated");
@@ -52,7 +41,6 @@ export default function OTPResetEmail() {
         setEmail(enteredEmail);
         const otpPromise = sendForgetPassword(enteredEmail);
         const otp = await otpPromise; // Async (?)
-        console.log(otp?.data.otp.token);
         setOTP(otp?.data.otp.token);
         setIsEmailValid(true);
         setPage("otpinput"); // Move to next step
@@ -65,10 +53,8 @@ export default function OTPResetEmail() {
 
   // Send OTP to email
   function sendForgetPassword(toEmail: string) {
-      setTest(test+1);
       console.log("Email is " + toEmail);
       const response = axios.post('http://localhost:2000/users/forget-password', { email : toEmail });
-      console.log(response);
       // Return OTP 
       return response;
   };

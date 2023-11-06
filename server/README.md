@@ -36,6 +36,10 @@ MONGO_PASS = bjRUVe5o9xr7TVRd384sQ0k862SqWhVq5cbDec94
 # Task Processing configuration (for AI trends generation)
 # Only to be enabled on the main server
 PROCESSING = FALSE
+
+# ---------------
+# Email Service for Authentication
+BREVO_KEY = "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"
 ```
 
 To connect to our cloud mongoDB server using `mongosh` or `mongo`, enter:

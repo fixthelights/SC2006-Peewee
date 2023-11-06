@@ -1,28 +1,9 @@
 import * as React from "react";
-import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import AppFrame from "../components/AppFrame";
-import {
-  ToggleButtonGroup,
-  ToggleButton,
-  useTheme,
-  useMediaQuery,
-  TextField,
-  Button,
-  Stack,
-} from "@mui/material";
 import MapComponent from "../components/Map";
 import axios from "axios";
-import { Autocomplete,useLoadScript } from "@react-google-maps/api";
-import {jwtDecode} from 'jwt-decode';
-import {useState, FC} from 'react';
-import FavouriteRoutes from '../pages/FavouriteRoutes'
-import { useNavigate } from "react-router-dom";
-import {useEffect} from 'react'
-
-
+import { useLoadScript } from "@react-google-maps/api";
+import {FC} from 'react';
+import {createTheme, ThemeProvider , CssBaseline, Typography, Button, Container, AppFrame, Stack, ToggleButton, ToggleButtonGroup, useTheme, useMediaQuery} from '../components/ComponentsIndex'
 
 interface User{
   userId: string,
@@ -41,8 +22,6 @@ interface ViewRouteProps{
 const defaultTheme = createTheme();
 
 const ViewRoute: FC<ViewRouteProps> = ({source, destination, setViewMap}) => {
-
-  const navigate = useNavigate()
 
   interface User{
     userId: string,
@@ -102,13 +81,13 @@ const ViewRoute: FC<ViewRouteProps> = ({source, destination, setViewMap}) => {
     reported_by: string;
   }
 
-  const [trafficFilters, setTrafficFilters] = React.useState(["show-all"]);
+  const [trafficFilters, setTrafficFilters] = React.useState(["camera","heatmap"]);
   const [incidentFilters, setIncidentFilters] = React.useState(["accident", "roadWork", "roadClosure"]);
   const [cameras, setCameras] = React.useState<Array<Camera>>([]);
   const [incidents, setIncidents] = React.useState<Array<Report>>([]);
   
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: 'AIzaSyCn6_wKG_mP0YI_eVctQ5zB50VuwMmzoWQ',
+    googleMapsApiKey: 'AIzaSyDm-rTxw55HDBTGxVL5kbYVtQjqHVIiPCE',
     libraries: ['places']
   });
 
@@ -125,10 +104,11 @@ const ViewRoute: FC<ViewRouteProps> = ({source, destination, setViewMap}) => {
     event: React.MouseEvent<HTMLElement>,
     newFilters: string[]
   ) => {
-    if (newFilters.includes("hide-all")) newFilters = [];
+    if (newFilters.includes("off")) newFilters = [];
 
     setTrafficFilters(newFilters);
   };
+
 
   const handleIncidentFilters = (
     event: React.MouseEvent<HTMLElement>,
@@ -142,9 +122,7 @@ const ViewRoute: FC<ViewRouteProps> = ({source, destination, setViewMap}) => {
   };
 
   React.useEffect(() => {
-    loadTrafficIncidents();
-    loadTrafficConditions();
-    calculateRoute();
+   calculateRoute()
   }, []);
 
   async function loadTrafficIncidents() {
@@ -190,6 +168,9 @@ const ViewRoute: FC<ViewRouteProps> = ({source, destination, setViewMap}) => {
 
   async function calculateRoute() {
 
+    await loadTrafficConditions()
+    await loadTrafficIncidents()
+
     const directionsService = new google.maps.DirectionsService();
     const results = await directionsService.route({
       origin: source,
@@ -218,13 +199,14 @@ const ViewRoute: FC<ViewRouteProps> = ({source, destination, setViewMap}) => {
                     Traffic Camera Filters
                   </Typography>
                   <ToggleButtonGroup
-                    value={trafficFilters}
-                    onChange={handleTrafficFilters}
-                    size={isScreenSmall ? "small" : "medium"}
-                    color="primary"
-                  >
-                    <ToggleButton value="show-all">Show all</ToggleButton>
-                    <ToggleButton value="hide-all">Hide all</ToggleButton>
+                      value={trafficFilters}
+                      onChange={handleTrafficFilters}
+                      size="small"
+                      color="primary"
+                    >
+                      <ToggleButton value="camera">Camera</ToggleButton>
+                      <ToggleButton value="heatmap">Heatmap</ToggleButton>
+                      <ToggleButton value="off">Off</ToggleButton>
                     </ToggleButtonGroup>
                 </Container>
                 <Container sx={{ my: 3 }}>
@@ -244,7 +226,7 @@ const ViewRoute: FC<ViewRouteProps> = ({source, destination, setViewMap}) => {
                     <ToggleButton value="hide-all">Hide all</ToggleButton>
                   </ToggleButtonGroup>
                 </Container>
-              <Container>
+              <Container sx={{ height: "90vh" }}>
               <MapComponent
                 location={{
                   lng: 103.7992246,
@@ -255,7 +237,8 @@ const ViewRoute: FC<ViewRouteProps> = ({source, destination, setViewMap}) => {
                 cameras={cameras}
                 incidents={incidents}
                 directionsResponse={directionsResponse}
-                showCameras={trafficFilters.includes("show-all")}
+                showHeatmap={trafficFilters.includes("heatmap")}
+                showCameras={trafficFilters.includes("camera")}
                 showAccidents={incidentFilters.includes("accident")}
                 showRoadClosures={incidentFilters.includes("roadClosure")}
                 showRoadWorks={incidentFilters.includes("roadWork")}
