@@ -479,7 +479,7 @@ export default function CameraPage() {
           <Grid container>
             {cameraIds.map((cameraId, index) => {
               const cameraData = camera.find(
-                (cam) => cam.camera_id === cameraId //cameraId
+                (cam) => cam.camera_id === cameraId
               );
               return (
                 cameraData ? (
@@ -494,6 +494,7 @@ export default function CameraPage() {
                           <CardMedia
                             component="img"
                             height="300"
+                            width="500"
                             image={
                               cameraData.url ||
                               "https://via.placeholder.com/150"
@@ -519,7 +520,7 @@ export default function CameraPage() {
                     </Box>
                   </Grid>
                 ) : (
-                  <Grid item xs={12} md={6} key={index}><Skeleton height={500} sx={{maxWidth: 500}}/></Grid>
+                  <Grid item xs={12} md={6} padding={2} key={index}><Skeleton variant="rectangular" height={400} sx={{maxWidth: 500}}/></Grid>
                 )
               );
             })}

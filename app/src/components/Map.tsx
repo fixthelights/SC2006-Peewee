@@ -10,7 +10,7 @@ import {
 import { useMemo } from "react";
 
 import "./map.css";
-import { Stack, Button, Card, Link, Typography, Box } from "@mui/material";
+import { Stack, Button, Card, Link, Typography, Box, Skeleton } from "@mui/material";
 import { useGoogleMap } from "@react-google-maps/api";
 import { createPortal } from "react-dom";
 
@@ -287,9 +287,7 @@ const Map: FC<MapProps> = ({
 
   return (
     <>
-      {!isLoaded ? (
-        <h1>Loading...</h1>
-      ) : (
+      {isLoaded && (
         <GoogleMap
           mapContainerClassName="map-container"
           center={center}
