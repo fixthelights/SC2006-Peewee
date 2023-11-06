@@ -10,13 +10,14 @@ import {
 import { useMemo } from "react";
 
 import "./map.css";
-import { Stack, Button, Card, Link, Typography, Box } from "@mui/material";
+import { Stack, Button, Card, Link, Typography, Box, Skeleton } from "@mui/material";
 import { useGoogleMap } from "@react-google-maps/api";
 import { createPortal } from "react-dom";
 
 import HeatmapDrawer from "./HeatmapDrawer";
 
-import { latLngToCell } from "h3-js"
+import { latLngToCell } from "h3-js";
+import { useNavigate } from "react-router-dom";
 
 enum IncidentType {
   accident = "Accident",
@@ -37,6 +38,7 @@ interface Report {
 }
 
 interface Camera {
+  cameraId: string;
   cameraName: string;
   lng: number;
   lat: number;
@@ -64,13 +66,13 @@ interface MapProps {
   children?: React.ReactNode;
 }
 
-interface HexIndexPeak{
-  hexIndex: string,
-  avgPeakedness: number
+interface HexIndexPeak {
+  hexIndex: string;
+  avgPeakedness: number;
 }
 
 interface HexagonList {
-  [hexIndex: string]: number[]
+  [hexIndex: string]: number[];
 }
 
 interface InfoData {
@@ -104,6 +106,7 @@ const Map: FC<MapProps> = ({
     id: string;
     data: InfoData;
   }>();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setIsOpen(false);
@@ -170,8 +173,13 @@ const Map: FC<MapProps> = ({
                   </Box>
                 )}
                 <Stack my={1}>
-                  <Button variant="contained">
-                    <Typography fontSize={10}>View Camera</Typography>
+                  <Button
+                    variant="contained"
+                    onClick={() =>
+                      navigate(`/roadconditions/${camera.cameraId}`)
+                    }
+                  >
+                    <Typography fontSize={10}> View Camera</Typography>
                   </Button>
                 </Stack>
               </Card>
@@ -237,31 +245,33 @@ const Map: FC<MapProps> = ({
   const hexagonGenerator = () => {
     const hexagons: HexagonList = {};
     cameras.map((camera) => {
-      if(!camera.peakedness){
+      if (!camera.peakedness) {
         return;
       }
 
       const lat = camera.lat;
       const lng = camera.lng;
-      const hexIndex = latLngToCell(lat,lng, 7);
+      const hexIndex = latLngToCell(lat, lng, 7);
 
-      if(Object.hasOwn(hexagons, hexIndex)){
+      if (Object.hasOwn(hexagons, hexIndex)) {
         hexagons[hexIndex].push(camera.peakedness);
-      }else{
-        hexagons[hexIndex] = [camera.peakedness]
+      } else {
+        hexagons[hexIndex] = [camera.peakedness];
       }
-    })
+    });
 
-    const peakHexList: HexIndexPeak[] = []
-    for(let hexIndex in hexagons){
+    const peakHexList: HexIndexPeak[] = [];
+    for (let hexIndex in hexagons) {
       const peakList = hexagons[hexIndex];
       let avgPeak = 0;
-      for(let peak of peakList){avgPeak += peak}
+      for (let peak of peakList) {
+        avgPeak += peak;
+      }
       avgPeak = avgPeak / peakList.length;
       peakHexList.push({ hexIndex: hexIndex, avgPeakedness: avgPeak });
     }
     setHexagons(peakHexList);
-  }
+  };
 
   // https://developers.google.com/maps/documentation/javascript/controls
   const mapOptions = {
@@ -277,9 +287,7 @@ const Map: FC<MapProps> = ({
 
   return (
     <>
-      {!isLoaded ? (
-        <h1>Loading...</h1>
-      ) : (
+      {isLoaded && (
         <GoogleMap
           mapContainerClassName="map-container"
           center={center}
@@ -292,8 +300,12 @@ const Map: FC<MapProps> = ({
           {directionsResponse && (
             <DirectionsRenderer directions={directionsResponse} />
           )}
-          {showHeatmap && <HeatmapDrawer peakMap={hexagons}/>}
-          {children && <CustomControl position={google.maps.ControlPosition.TOP_CENTER}>{children}</CustomControl>}
+          {showHeatmap && <HeatmapDrawer peakMap={hexagons} />}
+          {children && (
+            <CustomControl position={google.maps.ControlPosition.TOP_CENTER}>
+              {children}
+            </CustomControl>
+          )}
         </GoogleMap>
       )}
     </>
@@ -350,7 +362,7 @@ const incidentIcon = (incidentType: IncidentType) => {
 interface CustomControlProps {
   children?: React.ReactNode;
   position?: google.maps.ControlPosition;
-  zIndex?: number
+  zIndex?: number;
 }
 
 /* 
@@ -370,27 +382,23 @@ function CustomControl({
   position = google.maps.ControlPosition.TOP_LEFT,
   children,
 }: CustomControlProps) {
-
   const map = useGoogleMap();
   const [container] = useState(document.createElement("div"));
 
   useEffect(() => {
     if (!map) {
-      console.log("Waiting for map to refresh controls")
-      return
-    };
+      console.log("Waiting for map to refresh controls");
+      return;
+    }
 
     const controls = map.controls[position];
     controls.push(container);
     return () => {
-      controls.clear()
+      controls.clear();
     };
-  },[map]);
+  }, [map]);
 
-  return createPortal(
-    children,
-    container
-  );
+  return createPortal(children, container);
 }
 
 export default Map;

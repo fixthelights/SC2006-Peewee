@@ -31,6 +31,7 @@ const ViewRoute: FC<ViewRouteProps> = ({source, destination, setViewMap}) => {
   }
 
   interface CameraFromAPI{
+    camera_id: string,
     camera_name: string,
     location: {
       long: number,
@@ -41,6 +42,7 @@ const ViewRoute: FC<ViewRouteProps> = ({source, destination, setViewMap}) => {
   }
 
   interface Camera{
+    cameraId: string;
     cameraName: string,
     lng: number,
     lat: number,
@@ -147,8 +149,9 @@ const ViewRoute: FC<ViewRouteProps> = ({source, destination, setViewMap}) => {
 
       let cameraArray: Array<Camera>= [];
 
-      allCameras.forEach(({ camera_name, location, vehicle_count, peakedness} : CameraFromAPI)=> {
+      allCameras.forEach(({ camera_id, camera_name, location, vehicle_count, peakedness} : CameraFromAPI)=> {
         cameraArray.push({
+          cameraId: camera_id,
           cameraName: camera_name,
           lng: location.long,
           lat: location.lat,

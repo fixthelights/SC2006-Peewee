@@ -23,6 +23,7 @@ function App() {
           <Route path="/map" element={<PrivateRoute><Map/></PrivateRoute>} />
           <Route path="/reportincident" element={<PrivateRoute><ReportIncident /></PrivateRoute>} />
           <Route path="/roadconditions" element={<PrivateRoute><RoadConditions /></PrivateRoute>} />
+          <Route path="/roadconditions/:cameraId" element={<PrivateRoute><RoadConditions /></PrivateRoute>} />
           <Route path="/favouriteroutes" element={<PrivateRoute><FavouriteRoutes /></PrivateRoute>} />
         </Routes>
       </Router>

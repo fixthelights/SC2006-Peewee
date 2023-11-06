@@ -7,6 +7,7 @@ import {TrafficChart} from "../components/TrafficChart"
 import {jwtDecode} from 'jwt-decode';
 import {Table, TableBody, TableCell, TableHead, TableRow} from '../components/TableIndex'
 import {useTheme, createTheme, ThemeProvider, CssBaseline, Grid, Paper, Link, Stack, AppFrame, Title} from '../components/ComponentsIndex'
+import { Box, Skeleton } from "@mui/material";
 
 const drawerWidth: number = 240;
 
@@ -55,6 +56,7 @@ interface Traffic {
 }
 
 interface CameraFromAPI {
+  camera_id: string;
   camera_name: string;
   location: {
     long: number;
@@ -65,6 +67,7 @@ interface CameraFromAPI {
 }
 
 interface Camera {
+  cameraId: string;
   cameraName: string;
   lng: number;
   lat: number;
@@ -176,8 +179,9 @@ export default function Dashboard() {
 
       let cameraArray: Array<Camera>= [];
 
-      allCameras.forEach(({ camera_name, location, vehicle_count, peakedness} : CameraFromAPI)=> {
+      allCameras.forEach(({ camera_id, camera_name, location, vehicle_count, peakedness} : CameraFromAPI)=> {
         cameraArray.push({
+          cameraId: camera_id,
           cameraName: camera_name,
           lng: location.long,
           lat: location.lat,
@@ -203,7 +207,7 @@ export default function Dashboard() {
       });
   };
 
-  const TrafficTrend = () => {
+  const   TrafficTrend = () => {
     if (isTrafficLoaded && isCurrentTrafficLoaded) {
       let time = timeRetrieved.split(",")[1]
       let currentHour = 12
@@ -281,7 +285,13 @@ export default function Dashboard() {
         </React.Fragment>
       );
     } else {
-      return <Title>Error in loading. Please refresh the page.</Title>;
+      return(
+        <>
+        <Title>Loading Trends</Title>
+      <Skeleton variant="rectangular" width="100%" height="100%"></Skeleton>
+        </>
+      )
+     
     }
   };
 
@@ -289,7 +299,7 @@ export default function Dashboard() {
     if (isRecentIncidentLoaded && recentIncidents.length>0) {
       return (
         <React.Fragment>
-          <Title>Recent Incidents</Title>
+          <Title fontSize={{xs:"1em",md:"1.25em"}}>Recent Incidents</Title>
           <Table size="small">
             <TableHead>
               <TableRow>
@@ -322,10 +332,21 @@ export default function Dashboard() {
       );
     }
     if (isRecentIncidentLoaded && recentIncidents.length == 0) {
-      return <Title>There are no incidents reported today</Title>;
+      return (
+        <Box m="auto">
+          <Title align="center" fontSize={{xs:"1em",md:"1.25em"}}>There are no incidents reported today!</Title>
+        </Box>
+      )
+      
     }
     if (!isRecentIncidentLoaded) {
-      return <Title>Error in loading. Please refresh the page.</Title>;
+      return (
+        <>
+        <Title>Loading Incidents</Title>
+      <Skeleton variant="rectangular" width="100%" height="100%"></Skeleton>
+        </>
+      
+      );
     }
     return null;
   };
@@ -334,7 +355,7 @@ export default function Dashboard() {
     if (isRouteLoaded && routeList.length>0) {
       return (
         <React.Fragment>
-          <Title>Favorite routes</Title>
+          <Title fontSize={{xs:"1em",md:"1.25em"}}>Favorite routes</Title>
           <Table size="small">
             <TableHead>
               <TableRow>
@@ -358,10 +379,19 @@ export default function Dashboard() {
       );
     }
     if (isRouteLoaded && routeList.length === 0) {
-      return <Title>There are no favourite routes saved.</Title>;
+      return (
+        <Box m="auto">
+          <Title align="center" fontSize={{xs:"1em",md:"1.25em"}}>There are no favourite routes saved.</Title>
+        </Box>
+      )
     }
     if (!isRouteLoaded) {
-      return <Title>Error in loading. Please refresh the page.</Title>;
+      return (
+        <>
+          <Title>Loading Routes</Title>
+          <Skeleton variant="rectangular" width="100%" height="100%"></Skeleton>
+        </>
+      );
     }
     return null;
   };
@@ -398,8 +428,8 @@ export default function Dashboard() {
                     overflow: "auto",
                   }}
                 >
-                  <Stack spacing={20} direction="row">
-                    <Title>Current Traffic Conditions</Title>
+                  <Stack spacing={{xs:2,md:20}} direction="row" pb={1}>
+                    <Title fontSize={{xs:"1em",md:"1.25em"}}>Current Traffic Conditions</Title>
                     <Link
                       color="primary"
                       href="#"

@@ -1,13 +1,13 @@
 import * as React from 'react';
-import Typography from '@mui/material/Typography';
+import {TypographyOwnProps, Typography} from "@mui/material";
 
-interface TitleProps {
+interface TitleProps extends TypographyOwnProps{
   children?: React.ReactNode;
 }
 
 export default function Title(props: TitleProps) {
   return (
-    <Typography component="h2" variant="h6" color="primary" gutterBottom>
+    <Typography component="h2" variant="h6" color="primary" gutterBottom {...props}>
       {props.children}
     </Typography>
   );
