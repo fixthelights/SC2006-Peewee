@@ -10,36 +10,38 @@ import {
   Label,
   ResponsiveContainer,
   Tooltip,
-  Legend
+  Legend,
 } from "recharts";
 import { useTheme } from "@mui/material/styles";
 import Stack from "@mui/material/Stack";
+import { useMediaQuery } from "@mui/material";
 
 interface TrafficChartProps {
   carsNow: number;
   average: number;
-  data: any[];
+  data: Array<{ time: string; trend: number | null; current: number | null }>;
 }
 
 const TrafficChart: FC<TrafficChartProps> = ({ carsNow, average, data }) => {
   const theme = useTheme();
+  const isScreenSmall = useMediaQuery(theme.breakpoints.down("md"));
 
-  const DisplayExpectedTraffic: FC = () => {
+  const DisplayExpectedTraffic = () => {
     if (carsNow > 1.25 * average) {
       return (
-        <Typography component="h2" variant="h6" color="error" gutterBottom>
+        <Typography component="h2" variant="h6" color="red" gutterBottom>
           High
         </Typography>
       );
     } else if (carsNow < 0.75 * average) {
       return (
-        <Typography component="h2" variant="h6" color="success" gutterBottom>
+        <Typography component="h2" variant="h6" color="green" gutterBottom>
           Low
         </Typography>
       );
     } else {
       return (
-        <Typography component="h2" variant="h6" color="warning" gutterBottom>
+        <Typography component="h2" variant="h6" color="orange" gutterBottom>
           Moderate
         </Typography>
       );
@@ -48,63 +50,64 @@ const TrafficChart: FC<TrafficChartProps> = ({ carsNow, average, data }) => {
 
   return (
     <React.Fragment>
-      <Title>Past Traffic Trend</Title>
+      <Title>Road Conditions at Camera Today</Title>
       <Stack spacing={1} direction="row">
         <Typography component="h2" variant="h6" color="primary" gutterBottom>
-          Current expected traffic:
+          Live Traffic Conditions:
         </Typography>
         <DisplayExpectedTraffic />
       </Stack>
-      <ResponsiveContainer width="100%" height={400}>
+      <ResponsiveContainer width="100%" height={350}>
         <LineChart
           data={data}
           margin={{
-            top: 16,
+            top: 50,
             right: 16,
             bottom: 0,
-            left: 24,
+            left: isScreenSmall ? -35 : 24,
           }}
         >
           <XAxis
             dataKey="time"
-            stroke={theme.palette.text.primary}
-            style={{ fontSize: 12 }}
-            allowDataOverflow
+            stroke={theme.palette.text.secondary}
+            style={theme.typography.body2}
+            tickCount={23}
           />
           <YAxis
-            stroke={theme.palette.text.primary}
-            style={{ fontSize: 12 }}
-            allowDataOverflow
+            stroke={theme.palette.text.secondary}
+            style={theme.typography.body2}
           >
-            <Label
-              angle={270}
-              position="left"
-              style={{
-                textAnchor: "middle",
-                fill: theme.palette.text.primary,
-                fontSize: 12,
-              }}
-            >
-              Total cars
-            </Label>
+            {!isScreenSmall && (
+              <Label
+                angle={270}
+                position="left"
+                style={{
+                  textAnchor: "middle",
+                  fill: theme.palette.text.primary,
+                  ...theme.typography.body1,
+                }}
+              >
+                Average Cars at Camera
+              </Label>
+            )}
           </YAxis>
           <Tooltip />
           <Legend />
           <Line
             isAnimationActive={true}
-            type="monotone"
+            type="natural"
             dataKey="trend"
             stroke={theme.palette.primary.main}
-            dot={{ r: 3 }}
-            label={{ fontSize: 12, position: "top" }}
+            dot={true}
+            label="trend"
           />
           <Line
             isAnimationActive={true}
             type="monotone"
             dataKey="current"
-            stroke={theme.palette.secondary.main}
-            dot={{ r: 3 }}
-            label={{ fontSize: 12, position: "top" }}
+            stroke="#FF0000"
+            dot={{ stroke: "red", strokeWidth: 10 }}
+            label="current car count"
           />
         </LineChart>
       </ResponsiveContainer>

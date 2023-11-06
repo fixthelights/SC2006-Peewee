@@ -1,12 +1,31 @@
-import { useState} from 'react';
+import React, { useCallback } from 'react';
+import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import { useNavigate } from "react-router-dom";
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import Button from '@mui/material/Button';
+import { useState, useEffect } from 'react';
+import Stack from '@mui/material/Stack';
+import Alert from '@mui/material/Alert';
 import axios from 'axios'
 import {MouseEvent} from 'react'
-import {createTheme, ThemeProvider, CssBaseline, Box, Typography, InputLabel, MenuItem, FormControl, Select, Button, Stack, Alert, Grid, Paper, Container, AppFrame} from '../components/ComponentsIndex'
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import Container from '@mui/material/Container';
+import AppFrame from '../components/AppFrame'
+import { TextField } from '@mui/material';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 export default function ReportIncident() {
+
+  const navigate = useNavigate();
 
   const [incidentType, setIncidentType] = useState('');
   const [incidentLocation, setIncidentLocation] = useState('');
@@ -25,21 +44,31 @@ export default function ReportIncident() {
     try{
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(function(position) {
-            setLatitude(position.coords.latitude)
-            setLongitude(position.coords.longitude)
-            //setLatitude(1.329250)
-            //setLongitude(103.855133)
+            console.log("Latitude is :", position.coords.latitude);
+            console.log("Longitude is :", position.coords.longitude);
+            //setLatitude(position.coords.latitude)
+           // setLongitude(position.coords.longitude)
+            //1.373210, 103.752203
+            // 1.373202747626978, 103.75235792157387
+            // 1.323331, 103.746198
+            // 1.3247821180436887, 103.74252003735413
+            // 1.307851, 103.791531
+            // 1.375671, 103.828393
+            // 1.368708, 103.861171
+            // 1.329250, 103.855133
+            setLatitude(1.329250)
+            setLongitude(103.855133)
             setCoordinatesDetected(true)
             setCoordinatesToBeConverted(true)
             setLocationPermission(true)
-            return
           })
         }
     } catch (error){
       console.log(error)
+      setCoordinatesDetected(false)
+      setLocationPermission(false)
     }
-    setCoordinatesDetected(false)
-    setLocationPermission(false)
+
   }
 
   const DisplayLocationMessage = () => {
@@ -54,8 +83,32 @@ export default function ReportIncident() {
       }
   }
 
+  const DisplayViewLocation = () => {
+    return <Box>
+                <Grid item xs={12} md={6} lg={5}>
+                <Alert 
+                  severity="info"
+                >
+                  <Typography>
+                  Location detected. 
+                  </Typography>
+                <Box sx={{ pt: 3 }}>
+                <Stack spacing={2} direction="row">
+                  <Button 
+                      variant="contained" 
+                      onClick={() => handleLocationAccess()}
+                  >
+                      Set location
+                  </Button>
+                </Stack>
+                </Box>
+                </Alert>
+              </Grid>
+              </Box>
+  }
+
   const DisplayLocationAccessRequest = () => {
-    return <Box sx={{ pl: 3, pt: 3 }}>
+    return <Box>
                 <Grid item xs={12} md={6} lg={6}>
                 <Alert 
                   severity="info"
@@ -67,43 +120,22 @@ export default function ReportIncident() {
                   Ensure that location access has been allowed on your device. 
                   </Typography>
                 <Box sx={{ pt: 3 }}>
+                <Stack spacing={2} direction="row">
                   <Button 
                       variant="contained" 
                       onClick={() => getUserLocation()}
                   >
                       Detect location
                   </Button>
+                </Stack>
                 </Box>
                 </Alert>
               </Grid>
               </Box>
   }
-
-  const DisplayViewLocation = () => {
-    return <Box sx={{ pl: 3, pt: 3 }}>
-                <Grid item xs={12} md={6} lg={5}>
-                <Alert 
-                  severity="info"
-                >
-                  <Typography>
-                  Location detected. 
-                  </Typography>
-                <Box sx={{ pt: 3 }}>
-                  <Button 
-                      variant="contained" 
-                      onClick={() => handleLocationAccess()}
-                  >
-                      Set location
-                  </Button>
-                </Box>
-                </Alert>
-              </Grid>
-              </Box>
-  }
-
   
   const DisplayLocation = () => {
-    return <Box sx={{ pl: 3, pt: 3 }}>
+    return <Box>
           <Typography
             component="h1"
             variant="body1"
@@ -114,19 +146,21 @@ export default function ReportIncident() {
   }
 
   const DisplayRetry = () => {
-    return <Box sx={{ pl: 3, pt: 3 }}>
+    return <Box>
             <Grid item xs={12} md={6} lg={6}>
             <Alert severity="info">
               <Typography>
                 Failed to detect address. Redetect current location?
               </Typography>
               <Box sx={{ pt: 3 }}>
+              <Stack spacing={2} direction="row">
                 <Button 
                     variant="contained" 
                     onClick={() => getUserLocation()}
                 >
                     Yes
                 </Button>
+              </Stack>
               </Box>
               </Alert>
             </Grid>
@@ -149,7 +183,7 @@ export default function ReportIncident() {
 
   const DisplaySubmitButton = () =>{
     if (!submissionStatus && incidentType!='' && incidentDescription!='' && coordinatesDetected && coordinatesConverted){
-        return <Box sx={{ pl: 3, pt: 3 }}>
+        return <Box>
                 <Button 
                   variant="contained" 
                   onClick={handleSubmission} // navigate to submission page 
@@ -162,8 +196,8 @@ export default function ReportIncident() {
 }
 
   const handleSubmission = async(e: MouseEvent<HTMLButtonElement>) =>{
-
     const date = new Date();
+    setSubmissionStatus(true);
     axios.post('http://localhost:2000/reports', {
             incident: incidentType,
             location: {
@@ -172,7 +206,7 @@ export default function ReportIncident() {
             },
             address : incidentLocation,
             description: incidentDescription,
-            time: reformatTime(date.toLocaleTimeString()),
+            time: date.toLocaleTimeString(),
             date: date.toDateString()
         })
         .then((res)=> console.log(res.data))
@@ -183,47 +217,6 @@ export default function ReportIncident() {
             setValidSubmission(false)
             setSubmissionStatus(true)
         });
-    
-  }
-
-  function reformatTime(time: string){
-    if (time.toLowerCase().includes('pm') || time.toLowerCase().includes('am')){
-      let currentHour = 12
-      let i=0
-      let timeString
-      while (isNaN(parseInt(time[i]))){
-        i++;
-      }
-      if (time[i+1]==':'){
-        if (time.toLowerCase().includes("pm")){ //1-9pm => 13-21:00
-          currentHour += parseInt(time[i])
-        }
-        else {
-          currentHour = parseInt(time[i]) //1-9am => 1-9:00
-        }
-        } else {
-          if (time.substring(i,i+2)==='12'){
-            if (time.toLowerCase().includes('am')){ //12am -> 0:00
-              currentHour=0 
-            } else {
-              currentHour=12 //12pm -> 12:00
-            } 
-          } else if(time.toLowerCase().includes("pm")){
-            currentHour += parseInt(time.substring(i,i+2)) //10-11pm -> 22-23:00
-          } else {
-            currentHour = parseInt(time.substring(i,i+2)) // 10-11am -> 10-11:00
-          }
-          i++
-          }
-          if (currentHour.toString().length===1){
-            timeString = "0" + currentHour.toString() + time.substring(i+1, time.length-3)
-          } else {
-            timeString = currentHour.toString() + time.substring(i+1, time.length-3)
-          }
-          return timeString
-    } else {
-      return time
-    }
     
   }
 
@@ -239,7 +232,7 @@ export default function ReportIncident() {
 }
 
 const DisplaySuccessfulSubmission = () => {
-  return <Box sx={{ pl: 3, pt: 3 }}>
+  return <Box>
           <Grid item xs={12} md={6} lg={7}>
           <Alert severity="info"> 
           <Typography>
@@ -259,7 +252,7 @@ const DisplaySuccessfulSubmission = () => {
 }
 
 const DisplayErrorMessage = () => {
-    return <Box sx={{ pl: 3, pt: 3 }}>
+    return <Box>
             <Grid item xs={12} md={6} lg={7}>
             <Alert severity="info"> 
             <Typography>
@@ -292,25 +285,16 @@ const DisplayErrorMessage = () => {
     setSubmissionStatus(false)
   }
 
-  
-
   return (
     <ThemeProvider theme={defaultTheme}>
         <CssBaseline />
         <AppFrame pageName="Report Incidents">
        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <Grid container spacing={3}>
+       <Paper>
+            <Grid container spacing={2} direction="column" padding={{xs:2,md:4}}>
               {/* Chart */}
               <Grid item xs={12} md={6} lg={12}>
-              <Paper
-                    sx={{
-                        p: 2,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        height: 770,
-                        overflow: 'auto'
-                    }}>
-                    <Box sx={{ width: 360, pl: 3, pt: 3 }}>
+                    <Box sx={{ maxWidth: 360}}>
                         <FormControl fullWidth>
                         <InputLabel id="demo-simple-select-label">Incident Type</InputLabel>
                         <Select
@@ -326,29 +310,40 @@ const DisplayErrorMessage = () => {
                         </Select>
                         </FormControl>
                     </Box>
-                    <Box sx={{ width: 360, pl: 3, pt: 3 }}>
+                  </Grid>
+                  <Grid item xs={12} md={6} lg={12}>
+                    <Box>
                         <Typography
                         component="h1"
                         variant="body1"
+                        paddingBottom={1}
                         >
                         Incident Description:
                         </Typography>
-                        <Box sx={{pt: 3}}>
-                        <textarea 
-                        name="Text1" 
-                        cols={100} 
-                        rows={5}
+                        <Box>
+                        <TextField 
+                        fullWidth={true}
+                        multiline
+                        rows={10}
                         value={incidentDescription}
                         onChange={(e) => setIncidentDescription(e.target.value)}>
-                        </textarea>
+                        </TextField>
                     </Box>
                     </Box>
+                    </Grid>
+                    <Grid item xs={12} md={6} lg={12}>
                   <DisplayLocationMessage />
+                  </Grid>
+                  <Grid item xs={12} md={6} lg={12}>
                   <DisplaySubmitButton />
+                  </Grid>
+                  <Grid item xs={12} md={6} lg={12}>
                   <DisplaySubmissionMessage />
-              </Paper>
-              </Grid>
+                  </Grid>
+             
+              
             </Grid>
+            </Paper>
         </Container>
       </AppFrame>
     </ThemeProvider>
