@@ -27,7 +27,6 @@ interface Route {
     _id: string
 }
 
-// TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 const userId = identifyUser()

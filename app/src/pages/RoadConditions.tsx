@@ -291,6 +291,7 @@ export default function CameraPage() {
           url: foundCamera.url,
         });
         hasFoundCamera = true
+        
         break;
       }
     }
@@ -406,10 +407,7 @@ export default function CameraPage() {
             {cameraData.url && (
               <img src={cameraData.url} alt="Camera Feed" style={{ maxWidth: "100%" }} />
             )}
-          </Container>
-        )}
-        <Grid container spacing={3}>
-              {/* Chart */}
+            <Grid container spacing={3}>
               <Grid item xs={12} md={6} lg={6}>
                 <Paper
                   sx={{
@@ -423,6 +421,8 @@ export default function CameraPage() {
                 </Paper>
               </Grid>
               </Grid>
+          </Container>
+        )}      
       </AppFrame>
     </ThemeProvider>
   );

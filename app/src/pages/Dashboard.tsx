@@ -8,8 +8,6 @@ import {jwtDecode} from 'jwt-decode';
 import {Table, TableBody, TableCell, TableHead, TableRow} from '../components/TableIndex'
 import {useTheme, createTheme, ThemeProvider, CssBaseline, Grid, Paper, Link, Stack, AppFrame, Title} from '../components/ComponentsIndex'
 
-const drawerWidth: number = 240;
-
 interface User{
   userId: string,
   email: string, 
