@@ -28,6 +28,7 @@ function App() {
           <Route path="/map" element={<Map/>} />
           <Route path="/reportincident" element={<ReportIncident />} />
           <Route path="/roadconditions" element={<RoadConditions />} />
+          <Route path="/roadconditions/:cameraId" element={<RoadConditions />} />
           <Route path="/forgetpassword" element={<ForgetPassword />} />
           <Route path="/favouriteroutes" element={<FavouriteRoutes />} />
         </Routes>

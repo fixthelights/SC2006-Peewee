@@ -102,7 +102,14 @@ const TrafficChart: FC<TrafficChartProps> = ({carsNow, average, data}) => {
                 dot={true}
                 label="trend"
               />
-              
+              <Line
+                isAnimationActive={true}
+                type="monotone"
+                dataKey="current"
+                stroke="#FF0000"
+                dot={{ stroke: 'red', strokeWidth: 10}}
+                label="current car count"
+              />
             </LineChart>
           </ResponsiveContainer>
           </React.Fragment>
