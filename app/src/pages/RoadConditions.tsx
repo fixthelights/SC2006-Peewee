@@ -7,7 +7,7 @@ import Container from "@mui/material/Container";
 import AppFrame from "../components/AppFrame";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import { Alert, Box, Card, Link } from "@mui/material";
+import { Alert, Box, Card, Link, Skeleton } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
@@ -232,12 +232,11 @@ export default function CameraPage() {
           break;
         }
       }
-      
+
       if (!hasFoundCamera) return;
 
       setShowTrafficChart(true);
       getCurrentData(cameraId);
-      //getTrafficData(foundCamera.camera_id);
       getOneTrafficCameraTrends(cameraId);
     } catch (err: any) {
       console.log(err);
@@ -335,60 +334,143 @@ export default function CameraPage() {
             <Alert severity="error">{error}</Alert>
           </Container>
         )}
-        {showTrafficChart && cameraData && (
-          <Container sx={{ my: 2 }}>
-            <Card sx={{ marginBottom: 1 }}>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Camera Details
-                </Typography>
-                <Typography variant="body1" sx={{ mb: 1 }}>
-                  Camera ID: {cameraData.camera_id}
-                </Typography>
-                {date && (
-                  <Typography variant="body1" sx={{ mb: 1 }}>
-                    Date: {date.toLocaleString("en-US")}
+        {cameraData && showTrafficChart && (
+          <Paper sx={{ backgroundColor: "#bcd1ef", my: 2, p: {xs:1, md:4}}}>
+          <Typography align="center" pt={{xs:2,md:0}} pb={{xs:2,md:2}} variant="h6" fontSize={20}> Live Camera View </Typography>
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={6}>
+              {cameraData ? (
+                <Card sx={{ height: "100%"}}>
+                <CardActions>
+                  <CardMedia
+                    component="img"
+                    height="300"
+                    image={
+                      cameraData.url || "https://via.placeholder.com/150"
+                    }
+                    alt={`Camera Image ${cameraData.camera_id}`}
+                  />
+                </CardActions>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    Camera: {cameraData.camera_name}
                   </Typography>
-                )}
-                <Typography variant="body1" sx={{ mb: 1 }}>
-                  Latitude: {cameraData.location.lat}
-                </Typography>
-                <Typography variant="body1" sx={{ mb: 1 }}>
-                  Longitude: {cameraData.location.long}
-                </Typography>
-                <Typography variant="body1" sx={{ mb: 1 }}>
-                  Vehicle Count: {cameraData.vehicle_count}
-                </Typography>
-                <Typography variant="body1" sx={{ mb: 1 }}>
-                  Peakedness: {cameraData.peakedness}
-                </Typography>
-                {cameraData.url && (
-                  <img
-                    src={cameraData.url}
-                    alt="Camera Feed"
-                    style={{ maxWidth: "100%" }}
-                  />
-                )}
-              </CardContent>
-              <CardContent>
-                <Typography variant="h6" gutterBottom></Typography>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: "auto",
-                    width: "auto",
-                  }}
-                >
-                  <TrafficTrend
-                    oneCameraTrends={oneCameraTrends}
-                    currentCarCount={currentCarCount}
-                  />
-                </Paper>
-              </CardContent>
-            </Card>
-          </Container>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    display="inline"
+                  >
+                    Vehicle Count:{" "}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    display="inline"
+                    fontWeight="bold"
+                  >
+                    {cameraData.vehicle_count}
+                  </Typography>
+                  {cameraData.peakedness && (
+                    <Box>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        display="inline"
+                      >
+                        Peakedness:{" "}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        display="inline"
+                        fontWeight="bold"
+                      >
+                        {`${(cameraData.peakedness * 100).toFixed(2)}%`}
+                      </Typography>
+                    </Box>
+                  )}
+                  {date && (
+                    <Box>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        display="inline"
+                      >
+                        Date:{" "}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        display="inline"
+                        fontWeight="bold"
+                      >
+                        {date.toLocaleString("en-US")}
+                      </Typography>
+                    </Box>
+                  )}
+                  <Box>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      display="inline"
+                    >
+                      Latitude:{" "}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      display="inline"
+                      fontWeight="bold"
+                    >
+                      {cameraData.location.lat}
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      display="inline"
+                    >
+                      Longitude:{" "}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      display="inline"
+                      fontWeight="bold"
+                    >
+                      {cameraData.location.long}
+                    </Typography>
+                  </Box>
+                </CardContent>
+              </Card>
+              ): (
+                <Skeleton variant="rectangular" height={500}></Skeleton>
+              )}
+            </Grid>
+            <Grid item xs={12} md={6}>
+              {showTrafficChart ? (
+                <Card
+                sx={{
+                  p: 2,
+                  display: "flex",
+                  flexDirection: "column",
+                  height: "100%",
+                  width: "auto",
+                }}
+              >
+                <TrafficTrend
+                  oneCameraTrends={oneCameraTrends}
+                  currentCarCount={currentCarCount}
+                />
+              </Card>
+              ) : (
+                <Skeleton variant="rectangular" height={500}></Skeleton>
+              )}
+              
+            </Grid>
+          </Grid>
+        </Paper>
         )}
         <Container sx={{ my: 3 }}>
           <Typography variant="h6" sx={{ mb: 2 }}>
@@ -397,10 +479,10 @@ export default function CameraPage() {
           <Grid container>
             {cameraIds.map((cameraId, index) => {
               const cameraData = camera.find(
-                (cam) => cam.camera_id === cameraId
+                (cam) => cam.camera_id === cameraId //cameraId
               );
               return (
-                cameraData && (
+                cameraData ? (
                   <Grid item xs={12} md={6} key={index}>
                     <Box
                       display="flex"
@@ -436,6 +518,8 @@ export default function CameraPage() {
                       </Card>
                     </Box>
                   </Grid>
+                ) : (
+                  <Grid item xs={12} md={6} key={index}><Skeleton height={500} sx={{maxWidth: 500}}/></Grid>
                 )
               );
             })}

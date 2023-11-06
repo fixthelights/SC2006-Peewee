@@ -55,6 +55,7 @@ interface Traffic {
 }
 
 interface CameraFromAPI {
+  camera_id: string;
   camera_name: string;
   location: {
     long: number;
@@ -65,6 +66,7 @@ interface CameraFromAPI {
 }
 
 interface Camera {
+  cameraId: string;
   cameraName: string;
   lng: number;
   lat: number;
@@ -176,8 +178,9 @@ export default function Dashboard() {
 
       let cameraArray: Array<Camera>= [];
 
-      allCameras.forEach(({ camera_name, location, vehicle_count, peakedness} : CameraFromAPI)=> {
+      allCameras.forEach(({ camera_id, camera_name, location, vehicle_count, peakedness} : CameraFromAPI)=> {
         cameraArray.push({
+          cameraId: camera_id,
           cameraName: camera_name,
           lng: location.long,
           lat: location.lat,
