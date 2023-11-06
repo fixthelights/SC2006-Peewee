@@ -3,15 +3,33 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Grid,
 } from "@mui/material";
 import MapComponent from "../components/Map";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {useTheme, createTheme, ThemeProvider, CssBaseline, Box, Typography, Button, Stack, Alert, Container, AppFrame, TextField, ToggleButton, ToggleButtonGroup, useMediaQuery, Card} from '../components/ComponentsIndex'
+import {
+  useTheme,
+  createTheme,
+  ThemeProvider,
+  CssBaseline,
+  Box,
+  Typography,
+  Button,
+  Stack,
+  Alert,
+  Container,
+  AppFrame,
+  TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  useMediaQuery,
+  Card,
+} from "../components/ComponentsIndex";
 import { Autocomplete, Libraries, useLoadScript } from "@react-google-maps/api";
-import { ExpandMore } from "@mui/icons-material";
+import { ExpandMore, Height } from "@mui/icons-material";
 
 interface User {
   userId: string;
@@ -98,8 +116,9 @@ export default function Map() {
     }
   }
 
+  const [openAccordion, setOpenAccordion] = React.useState(false);
   const [routeData, setRouteData] = React.useState<RouteData | null>(null);
-  const [trafficFilters, setTrafficFilters] = React.useState(["camera","heatmap"]);
+  const [trafficFilters, setTrafficFilters] = React.useState(["camera"]);
   const [incidentFilters, setIncidentFilters] = React.useState([
     "accident",
     "roadWork",
@@ -199,7 +218,7 @@ export default function Map() {
   }
 
   const theme = useTheme();
-  const isScreenSmall = useMediaQuery(theme.breakpoints.down("sm"));
+  const isScreenSmall = useMediaQuery(theme.breakpoints.down("md"));
 
   async function findPlaceDetails(
     query: string | undefined
@@ -248,6 +267,7 @@ export default function Map() {
     });
 
     setDirectionsResponse(results);
+    setOpenAccordion(false);
 
     const originQuery = originRef.current?.value;
     const destinationQuery = destinationRef.current?.value;
@@ -372,18 +392,24 @@ export default function Map() {
             showRoadClosures={incidentFilters.includes("roadClosure")}
             showRoadWorks={incidentFilters.includes("roadWork")}
           >
-            <Card sx={{ m: "10px" }}>
-              <Accordion>
+            <Card sx={{ m: 1 }}>
+              <Accordion
+                disableGutters={isScreenSmall}
+                expanded={openAccordion}
+                onChange={() => setOpenAccordion(!openAccordion)}
+              >
                 <AccordionSummary
                   expandIcon={<ExpandMore />}
                   aria-controls="panel1a-content"
                   id="panel1a-header"
                 >
                   <Container disableGutters>
-                  <Typography align="center" fontWeight="bold">Search and Filter</Typography>  
+                    <Typography align="center" fontWeight="bold">
+                      Search and Filter
+                    </Typography>
                   </Container>
-                  </AccordionSummary>
-                <AccordionDetails>
+                </AccordionSummary>
+                <AccordionDetails sx={isScreenSmall ? { p: 0 } : {}}>
                   <Container sx={{ my: 3 }} maxWidth={false}>
                     <Typography fontWeight="Bold" sx={{ my: 2 }}>
                       Traffic Camera Filters
@@ -412,67 +438,92 @@ export default function Map() {
                       <ToggleButton value="accident">Accidents</ToggleButton>
                       <ToggleButton value="roadWork">Roadworks</ToggleButton>
                       <ToggleButton value="roadClosure">Closure</ToggleButton>
-                      <ToggleButton value="show-all">Show all</ToggleButton>
-                      <ToggleButton value="hide-all">Hide all</ToggleButton>
+                      {!isScreenSmall && (
+                        <ToggleButton value="show-all">Show all</ToggleButton>
+                      )}
+                      {!isScreenSmall && (
+                        <ToggleButton value="hide-all">Hide all</ToggleButton>
+                      )}
                     </ToggleButtonGroup>
                   </Container>
                   <Container sx={{ my: 3 }} maxWidth={false}>
                     <Typography fontWeight="Bold" sx={{ my: 2 }}>
                       Search Route
                     </Typography>
-                    <Stack
+                    <Grid container spacing={1} mb={1}>
+                      {isLoaded && (
+                        <Grid item xs={12} md={6}>
+                          <Autocomplete
+                            options={{
+                              componentRestrictions: { country: "SG" },
+                            }}
+                          >
+                            <TextField
+                              sx={{ width: "100%" }}
+                              label="Source"
+                              variant="outlined"
+                              inputRef={originRef}
+                            />
+                          </Autocomplete>
+                        </Grid>
+                      )}
+                      {isLoaded && (
+                        <Grid item xs={12} md={6}>
+                          <Autocomplete
+                            options={{
+                              componentRestrictions: { country: "SG" },
+                            }}
+                          >
+                            <TextField
+                              sx={{ width: "100%" }}
+                              label="Destination"
+                              variant="outlined"
+                              inputRef={destinationRef}
+                            />
+                          </Autocomplete>
+                        </Grid>
+                      )}
+                    </Grid>
+                    {/* <Stack
                       direction="row"
                       spacing={2}
                       sx={{ "& > :not(style)": { width: "35ch" }, my: 2 }}
                     >
-                      {isLoaded && (
-                        <Autocomplete
-                          options={{ componentRestrictions: { country: "SG" } }}
+                      
+                    </Stack> */}
+                    <Grid container spacing={1}>
+                      <Grid item xs="auto">
+                        <Button
+                          variant="contained"
+                          onClick={() => {
+                            clearRoute();
+                            calculateRoute();
+                          }}
                         >
-                          <TextField
-                            label="Source"
-                            variant="outlined"
-                            inputRef={originRef}
-                          />
-                        </Autocomplete>
-                      )}
-                      {isLoaded && (
-                        <Autocomplete
-                          options={{ componentRestrictions: { country: "SG" } }}
+                          Search
+                        </Button>
+                      </Grid>
+                      <Grid item xs="auto">
+                        <Button
+                          variant="contained"
+                          onClick={() => routeData && saveRoute()}
                         >
-                          <TextField
-                            label="Destination"
-                            variant="outlined"
-                            inputRef={destinationRef}
-                          />
-                        </Autocomplete>
-                      )}
-                    </Stack>
-                    <Stack direction="row" spacing={2}>
-                      <Button
-                        variant="contained"
-                        onClick={() => {
-                          clearRoute();
-                          calculateRoute();
-                        }}
-                      >
-                        Search
-                      </Button>
-                      <Button
-                        variant="contained"
-                        onClick={() => routeData && saveRoute()}
-                      >
-                        Save Route
-                      </Button>
-                      <Button
-                        variant="contained"
-                        onClick={() => navigate("/favouriteroutes")}
-                      >
-                        View Favourites
-                      </Button>
+                          Save Route
+                        </Button>
+                      </Grid>
+                      <Grid item xs="auto">
+                        <Button
+                          variant="contained"
+                          onClick={() => navigate("/favouriteroutes")}
+                          sx={{ whiteSpace: "nowrap" }}
+                        >
+                          View Favourites
+                        </Button>
+                      </Grid>
+
                       {/* For dev purposes
             <Button variant="contained"onClick={clearRoute}>Clear Route</Button>*/}
-                    </Stack>
+                    </Grid>
                     <Box sx={{ pt: 3 }}>
                       <SaveRouteMessage />
                     </Box>

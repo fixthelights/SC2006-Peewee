@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect, useContext } from 'react'
+import { useState, useContext } from 'react'
 import axios from 'axios';
-import { RecoveryContext, delayTime } from "../../pages/PasswordRecovery";
+import { RecoveryContext } from "../../pages/ForgetPassword";
 import {createTheme, ThemeProvider, CssBaseline, Box, Typography, Button, Alert, Grid, Paper, TextField, Link, Photo} from '../ComponentsIndex'
 
 // TODO remove, this demo shouldn't need to reset the theme.
@@ -15,8 +15,8 @@ export default function OTPResetEmail() {
   const [enteredEmail, setEnteredEmail] = useState('');
   const [isEmailSubmitted, setIsEmailSubmitted] = useState(false);
   const [isEmailValid, setIsEmailValid] = useState({} as boolean);
-  const { email, setEmail, setOTP, setPage } = useContext(RecoveryContext);
-  const [test, setTest] = useState(0);
+  const { setEmail, setOTP, setPage } = useContext(RecoveryContext);
+  const [test] = useState(0);
 
   // useEffect(() => {
   //   console.log("Component mounted or updated");
@@ -41,7 +41,6 @@ export default function OTPResetEmail() {
         setEmail(enteredEmail);
         const otpPromise = sendForgetPassword(enteredEmail);
         const otp = await otpPromise; // Async (?)
-        console.log(otp?.data.otp.token);
         setOTP(otp?.data.otp.token);
         setIsEmailValid(true);
         setPage("otpinput"); // Move to next step
@@ -54,7 +53,6 @@ export default function OTPResetEmail() {
 
   // Send OTP to email
   function sendForgetPassword(toEmail: string) {
-      setTest(test+1);
       console.log("Email is " + toEmail);
       const response = axios.post('http://localhost:2000/users/forget-password', { email : toEmail });
       // Return OTP 

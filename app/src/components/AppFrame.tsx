@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { styled } from "@mui/material/styles";
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
 import {
@@ -91,12 +91,22 @@ interface AppFrameProps extends ContainerOwnProps{
 
 export default function AppFrame({defaultOpen, pageName, children ,...props}: AppFrameProps) {
   const [open, setOpen] = React.useState(true);
+  const [lastOpen, setLastOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
+  useEffect(()=>{
+    if(isSmallScreen){
+      setLastOpen(open)
+      setOpen(false)
+    }else{
+      setOpen(lastOpen);
+    }
+  },[isSmallScreen]);
 
   const navigate = useNavigate();
 
