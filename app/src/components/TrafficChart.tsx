@@ -1,20 +1,17 @@
 import * as React from "react";
-import { FC } from "react";
-import Typography from "@mui/material/Typography";
+import {FC} from "react"
 import Title from "../components/Title";
 import {
   LineChart,
   Line,
   XAxis,
   YAxis,
-  Label,
   ResponsiveContainer,
   Tooltip,
   Legend,
+  Label
 } from "recharts";
-import { useTheme } from "@mui/material/styles";
-import Stack from "@mui/material/Stack";
-import { useMediaQuery } from "@mui/material";
+import {Typography, useTheme, Stack, useMediaQuery} from '../components/ComponentsIndex'
 
 interface TrafficChartProps {
   carsNow: number;

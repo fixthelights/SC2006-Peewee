@@ -4,10 +4,6 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import { CardActionArea } from '@mui/material';
-import { StringDecoder } from 'string_decoder';
-import {Grid, Box} from '../components/ComponentsIndex'
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme } from '@mui/material/styles';
 
 interface ActionAreaCardProps{
   image: string

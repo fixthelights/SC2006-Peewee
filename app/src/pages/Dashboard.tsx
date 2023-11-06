@@ -9,8 +9,6 @@ import {Table, TableBody, TableCell, TableHead, TableRow} from '../components/Ta
 import {useTheme, createTheme, ThemeProvider, CssBaseline, Grid, Paper, Link, Stack, AppFrame, Title} from '../components/ComponentsIndex'
 import { Box, Skeleton } from "@mui/material";
 
-const drawerWidth: number = 240;
-
 interface User{
   userId: string,
   email: string, 

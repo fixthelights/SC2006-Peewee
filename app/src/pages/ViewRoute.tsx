@@ -5,13 +5,6 @@ import { useLoadScript } from "@react-google-maps/api";
 import {FC} from 'react';
 import {createTheme, ThemeProvider , CssBaseline, Typography, Button, Container, AppFrame, Stack, ToggleButton, ToggleButtonGroup, useTheme, useMediaQuery} from '../components/ComponentsIndex'
 
-interface User{
-  userId: string,
-  email: string, 
-  iat: number,
-  exp: number
-}
-
 interface ViewRouteProps{
   source: string,
   destination: string
@@ -192,9 +185,6 @@ const ViewRoute: FC<ViewRouteProps> = ({source, destination, setViewMap}) => {
                 <Stack direction="row" spacing={2}>
                   <Button variant="contained" onClick={calculateRoute}>Zoom in to Route</Button>
                   <Button variant="contained" onClick={()=>setViewMap(false)}>Back to Favourites</Button>
-                  {/* For dev purposes
-                  <Button variant="contained"onClick={clearRoute}>Clear Route</Button>*/}
-                  
                 </Stack>
             </Container>
                 <Container sx={{ my: 3 }}>
