@@ -277,7 +277,7 @@ export default function Dashboard() {
       return (
         <React.Fragment>
           <TrafficChart carsNow={currentCarCount} average={average} data={data}/>
-          <Link color="primary" href="#" sx={{ mt: 3 }}>
+          <Link color="primary" href="#" sx={{ mt: 3 }} onClick={()=>navigate('/roadconditions')}>
             See specific camera trends
           </Link>
         </React.Fragment>
