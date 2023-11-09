@@ -1,32 +1,14 @@
-import React, { useCallback } from 'react';
-import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import { useNavigate } from "react-router-dom";
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import Button from '@mui/material/Button';
-import { useState, useEffect } from 'react';
-import Stack from '@mui/material/Stack';
-import Alert from '@mui/material/Alert';
+import { useState} from 'react';
 import axios from 'axios'
 import {MouseEvent} from 'react'
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
-import Container from '@mui/material/Container';
-import AppFrame from '../components/AppFrame'
-import { TextField } from '@mui/material';
+import {createTheme, ThemeProvider, CssBaseline, Box, Typography, InputLabel, MenuItem, FormControl, Select, Button, Stack, Alert, Grid, Paper, Container, AppFrame, TextField} from '../components/ComponentsIndex'
+
 //import * as Location from 'expo-location';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 export default function ReportIncident() {
-
-  const navigate = useNavigate();
 
   const [incidentType, setIncidentType] = useState('');
   const [incidentLocation, setIncidentLocation] = useState('');
@@ -39,32 +21,17 @@ export default function ReportIncident() {
   const [locationPermission, setLocationPermission] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState(false);
   const [validSubmission, setValidSubmission] = useState(false);
-  const [locationLoading, setLocationLoading] = useState(false)
 
 
   function getUserLocation(): void {
-
-    setLocationLoading(true);
-
-    /*(async () => {
-      let {status} = await Location.requestForegroundPermissionsAsync();
-      if (status != 'granted'){
-        setCoordinatesDetected(false)
-        setLocationPermission(false)
-      }
-      let location = await Location.getCurrentPositionAsync({})
-      console.log(location)
-    })();*/
 
     try{
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(function(position) {
             console.log("Latitude is :", position.coords.latitude);
             console.log("Longitude is :", position.coords.longitude);
-            // setLatitude(position.coords.latitude)
-            // setLongitude(position.coords.longitude)
-            setLatitude(1.362615)
-            setLongitude(103.858719)
+            setLatitude(position.coords.latitude)
+            setLongitude(position.coords.longitude)
             setCoordinatesDetected(true)
             setCoordinatesToBeConverted(true)
             setLocationPermission(true)
@@ -76,14 +43,10 @@ export default function ReportIncident() {
       setLocationPermission(false)
     }
 
-    setLocationLoading(false);
-
   }
 
   const DisplayLocationMessage = () => {
-    if (locationLoading){
-      return <DisplayLoading />
-    }
+
     if (!locationPermission){
         return <DisplayLocationAccessRequest/>
       } else if (coordinatesDetected){
@@ -93,21 +56,6 @@ export default function ReportIncident() {
       } else {
         return <DisplayRetry />
       }
-  }
-
-  const DisplayLoading = () => {
-
-    return      <Box>
-                <Grid item xs={12} md={6} lg={6}>
-                <Alert 
-                  severity="info"
-                >
-                  <Typography>
-                  Loading... 
-                  </Typography>
-                </Alert>
-              </Grid>
-              </Box>
   }
 
   const DisplayViewLocation = () => {
@@ -196,8 +144,6 @@ export default function ReportIncident() {
 
   const handleLocationAccess = () => {
 
-    setLocationLoading(true);
-
     axios.get(`https://eu1.locationiq.com/v1/reverse?key=pk.565aea3b0b4252d7587da4689cd6869e&lat=${latitude}&lon=${longitude}&format=json`)
     .then((res)=> setIncidentLocation(res.data['display_name']))
     .then ((res)=> setCoordinatesConverted(true))
@@ -207,8 +153,6 @@ export default function ReportIncident() {
         setCoordinatesConverted(false)
         setCoordinatesToBeConverted(false)
     });
-
-    setLocationLoading(false)
     
   }
 
