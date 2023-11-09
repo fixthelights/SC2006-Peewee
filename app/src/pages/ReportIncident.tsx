@@ -32,6 +32,14 @@ export default function ReportIncident() {
             console.log("Longitude is :", position.coords.longitude);
             setLatitude(position.coords.latitude)
             setLongitude(position.coords.longitude)
+            // 1.422479, 103.796982 mandai
+            // 1.396470, 103.842512 yishun
+            // 1.337949, 103.756151 bukit batok
+            // 1.339033, 103.886596 hougang
+            // 1.345535, 103.953444 tampines
+            // 1.303992, 103.852629 rochor
+            // 1.282497, 103.813785 4005 depot lane
+            // 1.341562, 103.683340 western water catchment
             setCoordinatesDetected(true)
             setCoordinatesToBeConverted(true)
             setLocationPermission(true)
