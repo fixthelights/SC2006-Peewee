@@ -144,7 +144,7 @@ const ViewRoute: React.FC<ViewRouteProps> = ({source, destination, setViewMap}) 
   async function loadTrafficIncidents() {
     try {
       const response = await axios.get(
-        `http://${process.env.REACT_APP_SERVER_URL}/reports/today/all`
+        `https://${process.env.REACT_APP_SERVER_URL}/reports/today/all`
       );
       console.log(response.data);
       setIncidents(response.data);
@@ -156,7 +156,7 @@ const ViewRoute: React.FC<ViewRouteProps> = ({source, destination, setViewMap}) 
   async function loadTrafficConditions() {
     try {
       const response = await axios.get(
-        `http://${process.env.REACT_APP_SERVER_URL}/traffic/conditions`
+        `https://${process.env.REACT_APP_SERVER_URL}/traffic/conditions`
       );
       console.log(response.data);
       const allCameras = response.data.cameras;

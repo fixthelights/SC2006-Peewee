@@ -94,7 +94,7 @@ class AuthManager{
     //         let loggedIn = false;
 
     //         // Validate JWT with backend - Check if token still valid
-    //         axios.post(`http://${process.env.REACT_APP_SERVER_URL}/users/auth`, { jwt: userJwt })
+    //         axios.post(`https://${process.env.REACT_APP_SERVER_URL}/users/auth`, { jwt: userJwt })
     //         .then(res => {loggedIn = res.data});
 
     //         console.log("User is logged in =", loggedIn);

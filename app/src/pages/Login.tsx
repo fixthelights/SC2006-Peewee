@@ -43,7 +43,7 @@ export default function Login({ children }: LoginProps) {
         if (email === "" || password === "") {throw new Error("User not logged in")}
         
         // Make login request to server
-        const response = await axios.post(`http://${process.env.REACT_APP_SERVER_URL}/users/login`, {
+        const response = await axios.post(`https://${process.env.REACT_APP_SERVER_URL}/users/login`, {
           email: email,
           password: password
         })
@@ -57,7 +57,7 @@ export default function Login({ children }: LoginProps) {
 
 
         // // Validate JWT with backend - Check if token still valid
-        // const loggedIn = await axios.post(`http://${process.env.REACT_APP_SERVER_URL}/users/auth`, { jwt: userJwt });
+        // const loggedIn = await axios.post(`https://${process.env.REACT_APP_SERVER_URL}/users/auth`, { jwt: userJwt });
 
       }
 
@@ -99,7 +99,7 @@ export default function Login({ children }: LoginProps) {
   //   let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
 
   //   // Validate JWT with backend - Check if token still valid
-  //   const loggedIn = await axios.post(`http://${process.env.REACT_APP_SERVER_URL}/users/auth`, { jwt: userJwt });
+  //   const loggedIn = await axios.post(`https://${process.env.REACT_APP_SERVER_URL}/users/auth`, { jwt: userJwt });
     
   //   console.log(userJwt);
     

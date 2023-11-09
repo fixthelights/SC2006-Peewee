@@ -27,7 +27,7 @@ export default function Incidents() {
   const [isReportLoaded, setIsReportLoaded] = useState(false)
 
   const getReportList = () => {
-    axios.get(`http://${process.env.REACT_APP_SERVER_URL}/reports/today/all`)
+    axios.get(`https://${process.env.REACT_APP_SERVER_URL}/reports/today/all`)
     .then((res)=> setReportList(res.data))
     .then ((res)=> setIsReportLoaded(true))
     .catch(function(error) {
