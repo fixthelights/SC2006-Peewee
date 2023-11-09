@@ -47,9 +47,11 @@ export default function Register() {
       .then ((res)=>setIsExistingUser(false))
       .then ((res) => setIsRegistrationSuccessful(true))
       .catch(function(error) {
-        console.log(error);
-        setIsExistingUser(true)
-        setIsRegistrationSuccessful(false)
+        if (error.response){
+          if (error.response.status===404) setIsExistingUser(true)
+          else setIsExistingUser(false)
+          setIsRegistrationSuccessful(false)
+        }
       })
 
     } else {

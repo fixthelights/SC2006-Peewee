@@ -8,10 +8,17 @@ import AIPhoto from '../assets/AI.jpg'
 import HMPhoto from '../assets/Heatmap.png'
 import SearchPhoto from '../assets/Search.png'
 import StickyFooter from "../components/StickyFooter";
+import axios from 'axios'
 
 function Landing() {
     const navigate = useNavigate();
-
+    function test(){
+        axios.get('http://localhost:2000/reports')
+        .then((res)=> console.log(res.data))
+        .catch(function(error) {
+            console.log(error)
+        });
+    }
     return (
         <div className="Landing" style={{backgroundImage: `url(${Photo})` }}>
             <div className="Landing-content">
@@ -27,6 +34,12 @@ function Landing() {
                 <Button 
                     variant="contained" 
                     onClick={() => navigate("/login")}
+                >
+                    Log In
+                </Button>
+                <Button 
+                    variant="contained" 
+                    onClick={() => test()}
                 >
                     Log In
                 </Button>

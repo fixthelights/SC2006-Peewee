@@ -61,8 +61,10 @@ export default function ReportIncident() {
           navigator.geolocation.getCurrentPosition(function(position) {
             console.log("Latitude is :", position.coords.latitude);
             console.log("Longitude is :", position.coords.longitude);
-            setLatitude(position.coords.latitude)
-            setLongitude(position.coords.longitude)
+            // setLatitude(position.coords.latitude)
+            // setLongitude(position.coords.longitude)
+            setLatitude(1.362615)
+            setLongitude(103.858719)
             setCoordinatesDetected(true)
             setCoordinatesToBeConverted(true)
             setLocationPermission(true)
@@ -79,9 +81,11 @@ export default function ReportIncident() {
   }
 
   const DisplayLocationMessage = () => {
+    if (locationLoading){
+      return <DisplayLoading />
+    }
     if (!locationPermission){
-        if (locationLoading) return <DisplayLoading />
-        else return <DisplayLocationAccessRequest/>
+        return <DisplayLocationAccessRequest/>
       } else if (coordinatesDetected){
         if (coordinatesToBeConverted) return <DisplayViewLocation />
         else if (!coordinatesConverted) return <DisplayRetry />
@@ -192,6 +196,8 @@ export default function ReportIncident() {
 
   const handleLocationAccess = () => {
 
+    setLocationLoading(true);
+
     axios.get(`https://eu1.locationiq.com/v1/reverse?key=pk.565aea3b0b4252d7587da4689cd6869e&lat=${latitude}&lon=${longitude}&format=json`)
     .then((res)=> setIncidentLocation(res.data['display_name']))
     .then ((res)=> setCoordinatesConverted(true))
@@ -201,6 +207,8 @@ export default function ReportIncident() {
         setCoordinatesConverted(false)
         setCoordinatesToBeConverted(false)
     });
+
+    setLocationLoading(false)
     
   }
 
