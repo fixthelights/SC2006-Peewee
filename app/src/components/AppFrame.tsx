@@ -15,6 +15,9 @@ import {
   Menu,
   MenuItem,
   BoxProps,
+  Slide,
+  useScrollTrigger,
+  StyledComponentProps,
 } from "@mui/material";
 import MuiDrawer from "@mui/material/Drawer";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -35,7 +38,6 @@ import { useTheme } from "@mui/material/styles";
 import { Logout } from "@mui/icons-material";
 
 const drawerWidth: number = 240;
-const appBarHeight: number = 64;
 
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean;
@@ -44,7 +46,6 @@ interface AppBarProps extends MuiAppBarProps {
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
 })<AppBarProps>(({ theme, open }) => ({
-  height: appBarHeight,
   zIndex: theme.zIndex.drawer + 1,
   transition: theme.transitions.create(["width", "margin"], {
     easing: theme.transitions.easing.sharp,
@@ -93,12 +94,14 @@ interface AppFrameProps extends ContainerOwnProps {
   defaultOpen?: boolean;
   pageName?: string;
   children?: React.ReactNode;
+  style?: any;
 }
 
 export default function AppFrame({
   defaultOpen,
   pageName,
   children,
+  style,
   ...props
 }: AppFrameProps) {
   const [open, setOpen] = React.useState(true);
@@ -175,10 +178,12 @@ export default function AppFrame({
   );
 
   const { maxWidth = "lg", sx = { mt: 4, mb: 4 } } = props;
+  const trigger = useScrollTrigger();
 
   return (
-    <Box sx={{ display: "flex", height: "100vh" }}>
-      <AppBar position="absolute" open={open}>
+    <Box sx={{ display: "flex"}}>
+      <Slide appear={false} direction="down" in={!trigger}>
+      <AppBar position={isSmallScreen ? "fixed" : "absolute"} open={open}>
         <Toolbar
           sx={{
             pr: "24px", // keep right padding when drawer closed
@@ -258,6 +263,7 @@ export default function AppFrame({
           </Menu>
         </Toolbar>
       </AppBar>
+      </Slide>
       {isSmallScreen ? (
         <Drawer
           variant="temporary"
@@ -293,10 +299,10 @@ export default function AppFrame({
       <Container
         maxWidth={maxWidth}
         sx={sx}
-        style={{ height: `calc(100% - ${64}px)` }}
+        style={style}
         {...props}
       >
-        <Toolbar sx={{height: {appBarHeight}}}/>
+        <Toolbar/>
         {children}
       </Container>
     </Box>

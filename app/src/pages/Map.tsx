@@ -378,7 +378,7 @@ export default function Map() {
   return (
     <ThemeProvider theme={defaultTheme}>
       <CssBaseline />
-      <AppFrame pageName="Map" disableGutters maxWidth={false} sx={{}}>
+      <AppFrame pageName="Map" disableGutters maxWidth={false} sx={{}} style={{ height: `calc(100svh - ${56}px)` }}>
           <MapComponent
             location={{
               lng: 103.7992246,
