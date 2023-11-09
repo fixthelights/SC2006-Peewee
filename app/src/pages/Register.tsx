@@ -20,6 +20,8 @@ export default function Register() {
   const [isInvalidPassword, setIsInvalidPssword] = useState(true);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isRegistrationSuccessful, setIsRegistrationSuccessful] = useState(false)
+  const [retypedPassword, setRetypedPassword] = useState('');
+  const [validRetypedPassword, setValidRetypedPassword] = useState(false);
 
   const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
@@ -28,6 +30,10 @@ export default function Register() {
   const handlePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(event.target.value);
   };
+  const handleRetypedPassword = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRetypedPassword(event.target.value);
+  };
+  
 
   const handleSubmit = async(event: React.FormEvent<HTMLFormElement>) => {
 
@@ -35,6 +41,10 @@ export default function Register() {
 
     let emailFormatValid = validateEmailAddressFormat(email)
     let passwordValid = checkPasswordValidity(password)
+
+    // if (passwordValid && password===retypedPassword){
+    //   setValidRetypedPassword(true);
+    // }
 
     setIsSubmitted(true)
 
@@ -92,7 +102,6 @@ export default function Register() {
       } else {
         return <Alert severity="info">Error in Registration.</Alert>
       }
-     return null;
     }
     return null;
   }
@@ -189,7 +198,7 @@ export default function Register() {
                 />
               </Grid>
               <Grid item xs={12}>
-              <EmailStatusMessage />
+                <EmailStatusMessage/>
               </Grid>
               <Grid item xs={12}>
                 <TextField
@@ -200,6 +209,19 @@ export default function Register() {
                   type="password"
                   id="password"
                   onChange={handlePassword}
+                />
+              </Grid>
+              <Grid item xs={12}>
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  name="password"
+                  label="Confirm Password"
+                  type="password"
+                  id="password"
+                  onChange={handleRetypedPassword}
                   helperText="Password must be at least 8 characters long, contain 1 uppercase character, 1 lowercase character and 1 special character"
                 />
               </Grid>
