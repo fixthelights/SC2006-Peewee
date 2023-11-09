@@ -44,7 +44,7 @@ export default function OTPInput() {
   // Resend OTP to email with 60s cooldown
   function resendOTP() {
     if (disable) return;
-    axios.post('http://localhost:2000/users/forget-password', { email : email })
+    axios.post(`http://${process.env.REACT_APP_SERVER_URL}/users/forget-password`, { email : email })
     .then((response : AxiosResponse) => setOTP(response?.data.otp.token))
     .then(() => setDisable(true))
     .then(() => alert("A new OTP has succesfully been sent to your email."))

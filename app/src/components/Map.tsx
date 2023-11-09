@@ -117,7 +117,7 @@ const Map: FC<MapProps> = ({
   }, [cameras]);
 
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: "AIzaSyDm-rTxw55HDBTGxVL5kbYVtQjqHVIiPCE",
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_KEY || "",
     libraries: libraries,
   });
 

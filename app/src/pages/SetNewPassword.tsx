@@ -32,7 +32,7 @@ export default function SetNewPassword() {
   const [isSubmitted, setIsSubmitted] = useState(false)
 
   /*useEffect(()=> {  
-      axios.get('http://localhost:2000/') 
+      axios.get('http://${process.env.REACT_APP_SERVER_URL}/') 
       .then((res)=> setUserList(res.data));
   }, []);*/
 
@@ -80,7 +80,7 @@ export default function SetNewPassword() {
     if (authController.checkPasswordValidity(password)){
       validPassword = true
 
-      /*axios.put('http://localhost:2000/', newUser)
+      /*axios.put('http://${process.env.REACT_APP_SERVER_URL}/', newUser)
       .then(res => {
         console.log(res.data)
       })*/

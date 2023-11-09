@@ -54,7 +54,7 @@ export default function FavouriteRoutes() {
   const getFavouriteRouteList = () => {
     console.log(userId)
      axios
-     .post("http://localhost:2000/routes/list",
+     .post(`http://${process.env.REACT_APP_SERVER_URL}/routes/list`,
      {
        id: userId
      })
@@ -96,7 +96,7 @@ export default function FavouriteRoutes() {
 
   function unfavouriteRoute(reportId: String): void {
     axios
-    .delete("http://localhost:2000/routes/"+reportId)
+    .delete(`http://${process.env.REACT_APP_SERVER_URL}/routes/${reportId}`)
     .then ((res)=> getFavouriteRouteList())
     .catch(function (error) {
       console.log(error);

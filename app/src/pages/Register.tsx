@@ -39,7 +39,7 @@ export default function Register() {
     setIsSubmitted(true)
 
     if (emailFormatValid && passwordValid){
-      axios.post('http://localhost:2000/users/register', {
+      axios.post(`http://${process.env.REACT_APP_SERVER_URL}/users/register`, {
         email: email,
         password: password,
       })

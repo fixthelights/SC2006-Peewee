@@ -79,7 +79,7 @@ export default function CameraPage() {
 
   const getTrafficData = (cameraId: string) => {
     axios
-      .get(`http://localhost:2000/traffic/trends/${cameraId}`)
+      .get(`http://${process.env.REACT_APP_SERVER_URL}/traffic/trends/${cameraId}`)
       .then((res) => {
         if (res.status === 200) {
           setTrafficData(res.data.hourly_counts);
@@ -98,7 +98,7 @@ export default function CameraPage() {
   const getTrafficCameraData = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:2000/traffic/conditions"
+        `http://${process.env.REACT_APP_SERVER_URL}/traffic/conditions`
       );
       console.log(response.data);
       const allCameras: CameraData[] = response.data.cameras;
@@ -129,7 +129,7 @@ export default function CameraPage() {
 
   const getOneTrafficCameraTrends = (cameraId: string) => {
     axios
-      .get(`http://localhost:2000/traffic/trends/${cameraId}`)
+      .get(`http://${process.env.REACT_APP_SERVER_URL}/traffic/trends/${cameraId}`)
       .then((res) => {
         if (res.status === 200) {
           setOneCameraTrends(res.data.hourly_counts);
@@ -144,7 +144,7 @@ export default function CameraPage() {
 
   const getCurrentData = (cameraId: string) => {
     axios
-      .get(`http://localhost:2000/traffic/conditions/${cameraId}`)
+      .get(`http://${process.env.REACT_APP_SERVER_URL}/traffic/conditions/${cameraId}`)
       .then((res) => {
         setCurrentCarCount(res.data["vehicle_count"] ?? null);
         setTimeRetrieved(res.data["taken_at"]);
@@ -159,7 +159,7 @@ export default function CameraPage() {
   // const fetchCameraData = async () => {
   //   try {
   //     const response = await axios.get<CameraData>(
-  //       `http://localhost:2000/traffic/conditions/${cameraData}`
+  //       `http://${process.env.REACT_APP_SERVER_URL}/traffic/conditions/${cameraData}`
   //     );
   //     setCameraData(response.data);
   //   } catch (error) {
@@ -174,7 +174,7 @@ export default function CameraPage() {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          "http://localhost:2000/traffic/conditions"
+          `http://${process.env.REACT_APP_SERVER_URL}/traffic/conditions`
         );
         const data = await response.json();
         // Assuming the API returns an array of camera data
@@ -198,7 +198,7 @@ export default function CameraPage() {
   const fetchAllCameras = async () => {
     try {
       // Use await
-      const response = await fetch("http://localhost:2000/traffic/conditions");
+      const response = await fetch(`http://${process.env.REACT_APP_SERVER_URL}/traffic/conditions`);
       // Now no need .then(), can just use the response as if you waited
       if (!response.ok) {
         throw Error("Error found");

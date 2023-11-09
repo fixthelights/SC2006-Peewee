@@ -139,7 +139,7 @@ export default function Map() {
   const routePolyline: React.MutableRefObject<any> = React.useRef();
 
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: "AIzaSyDm-rTxw55HDBTGxVL5kbYVtQjqHVIiPCE",
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_KEY || "",
     libraries: libraries, // Move array outside of functional component
   });
 
@@ -177,7 +177,7 @@ export default function Map() {
   async function loadTrafficIncidents() {
     try {
       const response = await axios.get(
-        "http://localhost:2000/reports/today/all"
+        `http://${process.env.REACT_APP_SERVER_URL}/reports/today/all`
       );
       console.log(response.data);
       setIncidents(response.data);
@@ -189,7 +189,7 @@ export default function Map() {
   async function loadTrafficConditions() {
     try {
       const response = await axios.get(
-        "http://localhost:2000/traffic/conditions"
+        `http://${process.env.REACT_APP_SERVER_URL}/traffic/conditions`
       );
       console.log(response.data);
       const allCameras = response.data.cameras;
@@ -337,7 +337,7 @@ export default function Map() {
 
     try {
       const response = await axios.post(
-        "http://localhost:2000/routes",
+        `http://${process.env.REACT_APP_SERVER_URL}/routes`,
         routeData
       );
       setRouteSaved(true);

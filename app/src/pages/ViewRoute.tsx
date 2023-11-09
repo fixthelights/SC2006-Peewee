@@ -113,7 +113,7 @@ const ViewRoute: React.FC<ViewRouteProps> = ({source, destination, setViewMap}) 
     React.useState<google.maps.DirectionsResult | null>(null);
 
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: "AIzaSyDm-rTxw55HDBTGxVL5kbYVtQjqHVIiPCE",
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_KEY || "",
     libraries: libraries, // Move array outside of functional component
   });
 
@@ -144,7 +144,7 @@ const ViewRoute: React.FC<ViewRouteProps> = ({source, destination, setViewMap}) 
   async function loadTrafficIncidents() {
     try {
       const response = await axios.get(
-        "http://localhost:2000/reports/today/all"
+        `http://${process.env.REACT_APP_SERVER_URL}/reports/today/all`
       );
       console.log(response.data);
       setIncidents(response.data);
@@ -156,7 +156,7 @@ const ViewRoute: React.FC<ViewRouteProps> = ({source, destination, setViewMap}) 
   async function loadTrafficConditions() {
     try {
       const response = await axios.get(
-        "http://localhost:2000/traffic/conditions"
+        `http://${process.env.REACT_APP_SERVER_URL}/traffic/conditions`
       );
       console.log(response.data);
       const allCameras = response.data.cameras;
