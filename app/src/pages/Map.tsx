@@ -378,8 +378,7 @@ export default function Map() {
   return (
     <ThemeProvider theme={defaultTheme}>
       <CssBaseline />
-      <AppFrame pageName="Map" maxWidth={false} disableGutters sx={{}}>
-        <Container sx={{ height: "90vh" }} maxWidth={false} disableGutters>
+      <AppFrame pageName="Map" disableGutters maxWidth={false} sx={{}}>
           <MapComponent
             location={{
               lng: 103.7992246,
@@ -536,7 +535,6 @@ export default function Map() {
               </Accordion>
             </Card>
           </MapComponent>
-        </Container>
       </AppFrame>
     </ThemeProvider>
   );
