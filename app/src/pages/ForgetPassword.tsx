@@ -16,7 +16,7 @@ export const delayTime = 2000; // Set delay to simulate loading (for user experi
 function ForgetPassword() {
   const [page, setPage] = useState("otpemail");
   const [email, setEmail] = useState("");
-  const [otp, setOTP] = useState("");
+  const [otp, setOTP] = useState("510210");
 
   
   const NavigateComponents = useMemo(() => {

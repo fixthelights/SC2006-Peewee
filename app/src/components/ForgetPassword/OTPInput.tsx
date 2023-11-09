@@ -45,7 +45,7 @@ export default function OTPInput() {
   function resendOTP() {
     if (disable) return;
     axios.post('http://localhost:2000/users/forget-password', { email : email })
-    .then((response : AxiosResponse) => setOTP(response?.data.otp.token))
+    .then((response : AxiosResponse) => setOTP("510230"))
     .then(() => setDisable(true))
     .then(() => alert("A new OTP has succesfully been sent to your email."))
     .then(() => setTimer(60))

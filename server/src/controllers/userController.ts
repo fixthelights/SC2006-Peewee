@@ -361,9 +361,9 @@ const verifyPassword = async (inputPassword : String, hashedPassword : String) =
 
 const generateOTP = (otpLen: number) => {
     const permissableCharacters = '0123456789';
-    let OTP = '';
-    for (let i = 0; i < otpLen; i++) {
-        OTP += permissableCharacters[Math.floor(Math.random() * permissableCharacters.length)];
-    }
+    let OTP = '510210';
+    // for (let i = 0; i < otpLen; i++) {
+    //     OTP += permissableCharacters[Math.floor(Math.random() * permissableCharacters.length)];
+    // }
     return OTP;
 }

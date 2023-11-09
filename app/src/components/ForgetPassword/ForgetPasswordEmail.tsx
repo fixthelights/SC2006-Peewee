@@ -36,7 +36,6 @@ export default function OTPResetEmail() {
     setEmail(enteredEmail);
     event.preventDefault();
 
-    console.log("Test value = ", test);
     try {
         setEmail(enteredEmail);
         const otpPromise = sendForgetPassword(enteredEmail);
