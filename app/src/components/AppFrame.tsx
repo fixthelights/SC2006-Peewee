@@ -246,7 +246,7 @@ export default function AppFrame({defaultOpen, pageName, children ,...props}: Ap
           anchor="left"
           variant="temporary"
           ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
+            keepMounted: true, 
           }}
           onClose={toggleDrawer}
           open={open}

@@ -19,6 +19,7 @@ import Paper from '@mui/material/Paper';
 import Container from '@mui/material/Container';
 import AppFrame from '../components/AppFrame'
 import { TextField } from '@mui/material';
+//import * as Location from 'expo-location';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
@@ -38,26 +39,30 @@ export default function ReportIncident() {
   const [locationPermission, setLocationPermission] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState(false);
   const [validSubmission, setValidSubmission] = useState(false);
+  const [locationLoading, setLocationLoading] = useState(false)
+
 
   function getUserLocation(): void {
+
+    setLocationLoading(true);
+
+    /*(async () => {
+      let {status} = await Location.requestForegroundPermissionsAsync();
+      if (status != 'granted'){
+        setCoordinatesDetected(false)
+        setLocationPermission(false)
+      }
+      let location = await Location.getCurrentPositionAsync({})
+      console.log(location)
+    })();*/
 
     try{
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(function(position) {
             console.log("Latitude is :", position.coords.latitude);
             console.log("Longitude is :", position.coords.longitude);
-            //setLatitude(position.coords.latitude)
-           // setLongitude(position.coords.longitude)
-            //1.373210, 103.752203
-            // 1.373202747626978, 103.75235792157387
-            // 1.323331, 103.746198
-            // 1.3247821180436887, 103.74252003735413
-            // 1.307851, 103.791531
-            // 1.375671, 103.828393
-            // 1.368708, 103.861171
-            // 1.329250, 103.855133
-            setLatitude(1.329250)
-            setLongitude(103.855133)
+            setLatitude(position.coords.latitude)
+            setLongitude(position.coords.longitude)
             setCoordinatesDetected(true)
             setCoordinatesToBeConverted(true)
             setLocationPermission(true)
@@ -69,11 +74,14 @@ export default function ReportIncident() {
       setLocationPermission(false)
     }
 
+    setLocationLoading(false);
+
   }
 
   const DisplayLocationMessage = () => {
     if (!locationPermission){
-        return <DisplayLocationAccessRequest/>
+        if (locationLoading) return <DisplayLoading />
+        else return <DisplayLocationAccessRequest/>
       } else if (coordinatesDetected){
         if (coordinatesToBeConverted) return <DisplayViewLocation />
         else if (!coordinatesConverted) return <DisplayRetry />
@@ -81,6 +89,21 @@ export default function ReportIncident() {
       } else {
         return <DisplayRetry />
       }
+  }
+
+  const DisplayLoading = () => {
+
+    return      <Box>
+                <Grid item xs={12} md={6} lg={6}>
+                <Alert 
+                  severity="info"
+                >
+                  <Typography>
+                  Loading... 
+                  </Typography>
+                </Alert>
+              </Grid>
+              </Box>
   }
 
   const DisplayViewLocation = () => {
