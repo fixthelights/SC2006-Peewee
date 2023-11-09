@@ -11,7 +11,6 @@ import StickyFooter from "../components/StickyFooter";
 
 function Landing() {
     const navigate = useNavigate();
-
     return (
         <div className="Landing" style={{backgroundImage: `url(${Photo})` }}>
             <div className="Landing-content">

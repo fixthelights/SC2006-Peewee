@@ -246,7 +246,7 @@ export default function AppFrame({defaultOpen, pageName, children ,...props}: Ap
           anchor="left"
           variant="temporary"
           ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
+            keepMounted: true, 
           }}
           onClose={toggleDrawer}
           open={open}
@@ -267,7 +267,7 @@ export default function AppFrame({defaultOpen, pageName, children ,...props}: Ap
               : theme.palette.grey[900],
           flexGrow: 1,
           height: "100vh",
-          overflow: "auto",
+          overflow: 'auto'
         }}
       >
         <Toolbar />
