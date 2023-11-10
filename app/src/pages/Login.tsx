@@ -148,7 +148,7 @@ export default function Login({ children }: LoginProps) {
     if (isSubmitted){
       if (!isValidUser) {
         console.log("Is valid user = ", isValidUser);
-        return <Alert severity="info">Invalid User.</Alert>
+        return <Alert severity="info">Invalid User or Password</Alert>
       }
       return null;
     }
