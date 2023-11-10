@@ -7,7 +7,7 @@ import {TrafficChart} from "../components/TrafficChart"
 import {jwtDecode} from 'jwt-decode';
 import {Table, TableBody, TableCell, TableHead, TableRow} from '../components/TableIndex'
 import {useTheme, createTheme, ThemeProvider, CssBaseline, Grid, Paper, Link, Stack, AppFrame, Title} from '../components/ComponentsIndex'
-import { Box, Skeleton } from "@mui/material";
+import { Box, Skeleton, autocompleteClasses } from "@mui/material";
 
 interface User{
   userId: string,
@@ -460,8 +460,8 @@ export default function Dashboard() {
                     p: 2,
                     display: "flex",
                     flexDirection: "column",
-                    height: 320,
-                    overflow: "auto",
+                    height: {sm: "auto", md: 320},
+                    overflow: "auto"
                   }}
                 >
                   <IncidentList />
@@ -473,7 +473,7 @@ export default function Dashboard() {
                     p: 2,
                     display: "flex",
                     flexDirection: "column",
-                    height: 320,
+                    height: {sm: "auto", md: 320},
                     overflow: "auto",
                   }}
                 >

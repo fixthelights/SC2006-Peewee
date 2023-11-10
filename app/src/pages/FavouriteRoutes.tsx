@@ -116,9 +116,7 @@ export default function FavouriteRoutes() {
             sx={{
                 p: 2,
                 display: 'flex',
-                flexDirection: 'column',
-                height: 200,
-                overflow: 'auto'
+                flexDirection: 'column'
             }}
             >
             <Grid container spacing={2}>

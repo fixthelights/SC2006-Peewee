@@ -13,14 +13,15 @@ export default function Register() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [retypedPassword, setRetypedPassword] = useState('')
  
   // States for checking the errors
   const [isInvalidEmailFormat, setIsInvalidEmailFormat] = useState(true);
   const [isExistingUser, setIsExistingUser] = useState(false);
-  const [isInvalidPassword, setIsInvalidPassword] = useState(true);
+  const [isInvalidPassword, setIsInvalidPssword] = useState(true);
+  const [isInvalidRetypedPassword, setIsInvalidRetypedPassword] = useState(true)
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isRegistrationSuccessful, setIsRegistrationSuccessful] = useState(false)
-  const [retypedPassword, setRetypedPassword] = useState('');
   const [validRetypedPassword, setValidRetypedPassword] = useState({} as boolean);
 
   const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,12 +32,20 @@ export default function Register() {
     setPassword(event.target.value);
   };
 
+  const handleRetypedPassword = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRetypedPassword(event.target.value);
+  };
+
   const handleSubmit = async(event: React.FormEvent<HTMLFormElement>) => {
 
     event.preventDefault();
 
     let emailFormatValid = validateEmailAddressFormat(email)
     let passwordValid = checkPasswordValidity(password)
+    let retypedPasswordValid = false
+    if (password===retypedPassword){
+      retypedPasswordValid=true
+    } 
 
     if (passwordValid && password===retypedPassword){
       setValidRetypedPassword(true);
@@ -44,7 +53,7 @@ export default function Register() {
 
     setIsSubmitted(true)
 
-    if (emailFormatValid && validRetypedPassword){
+    if (emailFormatValid && passwordValid && retypedPasswordValid){
       axios.post('http://localhost:2000/users/register', {
         email: email,
         password: password,
@@ -53,9 +62,11 @@ export default function Register() {
       .then ((res)=>setIsExistingUser(false))
       .then ((res) => setIsRegistrationSuccessful(true))
       .catch(function(error) {
-        console.log(error);
-        setIsExistingUser(true)
-        setIsRegistrationSuccessful(false)
+        if (error.response){
+          if (error.response.status===404) setIsExistingUser(true)
+          else setIsExistingUser(false)
+          setIsRegistrationSuccessful(false)
+        }
       })
 
     } else {
@@ -64,7 +75,8 @@ export default function Register() {
     }
 
     setIsInvalidEmailFormat(!emailFormatValid);
-    setIsInvalidPassword(!passwordValid);
+    setIsInvalidPssword(!passwordValid);
+    setIsInvalidRetypedPassword(!retypedPasswordValid)
   }
 
   // message display depending on validity
@@ -89,6 +101,16 @@ export default function Register() {
       }
       if (validRetypedPassword === false){
         return <Alert severity="info">Passwords do not match.</Alert>
+      }
+     return null;
+    }
+    return null;
+  }
+
+  const RetypedPasswordStatusMessage = () => {
+    if (isSubmitted){
+      if (isInvalidRetypedPassword) {
+        return <Alert severity="info">Retyped password does not match the password.</Alert>
       }
      return null;
     }
@@ -215,6 +237,20 @@ export default function Register() {
               </Grid>
               <Grid item xs={12}>
               <PasswordStatusMessage/>
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  name="retypedPassword"
+                  label="Retype Password"
+                  type="password"
+                  id="retypedPassword"
+                  onChange={handleRetypedPassword}
+                />
+              </Grid>
+              <Grid item xs={12}>
+              <RetypedPasswordStatusMessage/>
               </Grid>
             </Grid>
             <Button

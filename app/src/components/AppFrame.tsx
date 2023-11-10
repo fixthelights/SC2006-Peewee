@@ -14,6 +14,10 @@ import {
   ContainerOwnProps,
   Menu,
   MenuItem,
+  BoxProps,
+  Slide,
+  useScrollTrigger,
+  StyledComponentProps,
 } from "@mui/material";
 import MuiDrawer from "@mui/material/Drawer";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -86,13 +90,20 @@ const StyledDrawer = styled(MuiDrawer, {
   },
 }));
 
-interface AppFrameProps extends ContainerOwnProps{
+interface AppFrameProps extends ContainerOwnProps {
   defaultOpen?: boolean;
   pageName?: string;
   children?: React.ReactNode;
+  style?: any;
 }
 
-export default function AppFrame({defaultOpen, pageName, children ,...props}: AppFrameProps) {
+export default function AppFrame({
+  defaultOpen,
+  pageName,
+  children,
+  style,
+  ...props
+}: AppFrameProps) {
   const [open, setOpen] = React.useState(true);
   const [openProfile, setOpenProfile] = React.useState(true);
   const [lastOpen, setLastOpen] = React.useState(true);
@@ -104,14 +115,14 @@ export default function AppFrame({defaultOpen, pageName, children ,...props}: Ap
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
-  useEffect(()=>{
-    if(isSmallScreen){
-      setLastOpen(open)
-      setOpen(false)
-    }else{
+  useEffect(() => {
+    if (isSmallScreen) {
+      setLastOpen(open);
+      setOpen(false);
+    } else {
       setOpen(lastOpen);
     }
-  },[isSmallScreen]);
+  }, [isSmallScreen]);
 
   const navigate = useNavigate();
 
@@ -166,11 +177,13 @@ export default function AppFrame({defaultOpen, pageName, children ,...props}: Ap
     </React.Fragment>
   );
 
-  const { maxWidth="lg", sx = {mt: 4, mb: 4} } = props;
+  const { maxWidth = "lg", sx = { mt: 4, mb: 4 } } = props;
+  const trigger = useScrollTrigger();
 
   return (
-    <Box sx={{ display: "flex" }}>
-      <AppBar position="absolute" open={open}>
+    <Box sx={{ display: "flex"}}>
+      <Slide appear={false} direction="down" in={!trigger}>
+      <AppBar position={isSmallScreen ? "fixed" : "absolute"} open={open}>
         <Toolbar
           sx={{
             pr: "24px", // keep right padding when drawer closed
@@ -188,65 +201,74 @@ export default function AppFrame({defaultOpen, pageName, children ,...props}: Ap
           >
             <MenuIcon />
           </IconButton>
-          <MapOutlinedIcon />
-          <Typography
-            component="h1"
-            variant="h6"
-            color="inherit"
-            noWrap
-            sx={{ flexGrow: 1 }}
-          >
-            PEEWEE
-          </Typography>
-          <Typography
-            component="h1"
-            variant="h6"
-            color="inherit"
-            noWrap
-            sx={{ flexGrow: 1 }}
-          >
-            {pageName}
-          </Typography>
-          <IconButton
-                size="large"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleMenu}
+          {!isSmallScreen && (
+            <>
+              <MapOutlinedIcon />
+              <Typography
+                component="h1"
+                variant="h6"
                 color="inherit"
+                //noWrap
               >
-                <AccountCircleOutlinedIcon />
-              </IconButton>
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorEl}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right',
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-              >
-                <MenuItem  onClick={() => {localStorage.removeItem("token"); navigate("/")}}>
-                  <ListItemIcon>
-                    <Logout fontSize="small" />
-                  </ListItemIcon>
-                  Logout
-                </MenuItem>
-              </Menu>
+                PEEWEE
+              </Typography>
+            </>
+          )}
+          <Container>
+            <Typography
+              component="h1"
+              variant="h6"
+              color="inherit"
+              align="center"
+            >
+              {pageName}
+            </Typography>
+          </Container>
+          <IconButton
+            size="large"
+            aria-label="account of current user"
+            aria-controls="menu-appbar"
+            aria-haspopup="true"
+            onClick={handleMenu}
+            color="inherit"
+          >
+            <AccountCircleOutlinedIcon />
+          </IconButton>
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorEl}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right",
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+          >
+            <MenuItem
+              onClick={() => {
+                localStorage.removeItem("token");
+                navigate("/");
+              }}
+            >
+              <ListItemIcon>
+                <Logout fontSize="small" />
+              </ListItemIcon>
+              Logout
+            </MenuItem>
+          </Menu>
         </Toolbar>
       </AppBar>
+      </Slide>
       {isSmallScreen ? (
         <Drawer
-          anchor="left"
           variant="temporary"
           ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
+            keepMounted: true, 
           }}
           onClose={toggleDrawer}
           open={open}
@@ -258,7 +280,7 @@ export default function AppFrame({defaultOpen, pageName, children ,...props}: Ap
           {drawer}
         </StyledDrawer>
       )}
-      <Box
+      {/* <Box
         component="main"
         sx={{
           backgroundColor: (theme) =>
@@ -267,14 +289,22 @@ export default function AppFrame({defaultOpen, pageName, children ,...props}: Ap
               : theme.palette.grey[900],
           flexGrow: 1,
           height: "100vh",
-          overflow: "auto",
+          overflow: 'auto'
         }}
       >
         <Toolbar />
-        <Container maxWidth={maxWidth} sx={sx} {...props}>
-          {children}
-        </Container>
-      </Box>
+        
+      </Box> */}
+
+      <Container
+        maxWidth={maxWidth}
+        sx={sx}
+        style={style}
+        {...props}
+      >
+        <Toolbar/>
+        {children}
+      </Container>
     </Box>
   );
 }
