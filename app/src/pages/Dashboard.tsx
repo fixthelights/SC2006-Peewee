@@ -1,13 +1,12 @@
-import * as React from "react";
+import * as React from 'react'
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useState, useEffect } from "react";
+import {jwtDecode} from 'jwt-decode';
 import MapComponent from "../components/Map";
 import {TrafficChart} from "../components/TrafficChart"
-import {jwtDecode} from 'jwt-decode';
 import {Table, TableBody, TableCell, TableHead, TableRow} from '../components/TableIndex'
-import {useTheme, createTheme, ThemeProvider, CssBaseline, Grid, Paper, Link, Stack, AppFrame, Title} from '../components/ComponentsIndex'
-import { Box, Skeleton, autocompleteClasses } from "@mui/material";
+import {useTheme, createTheme, ThemeProvider, CssBaseline, Grid, Paper, Link, Stack, AppFrame, Title, Box, Skeleton} from '../components/ComponentsIndex'
 
 interface User{
   userId: string,
@@ -73,13 +72,11 @@ interface Camera {
   peakedness: number;
 }
 
-// TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 export default function Dashboard() {
   const theme = useTheme();
 
-  const [open, setOpen] = useState(true);
   const [routeList, setRouteList] = useState([]);
   const [incidents, setIncidents] = useState<Array<Report>>([]);
   const [recentIncidents, setRecentIncidents] = useState([])
@@ -92,10 +89,6 @@ export default function Dashboard() {
   const [isCurrentTrafficLoaded, setIsCurrentTrafficLoaded] = useState(false);
   const [cameras, setCameras] = React.useState<Array<Camera>>([]);
   const [incidentFilters, setIncidentFilters] = React.useState(["accident", "roadWork", "roadClosure"]);
-
-  const toggleDrawer = () => {
-    setOpen(!open);
-  };
 
   const navigate = useNavigate();
 
@@ -205,7 +198,7 @@ export default function Dashboard() {
       });
   };
 
-  const   TrafficTrend = () => {
+  const TrafficTrend = () => {
     if (isTrafficLoaded && isCurrentTrafficLoaded) {
       let time = timeRetrieved.split(",")[1]
       let currentHour = 12
@@ -214,23 +207,23 @@ export default function Dashboard() {
         i++;
       }
       if (time[i+1]==':'){
-          if (time.toLowerCase().includes("pm")){ //1-9pm => 13-21:00
+          if (time.toLowerCase().includes("pm")){ 
             currentHour += parseInt(time[i])
           }
           else {
-            currentHour = parseInt(time[i]) //1-9am => 1-9:00
+            currentHour = parseInt(time[i]) 
           }
       } else {
         if (time.substring(i,i+2)==='12'){
-          if (time.toLowerCase().includes('am')){ //12am -> 0:00
+          if (time.toLowerCase().includes('am')){ 
             currentHour=0 
           } else {
-            currentHour=12 //12pm -> 12:00
+            currentHour=12 
           } 
         } else if(time.toLowerCase().includes("pm")){
-          currentHour += parseInt(time.substring(i,i+2)) //10-11pm -> 22-23:00
+          currentHour += parseInt(time.substring(i,i+2)) 
         } else {
-          currentHour = parseInt(time.substring(i,i+2)) // 10-11am -> 10-11:00
+          currentHour = parseInt(time.substring(i,i+2)) 
         }
       }
 

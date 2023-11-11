@@ -1,6 +1,4 @@
-import React, { FC } from "react";
-import ReactDOM from "react-dom";
-import Photo from "./Photos";
+import { FC } from "react";
 
 interface PhotoContainerProps {
   photos: string[];

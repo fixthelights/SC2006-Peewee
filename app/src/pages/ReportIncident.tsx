@@ -3,9 +3,6 @@ import axios from 'axios'
 import {MouseEvent} from 'react'
 import {createTheme, ThemeProvider, CssBaseline, Box, Typography, InputLabel, MenuItem, FormControl, Select, Button, Stack, Alert, Grid, Paper, Container, AppFrame, TextField} from '../components/ComponentsIndex'
 
-//import * as Location from 'expo-location';
-
-// TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 export default function ReportIncident() {
@@ -28,8 +25,6 @@ export default function ReportIncident() {
     try{
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(function(position) {
-            console.log("Latitude is :", position.coords.latitude);
-            console.log("Longitude is :", position.coords.longitude);
             setLatitude(position.coords.latitude)
             setLongitude(position.coords.longitude)
             setCoordinatesDetected(true)
@@ -95,14 +90,12 @@ export default function ReportIncident() {
                   Ensure that location access has been allowed on your device. 
                   </Typography>
                 <Box sx={{ pt: 3 }}>
-                <Stack spacing={2} direction="row">
                   <Button 
                       variant="contained" 
                       onClick={() => getUserLocation()}
                   >
                       Detect location
                   </Button>
-                </Stack>
                 </Box>
                 </Alert>
               </Grid>
@@ -128,14 +121,12 @@ export default function ReportIncident() {
                 Failed to detect address. Redetect current location?
               </Typography>
               <Box sx={{ pt: 3 }}>
-              <Stack spacing={2} direction="row">
                 <Button 
                     variant="contained" 
                     onClick={() => getUserLocation()}
                 >
                     Yes
                 </Button>
-              </Stack>
               </Box>
               </Alert>
             </Grid>
@@ -161,7 +152,7 @@ export default function ReportIncident() {
         return <Box>
                 <Button 
                   variant="contained" 
-                  onClick={handleSubmission} // navigate to submission page 
+                  onClick={handleSubmission} 
                 >
                 Submit
                 </Button>
@@ -181,7 +172,7 @@ export default function ReportIncident() {
             },
             address : incidentLocation,
             description: incidentDescription,
-            time: date.toLocaleTimeString(),
+            time: formatTime(date.toLocaleTimeString()),
             date: date.toDateString()
         })
         .then((res)=> console.log(res.data))
@@ -234,14 +225,12 @@ const DisplayErrorMessage = () => {
             Error in report submission
             </Typography>
             <Box sx={{ pt: 3 }}>
-             <Stack spacing={2} direction="row">
-             <Button 
+             {incidentDescription!='' &&(<Button 
               variant="contained" 
-              onClick={handleReenter}
+              onClick={handleSubmission}
              >
-             Re-enter form details
-            </Button>
-            </Stack>
+             Retry submission
+            </Button>)}
             </Box>
            </Alert>
            </Grid>
@@ -249,6 +238,7 @@ const DisplayErrorMessage = () => {
   }
 
   const handleReenter = () => {
+    setSubmissionStatus(false)
     setIncidentLocation('');
     setLocationPermission(false);
     setCoordinatesDetected(false)
@@ -257,7 +247,40 @@ const DisplayErrorMessage = () => {
     setIncidentType('');
     setIncidentDescription('');
     setValidSubmission(false)
-    setSubmissionStatus(false)
+  }
+
+  function formatTime(time: string): string{
+    let currentHour = 12
+    let i=0
+    while (isNaN(parseInt(time[i]))){
+      i++;
+    }
+    if (time[i+1]==':'){
+        if (time.toLowerCase().includes("pm")){ 
+          currentHour += parseInt(time[i])
+        }
+        else {
+          currentHour = parseInt(time[i]) 
+        }
+    } else {
+      if (time.substring(i,i+2)==='12'){
+        if (time.toLowerCase().includes('am')){ 
+          currentHour=0 
+        } else {
+          currentHour=12 
+        } 
+      } else if(time.toLowerCase().includes("pm")){
+        currentHour += parseInt(time.substring(i,i+2)) 
+      } else {
+        currentHour = parseInt(time.substring(i,i+2)) 
+      }
+      i++
+    }
+    if (currentHour>=10){
+        return currentHour.toString()+time.substring(i+1,time.length-3)
+    } else {
+        return "0"+currentHour.toString()+time.substring(i+1,time.length-3)
+    }
   }
 
   return (
@@ -267,7 +290,6 @@ const DisplayErrorMessage = () => {
        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
        <Paper>
             <Grid container spacing={2} direction="column" padding={{xs:2,md:4}}>
-              {/* Chart */}
               <Grid item xs={12} md={6} lg={12}>
                     <Box sx={{ maxWidth: 360}}>
                         <FormControl fullWidth>
@@ -315,8 +337,6 @@ const DisplayErrorMessage = () => {
                   <Grid item xs={12} md={6} lg={12}>
                   <DisplaySubmissionMessage />
                   </Grid>
-             
-              
             </Grid>
             </Paper>
         </Container>
