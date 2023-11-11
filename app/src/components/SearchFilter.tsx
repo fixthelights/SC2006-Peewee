@@ -53,7 +53,7 @@ const RouteFinderApp: FC = () => {
           );
         });
       }
-      return false; // Added a default return statement
+      return false; 
     });
   }
 

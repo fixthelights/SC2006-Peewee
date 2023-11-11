@@ -11,8 +11,6 @@ const userRouter = require("../routes/userRouter");
 const bcrypt = require("bcrypt");
 const { sendForgetEmail } = require("../middlewares/BrevoAPI");
 
-//200 - SUCCESS - Found and sent.
-
 exports.getAllUsers = async (req :Request, res :Response) => {
     try {
         const users = await User.find();
@@ -26,7 +24,6 @@ exports.getAllUsers = async (req :Request, res :Response) => {
             error: error
         });
     }
-    // return res.status(200).send(User.getAll());
 };
 
 exports.getOneUser = async (req :Request, res :Response) => {
@@ -60,10 +57,6 @@ exports.createUser = async (req :Request, res :Response) => {
     try{ 
         const password = req.body.password;
         const email = req.body.email.toLowerCase();
-        // const firstName = req.body.firstName;
-        // const lastName = req.body.lastName;
-        // const phone = req.body.phone;
-
         
         if (email && password) {
             // Check if user already exists
@@ -170,8 +163,6 @@ exports.forgetPassword =  async ( req: Request, res: Response ) => {
             userId: verifiedUser._id,
             token: generateOTP(6),
         }).save();
-        
-        console.log(token);
 
         // Send email to user with OTP
         await sendForgetEmail(verifiedUser, token.token);
@@ -194,15 +185,6 @@ exports.validatePasswordToken = async (req: Request, res: Response) => {
     try {
         // Get user by searching with email
         const verifiedUser = await User.findOne({email: req.body.email});
-
-        // If user not found
-        // if (!verifiedUser) {
-        //     throw new AppError({
-        //         type: "InvalidResetTokenError",
-        //         statusCode: 400,
-        //         description: 'Invalid or expired link.',
-        //     });
-        // }
 
         // Search for active password reset token
         const token = await PasswordToken.findOne({

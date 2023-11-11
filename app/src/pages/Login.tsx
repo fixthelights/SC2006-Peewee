@@ -8,21 +8,19 @@ import { AuthManager } from '../classes/AuthManager';
 
 
 const authController = new AuthManager();
-// TODO remove, this demo shouldn't need to reset the theme.
+
 const defaultTheme = createTheme();
 
 interface LoginProps {
   children?: React.ReactNode;
-  // setLoggedIn?: (value: boolean) => void;
-}
-Login.propTypes = {
-  children: PropTypes.node,
-  // setLoggedIn: PropTypes.func
 }
 
-// export default function Login({redirectPath, setLoggedIn} : LoginProps) {
+Login.propTypes = {
+  children: PropTypes.node,
+}
+
 export default function Login({ children }: LoginProps) {
-// export default function Login() {
+
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -51,20 +49,10 @@ export default function Login({ children }: LoginProps) {
         // Get JWT from backend
         const userJwt = JSON.parse(JSON.stringify(response.data.token));
 
-        console.log(userJwt);
         // Store User JWT into local storage
         localStorage.setItem('token', JSON.stringify(userJwt));
 
-
-        // // Validate JWT with backend - Check if token still valid
-        // const loggedIn = await axios.post(`http://localhost:2000/users/auth`, { jwt: userJwt });
-
       }
-
-      // If user is logged in, redirect to dashboard
-      // if (setLoggedIn) {
-      //   setLoggedIn(true);
-      // }
 
       setIsValidUser(true);
       if (children) {
@@ -76,42 +64,19 @@ export default function Login({ children }: LoginProps) {
         );
       }
       navigate("/dashboard");
-      
-
-      // return <Navigate replace={true} to={redirectPath? redirectPath : "/dashboard"} />;
 
     } catch (error : any) {
       if (error.response?error.response.status:null === 401) {
         setIsValidUser(false);
       }
-      console.log("User not logged in");
     }
   }
   
   const handleSubmit = (event : any) => {
-    event.preventDefault(); // Prevents page from refreshing on submit
+    event.preventDefault(); 
     setIsSubmitted(true);
     handleLogin();
   };
-
-  // async function isUserLoggedIn() {
-  //   // Check if JWT exists in local storage
-  //   let userJwt = JSON.parse(localStorage.getItem('token') || 'null');
-
-  //   // Validate JWT with backend - Check if token still valid
-  //   const loggedIn = await axios.post(`http://localhost:2000/users/auth`, { jwt: userJwt });
-    
-  //   console.log(userJwt);
-    
-  //   // If already logged in, redirect to next page
-  //   if (loggedIn.data === true) {
-  //     setLoggedIn(true);
-  //     setIsValidUser(true);
-  //     navigate("/dashboard");
-  //     return true;
-  //   }
-  //   return false;
-  // }
 
   // Handling the email change
   function handleEmail(event: React.ChangeEvent<HTMLInputElement>) {
@@ -123,14 +88,6 @@ export default function Login({ children }: LoginProps) {
     setPassword(event.target.value);
   };
     
-  const handleInput = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-  };
 
   function reloadPage() {
     // The last "domLoading" Time
@@ -147,7 +104,6 @@ export default function Login({ children }: LoginProps) {
   const Message = () => {
     if (isSubmitted){
       if (!isValidUser) {
-        console.log("Is valid user = ", isValidUser);
         return <Alert severity="info">Invalid User or Password</Alert>
       }
       return null;

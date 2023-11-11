@@ -10,7 +10,7 @@ import {
 import { useMemo } from "react";
 
 import "./map.css";
-import { Stack, Button, Card, Link, Typography, Box, Skeleton } from "@mui/material";
+import { Stack, Button, Card, Typography, Box} from "@mui/material";
 import { useGoogleMap } from "@react-google-maps/api";
 import { createPortal } from "react-dom";
 
@@ -82,8 +82,6 @@ interface InfoData {
   };
 }
 
-// Move array outside of functional component
-// See https://github.com/JustFly1984/react-google-maps-api/issues/238
 const libraries: Libraries = ["places"];
 
 const Map: FC<MapProps> = ({
@@ -273,17 +271,10 @@ const Map: FC<MapProps> = ({
     setHexagons(peakHexList);
   };
 
-  // https://developers.google.com/maps/documentation/javascript/controls
   const mapOptions = {
     mapTypeControl: false,
     mapId: "871aac80ceb2f843",
   };
-
-  //TODO
-  /*
-    - Get bounds zoom level (https://itecnote.com/tecnote/google-maps-to-show-a-country-map-using-google-maps-api/)
-    - Nicer Icons for incidents
-  */
 
   return (
     <>
@@ -311,8 +302,6 @@ const Map: FC<MapProps> = ({
     </>
   );
 };
-
-/* Helper Functions */
 
 const peaknessIcon = (peakedness: number | null) => {
   let url;
@@ -357,26 +346,11 @@ const incidentIcon = (incidentType: IncidentType) => {
   };
 };
 
-/* End of Helper Functions */
-
 interface CustomControlProps {
   children?: React.ReactNode;
   position?: google.maps.ControlPosition;
   zIndex?: number;
 }
-
-/* 
-  Modified Heavily from:
-  https://github.com/tomchentw/react-google-maps/issues/818
-  https://gist.github.com/jgimbel/6a36d60e28aaf453d0093ddc47f36533
-  https://github.com/JustFly1984/react-google-maps-api/blob/master/packages/react-google-maps-api/src/map-context.ts
-  https://developers.google.com/maps/documentation/javascript/controls#CustomDrawing
-
-  Finally:
-  https://github.com/JustFly1984/react-google-maps-api/issues/213#issuecomment-603800374
-  
-  Help me it's 7am I haven't slept - Guang
-*/
 
 function CustomControl({
   position = google.maps.ControlPosition.TOP_LEFT,

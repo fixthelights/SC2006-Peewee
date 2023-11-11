@@ -5,57 +5,43 @@ import axios from 'axios';
 import { RecoveryContext } from "../../pages/ForgetPassword";
 import {createTheme, ThemeProvider, CssBaseline, Box, Typography, Button, Alert, Grid, Paper, TextField, Link, Photo} from '../ComponentsIndex'
 
-// TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 export default function OTPResetEmail() {
-  // Importing States
+
   const navigate = useNavigate();
 
   const [enteredEmail, setEnteredEmail] = useState('');
   const [isEmailSubmitted, setIsEmailSubmitted] = useState(false);
   const [isEmailValid, setIsEmailValid] = useState({} as boolean);
   const { setEmail, setOTP, setPage } = useContext(RecoveryContext);
-  const [test] = useState(0);
 
-  // useEffect(() => {
-  //   console.log("Component mounted or updated");
-  //   return () => {
-  //     console.log("Component will unmount");
-  //   };
-  // }, []); 
-  
-  // Handle changes to Email Input
   const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEnteredEmail(event.target.value);
   };
 
-  // Handle Email Submission
   const handleEmailSubmission = async (event: React.FormEvent) => {
     setIsEmailSubmitted(true);
     setEmail(enteredEmail);
     event.preventDefault();
 
-    console.log("Test value = ", test);
     try {
         setEmail(enteredEmail);
         const otpPromise = sendForgetPassword(enteredEmail);
-        const otp = await otpPromise; // Async (?)
+        const otp = await otpPromise; 
         setOTP(otp?.data.otp.token);
         setIsEmailValid(true);
-        setPage("otpinput"); // Move to next step
+        setPage("otpinput"); 
     } catch (error : any) {
-        console.log(error);
         setIsEmailValid(false);
     }
     return;
   };
 
-  // Send OTP to email
+
   function sendForgetPassword(toEmail: string) {
       console.log("Email is " + toEmail);
       const response = axios.post('http://localhost:2000/users/forget-password', { email : toEmail });
-      // Return OTP 
       return response;
   };
     

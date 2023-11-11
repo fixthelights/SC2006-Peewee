@@ -109,8 +109,6 @@ exports.updateReport = async (req :Request, res :Response) => {
     // Extract fields from JSON Request body
     const json = req.body;
 
-    console.log(json)
-
     if(Object.keys(json).length == 0){
         throw new AppError({
             type: "RequestError",

@@ -14,10 +14,8 @@ import {
   ContainerOwnProps,
   Menu,
   MenuItem,
-  BoxProps,
   Slide,
   useScrollTrigger,
-  StyledComponentProps,
 } from "@mui/material";
 import MuiDrawer from "@mui/material/Drawer";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -31,7 +29,6 @@ import {
   CarCrashOutlinedIcon,
   MapOutlinedIcon,
   TrafficOutlinedIcon,
-  LogoutOutlinedIcon,
 } from "./AppFrameIndex";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
@@ -208,7 +205,6 @@ export default function AppFrame({
                 component="h1"
                 variant="h6"
                 color="inherit"
-                //noWrap
               >
                 PEEWEE
               </Typography>
@@ -280,22 +276,6 @@ export default function AppFrame({
           {drawer}
         </StyledDrawer>
       )}
-      {/* <Box
-        component="main"
-        sx={{
-          backgroundColor: (theme) =>
-            theme.palette.mode === "light"
-              ? theme.palette.grey[100]
-              : theme.palette.grey[900],
-          flexGrow: 1,
-          height: "100vh",
-          overflow: 'auto'
-        }}
-      >
-        <Toolbar />
-        
-      </Box> */}
-
       <Container
         maxWidth={maxWidth}
         sx={sx}

@@ -6,19 +6,18 @@ import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import {createTheme, ThemeProvider, CssBaseline, Box, Typography, Button, Alert, Grid, Paper, TextField, Photo} from '../ComponentsIndex'
 
-// TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 const authController = new AuthManager()
 
 export default function ResetPassword() {
-  // Importing States
+  
   const [password, setPassword] = useState('')
   const [retypedPassword, setRetypedPassword] = useState('')
   const [isPasswordValid, setIsPasswordValid] = useState({} as boolean)
   const [isRetypedPasswordValid, setIsRetypedPasswordValid] = useState({} as boolean)
   const [isPasswordSubmitted, setIsPasswordSubmitted] = useState(false)
   const [isPasswordUpdated, setIsPasswordUpdated] = useState(false)
-  const { email, setPage } = useContext(RecoveryContext)
+  const { email } = useContext(RecoveryContext)
   const navigate = useNavigate();
 
   // Handle changes to Password Input
@@ -41,9 +40,6 @@ export default function ResetPassword() {
     let validPassword = false
     let validRetypedPassword = false
 
-    console.log(email);
-    console.log(password, retypedPassword);
-
     if (authController.checkPasswordValidity(password)){ 
       validPassword = true
     } 
@@ -55,7 +51,6 @@ export default function ResetPassword() {
         email: email,
         password: password
       })
-      .then(res => console.log(res.data))
       .then(res => setIsPasswordUpdated(true))
       .then(res => setIsPasswordSubmitted(true))
       .then(res => setTimeout(() => navigate("/login"),delayTime))
@@ -65,6 +60,8 @@ export default function ResetPassword() {
           setIsPasswordSubmitted(true)
         })
     }
+    setIsPasswordValid(validPassword)
+    setIsRetypedPasswordValid(validRetypedPassword)
   };
   
   const PasswordMessage = () => {
@@ -79,9 +76,6 @@ export default function ResetPassword() {
     }
     return null;
   }
-
-  
-
 
     return (
       <ThemeProvider theme={defaultTheme}>

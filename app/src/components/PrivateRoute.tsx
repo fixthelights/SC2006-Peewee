@@ -57,8 +57,6 @@ const PrivateRoute = ({ children }: PrivateRouteProps) => {
                     </Collapse>
                 </Snackbar>
                 <Login children={children}/> 
-                
-                {/* {loggedIn ? <>{children}</> : <Navigate to={redirectPath} />} */}
             </>
         );
         

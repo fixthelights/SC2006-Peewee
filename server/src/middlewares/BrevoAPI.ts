@@ -28,8 +28,6 @@ export async function sendForgetEmail(to : UserDocument, otp : String) {
                 'X-Mailin-custom': 'custom_header_1:custom_value_1|custom_header_2:custom_value_2'
             }
         };
-
-        console.log(forgetPasswordEmail);
         
         const email = await apiInstance.sendTransacEmail(forgetPasswordEmail);
         console.log("Email sent successfully");
