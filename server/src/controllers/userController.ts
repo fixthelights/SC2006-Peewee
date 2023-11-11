@@ -58,9 +58,8 @@ exports.getOneUser = async (req :Request, res :Response) => {
 // Create user with POST request
 exports.createUser = async (req :Request, res :Response) => {
     try{ 
-        // const email = req.body.email;
         const password = req.body.password;
-        const email = req.body.email;
+        const email = req.body.email.toLowerCase();
         // const firstName = req.body.firstName;
         // const lastName = req.body.lastName;
         // const phone = req.body.phone;
@@ -98,7 +97,7 @@ exports.createUser = async (req :Request, res :Response) => {
 // Login with POST request
 exports.login = async (req : Request,res : Response) => {
     try {
-        const email = req.body.email;
+        const email = req.body.email.toLowerCase();
         const password = req.body.password;
 
         // If missing email or password
@@ -143,7 +142,7 @@ exports.loggedIn = async (req : Request,res : Response) => {
 // POST request for forget password - Request change password
 exports.forgetPassword =  async ( req: Request, res: Response ) => {
     try {
-        const email = req.body.email;
+        const email = req.body.email.toLowerCase();
         
         const verifiedUser = await User.findOne({email : email});
         if (!verifiedUser) {
@@ -239,7 +238,7 @@ exports.validatePasswordToken = async (req: Request, res: Response) => {
 // PUT request to update a user's information by email
 exports.updateUserPassword = async (req :Request, res :Response) => {
     try {
-        const email = req.body.email;
+        const email = req.body.email.toLowerCase();
         const password = req.body.password;
 
         const user = await User.findOne({email : email});
@@ -274,7 +273,7 @@ exports.updateUserPassword = async (req :Request, res :Response) => {
 exports.updateUser = async (req :Request, res :Response) => {
     try {
         const userId = req.body._id;
-        const email = req.body.email;
+        const email = req.body.email.toLowerCase();
         const password = req.body.password;
 
         const user = await User.findById({_id : userId});
