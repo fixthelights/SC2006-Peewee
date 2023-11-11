@@ -2,9 +2,10 @@
 > Predictive Environment for Easy Wayfinding with Enhanced Efficiency.
 
 > SC2006 - Software Engineering Project
+
 ---
 
-<img src="https://github.com/fixthelights/SC2006-Peewee/assets/40014625/9a27c358-9cca-443d-92a9-fd2278d64b9e">
+![](https://github.com/fixthelights/SC2006-Peewee/assets/40014625/e2075b2c-2642-4161-9f8a-ae37e407552b)
 
 ---
 
