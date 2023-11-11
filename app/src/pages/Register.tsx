@@ -22,6 +22,7 @@ export default function Register() {
   const [isInvalidRetypedPassword, setIsInvalidRetypedPassword] = useState(true)
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isRegistrationSuccessful, setIsRegistrationSuccessful] = useState(false)
+  const [validRetypedPassword, setValidRetypedPassword] = useState({} as boolean);
 
   const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
@@ -48,6 +49,10 @@ export default function Register() {
       retypedPasswordValid=true
     } 
 
+    if (passwordValid && password===retypedPassword){
+      setValidRetypedPassword(true);
+    }
+
     setIsSubmitted(true)
 
     if (emailFormatValid && passwordValid && retypedPasswordValid){
@@ -67,7 +72,8 @@ export default function Register() {
       })
 
     } else {
-      setIsRegistrationSuccessful(false)
+      setValidRetypedPassword(false);  
+      setIsRegistrationSuccessful(false);
     }
 
     setIsInvalidEmailFormat(!emailFormatValid);
@@ -92,6 +98,9 @@ export default function Register() {
     if (isSubmitted){
       if (isInvalidPassword) {
         return <Alert severity="info">Password does not meet the requirements.</Alert>
+      }
+      if (validRetypedPassword === false){
+        return <Alert severity="info">Passwords do not match.</Alert>
       }
      return null;
     }
