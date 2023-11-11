@@ -15,7 +15,6 @@ export default function OTPResetEmail() {
   const [isEmailSubmitted, setIsEmailSubmitted] = useState(false);
   const [isEmailValid, setIsEmailValid] = useState({} as boolean);
   const { setEmail, setOTP, setPage } = useContext(RecoveryContext);
-  const [test] = useState(0);
 
   const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEnteredEmail(event.target.value);

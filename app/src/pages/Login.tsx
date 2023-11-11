@@ -49,7 +49,6 @@ export default function Login({ children }: LoginProps) {
         // Get JWT from backend
         const userJwt = JSON.parse(JSON.stringify(response.data.token));
 
-        console.log(userJwt);
         // Store User JWT into local storage
         localStorage.setItem('token', JSON.stringify(userJwt));
 
@@ -70,7 +69,6 @@ export default function Login({ children }: LoginProps) {
       if (error.response?error.response.status:null === 401) {
         setIsValidUser(false);
       }
-      console.log("User not logged in");
     }
   }
   
@@ -106,7 +104,6 @@ export default function Login({ children }: LoginProps) {
   const Message = () => {
     if (isSubmitted){
       if (!isValidUser) {
-        console.log("Is valid user = ", isValidUser);
         return <Alert severity="info">Invalid User or Password</Alert>
       }
       return null;

@@ -29,7 +29,6 @@ export default function OTPInput() {
   function verifyOTP(event: React.MouseEvent) {
     setIsOTPSent(true);
     event.preventDefault();
-    console.log(enteredOTP, otp);
     if (enteredOTP === otp) {
       setIsCorrectOTP(true);
       setTimeout(()=>setPage("reset"),delayTime);
@@ -50,10 +49,6 @@ export default function OTPInput() {
     .catch(console.log);
   }
 
-  // Print OTP when updated
-  useEffect(() => {
-    console.log(otp);
-  }, [otp]);
   
   // Countdown timer for resend OTP
   useEffect(() => {

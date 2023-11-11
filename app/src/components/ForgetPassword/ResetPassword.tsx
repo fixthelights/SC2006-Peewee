@@ -17,7 +17,7 @@ export default function ResetPassword() {
   const [isRetypedPasswordValid, setIsRetypedPasswordValid] = useState({} as boolean)
   const [isPasswordSubmitted, setIsPasswordSubmitted] = useState(false)
   const [isPasswordUpdated, setIsPasswordUpdated] = useState(false)
-  const { email, setPage } = useContext(RecoveryContext)
+  const { email } = useContext(RecoveryContext)
   const navigate = useNavigate();
 
   // Handle changes to Password Input
@@ -40,9 +40,6 @@ export default function ResetPassword() {
     let validPassword = false
     let validRetypedPassword = false
 
-    console.log(email);
-    console.log(password, retypedPassword);
-
     if (authController.checkPasswordValidity(password)){ 
       validPassword = true
     } 
@@ -54,7 +51,6 @@ export default function ResetPassword() {
         email: email,
         password: password
       })
-      .then(res => console.log(res.data))
       .then(res => setIsPasswordUpdated(true))
       .then(res => setIsPasswordSubmitted(true))
       .then(res => setTimeout(() => navigate("/login"),delayTime))
