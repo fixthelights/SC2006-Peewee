@@ -41,7 +41,7 @@ export default function Login({ children }: LoginProps) {
         if (email === "" || password === "") {throw new Error("User not logged in")}
         
         // Make login request to server
-        const response = await axios.post(`https://${process.env.REACT_APP_SERVER_URL}/users/login`, {
+        const response = await axios.post(`${process.env.REACT_APP_SERVER_URL}/users/login`, {
           email: email,
           password: password
         })

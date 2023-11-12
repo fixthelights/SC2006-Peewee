@@ -41,7 +41,7 @@ export default function OTPResetEmail() {
 
   function sendForgetPassword(toEmail: string) {
       console.log("Email is " + toEmail);
-      const response = axios.post(`https://${process.env.REACT_APP_SERVER_URL}/users/forget-password`, { email : toEmail });
+      const response = axios.post(`${process.env.REACT_APP_SERVER_URL}/users/forget-password`, { email : toEmail });
       // Return OTP 
       return response;
   };

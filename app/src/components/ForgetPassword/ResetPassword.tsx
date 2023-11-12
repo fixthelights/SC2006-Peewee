@@ -47,7 +47,7 @@ export default function ResetPassword() {
       validRetypedPassword = true
     }
     if (validPassword && validRetypedPassword){
-      axios.put(`https://${process.env.REACT_APP_SERVER_URL}/users/update-password`, {
+      axios.put(`${process.env.REACT_APP_SERVER_URL}/users/update-password`, {
         email: email,
         password: password
       })

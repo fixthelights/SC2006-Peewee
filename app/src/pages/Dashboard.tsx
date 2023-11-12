@@ -116,7 +116,7 @@ export default function Dashboard() {
   }
   const getFavouriteRouteList = () => {
       axios
-      .post(`https://${process.env.REACT_APP_SERVER_URL}/routes/list`,
+      .post(`${process.env.REACT_APP_SERVER_URL}/routes/list`,
       {
         id: userId
       })
@@ -130,7 +130,7 @@ export default function Dashboard() {
 
   const getRecentIncidentList = () => {
     axios
-      .get(`https://${process.env.REACT_APP_SERVER_URL}/reports/today/recent`)
+      .get(`${process.env.REACT_APP_SERVER_URL}/reports/today/recent`)
       .then((res) => setRecentIncidents(res.data))
       .then((res) => setIsRecentIncidentLoaded(true))
       .catch(function (error) {
@@ -142,7 +142,7 @@ export default function Dashboard() {
   async function loadTrafficIncidents() {
     try {
       const response = await axios.get(
-        `https://${process.env.REACT_APP_SERVER_URL}/reports/today/all`
+        `${process.env.REACT_APP_SERVER_URL}/reports/today/all`
       );
       setIncidents(response.data);
     } catch (error) {
@@ -152,7 +152,7 @@ export default function Dashboard() {
 
   const getTrafficData = () => {
     axios
-      .get(`https://${process.env.REACT_APP_SERVER_URL}/traffic/combined-trends`)
+      .get(`${process.env.REACT_APP_SERVER_URL}/traffic/combined-trends`)
       .then((res) => setTrafficData(res.data.hourly_counts))
       .then((res) => setIsTrafficLoaded(true))
       .catch(function (error) {
@@ -164,7 +164,7 @@ export default function Dashboard() {
   const getTrafficCameraData = async () => {
     try {
       const response = await axios.get(
-        `https://${process.env.REACT_APP_SERVER_URL}/traffic/conditions`
+        `${process.env.REACT_APP_SERVER_URL}/traffic/conditions`
       );
       const allCameras = response.data.cameras;
 
@@ -189,7 +189,7 @@ export default function Dashboard() {
 
   const getCurrentData = () => {
     axios
-      .get(`https://${process.env.REACT_APP_SERVER_URL}/traffic/combined-conditions`)
+      .get(`${process.env.REACT_APP_SERVER_URL}/traffic/combined-conditions`)
       .then((res) => {setCurrentCarCount(res.data['vehicle_total']); setTimeRetrieved(res.data['taken_at']);})
       .then((res) => setIsCurrentTrafficLoaded(true))
       .catch(function (error) {
