@@ -99,9 +99,6 @@ export default function Register() {
       if (isInvalidPassword) {
         return <Alert severity="info">Password does not meet the requirements.</Alert>
       }
-      if (validRetypedPassword === false){
-        return <Alert severity="info">Passwords do not match.</Alert>
-      }
      return null;
     }
     return null;
