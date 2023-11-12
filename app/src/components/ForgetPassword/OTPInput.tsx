@@ -6,13 +6,11 @@ import axios, { AxiosResponse } from 'axios';
 import { MuiOtpInput } from 'mui-one-time-password-input'
 import {createTheme, ThemeProvider, CssBaseline, Box, Typography, Button, Alert, Grid, Paper, Link, Photo} from '../ComponentsIndex'
 
-// TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 
 export default function OTPInput() {
 
-  // Importing States
   const navigate = useNavigate();
 
   const [enteredOTP, setEnteredOTP] = useState('');
@@ -31,7 +29,6 @@ export default function OTPInput() {
   function verifyOTP(event: React.MouseEvent) {
     setIsOTPSent(true);
     event.preventDefault();
-    console.log(enteredOTP, otp);
     if (enteredOTP === otp) {
       setIsCorrectOTP(true);
       setTimeout(()=>setPage("reset"),delayTime);
@@ -52,10 +49,6 @@ export default function OTPInput() {
     .catch(console.log);
   }
 
-  // Print OTP when updated
-  useEffect(() => {
-    console.log(otp);
-  }, [otp]);
   
   // Countdown timer for resend OTP
   useEffect(() => {
@@ -66,8 +59,7 @@ export default function OTPInput() {
         if (lastTimerCount <= 0) return lastTimerCount;
         return lastTimerCount - 1;
       });
-    }, 1000); //each count lasts for a second
-    //cleanup the interval on complete
+    }, 1000); 
     return () => clearInterval(interval);
   }, [disable]);
 

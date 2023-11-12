@@ -4,14 +4,12 @@ import OTPResetEmail from "../components/ForgetPassword/ForgetPasswordEmail";
 import OTPInput from "../components/ForgetPassword/OTPInput";
 import ResetPassword from "../components/ForgetPassword/ResetPassword";
 
-
-
 const MemoisedOTPResetEmail = React.memo(OTPResetEmail);
 const MemoisedOTPInput = React.memo(OTPInput);
 const MemoisedResetPassword = React.memo(ResetPassword);
 
 export const RecoveryContext = createContext<any>({} as any);
-export const delayTime = 2000; // Set delay to simulate loading (for user experience)
+export const delayTime = 2000; 
 
 function ForgetPassword() {
   const [page, setPage] = useState("otpemail");

@@ -18,7 +18,6 @@ import {
   Box,
   Typography,
   Button,
-  Stack,
   Alert,
   Container,
   AppFrame,
@@ -27,9 +26,9 @@ import {
   ToggleButtonGroup,
   useMediaQuery,
   Card,
+  ExpandMore
 } from "../components/ComponentsIndex";
 import { Autocomplete, Libraries, useLoadScript } from "@react-google-maps/api";
-import { ExpandMore, Height } from "@mui/icons-material";
 
 interface User {
   userId: string;
@@ -72,11 +71,6 @@ interface RouteData {
   };
 }
 
-interface HexIndexPeak {
-  hexIndex: string;
-  avgPeakedness: number;
-}
-
 enum IncidentType {
   accident = "Accident",
   roadWork = "RoadWork",
@@ -96,11 +90,8 @@ interface Report {
   reported_by: string;
 }
 
-// Move array outside of functional component
-// See https://github.com/JustFly1984/react-google-maps-api/issues/238
 const libraries: Libraries = ["places"];
 
-// TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 export default function Map() {
@@ -316,12 +307,6 @@ export default function Map() {
     return null;
   }
 
-  /*function clearRender(){
-  if (directionsRenderer) {
-  directionsRenderer.setMap(null);
-  setDirectionsRenderer(null);
-}}*/
-
   function clearRoute() {
     directionsRenderer?.setMap(null);
     setDirectionsResponse(null);
@@ -357,23 +342,6 @@ export default function Map() {
     }
     return null;
   };
-
-  //for dev
-  /*function clearRoute() {
-    if (directionsRenderer) {
-      directionsRenderer.setMap(null);
-      setDirectionsRenderer(null);
-    }
-  }
-
-  function clearRoute() {
-    if (directionsRenderer) {
-      directionsRenderer.setMap(null);
-      setDirectionsRenderer(null);
-    }
-    originRef.current!.value = "";
-    destinationRef.current!.value = "";
-  }*/
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -487,13 +455,6 @@ export default function Map() {
                         </Grid>
                       )}
                     </Grid>
-                    {/* <Stack
-                      direction="row"
-                      spacing={2}
-                      sx={{ "& > :not(style)": { width: "35ch" }, my: 2 }}
-                    >
-                      
-                    </Stack> */}
                     <Grid container spacing={1}>
                       <Grid item xs="auto">
                         <Button
@@ -523,9 +484,6 @@ export default function Map() {
                           View Favourites
                         </Button>
                       </Grid>
-
-                      {/* For dev purposes
-            <Button variant="contained"onClick={clearRoute}>Clear Route</Button>*/}
                     </Grid>
                     <Box sx={{ pt: 3 }}>
                       <SaveRouteMessage />

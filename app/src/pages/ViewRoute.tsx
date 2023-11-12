@@ -20,16 +20,9 @@ import {
   ToggleButtonGroup,
   useMediaQuery,
   Card,
+  ExpandMore
 } from "../components/ComponentsIndex";
-import { Libraries, useLoadScript } from "@react-google-maps/api";
-import { ExpandMore } from "@mui/icons-material";
-
-interface User {
-  userId: string;
-  email: string;
-  iat: number;
-  exp: number;
-}
+import { Libraries } from "@react-google-maps/api";
 
 interface CameraFromAPI {
   camera_id: string;
@@ -51,20 +44,6 @@ interface Camera {
   peakedness: number | null;
 }
 
-interface RouteData {
-  favourited_by: string;
-  source: {
-    longitude: number | undefined;
-    latitude: number | undefined;
-    address: string;
-  };
-  destination: {
-    longitude: number | undefined;
-    latitude: number | undefined;
-    address: string;
-  };
-}
-
 enum IncidentType {
   accident = "Accident",
   roadWork = "RoadWork",
@@ -84,11 +63,8 @@ interface Report {
   reported_by: string;
 }
 
-// Move array outside of functional component
-// See https://github.com/JustFly1984/react-google-maps-api/issues/238
 const libraries: Libraries = ["places"];
 
-// TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 interface ViewRouteProps{
@@ -111,11 +87,6 @@ const ViewRoute: React.FC<ViewRouteProps> = ({source, destination, setViewMap}) 
 
   const [directionsResponse, setDirectionsResponse] =
     React.useState<google.maps.DirectionsResult | null>(null);
-
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: process.env.REACT_APP_GOOGLE_KEY || "",
-    libraries: libraries, // Move array outside of functional component
-  });
 
   const handleTrafficFilters = (
     event: React.MouseEvent<HTMLElement>,

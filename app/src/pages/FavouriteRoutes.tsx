@@ -1,7 +1,6 @@
 import React, { FC } from 'react';
 import { useState, useEffect} from 'react'
 import axios from 'axios'
-import { useNavigate } from "react-router-dom";
 import {jwtDecode} from 'jwt-decode';
 import {ViewRoute} from '../pages/ViewRoute'
 import {createTheme, ThemeProvider , CssBaseline, Typography, Button, Alert, Grid, Container, AppFrame, Paper, Stack, Title, Box} from '../components/ComponentsIndex'
@@ -44,7 +43,6 @@ function identifyUser(){
 
 export default function FavouriteRoutes() {
 
-  const navigate = useNavigate();
   const [routeList, setRouteList] = useState([])
   const [isRouteLoaded, setIsRouteLoaded] = useState(false)
   const [source, setSource] = useState('')

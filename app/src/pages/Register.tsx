@@ -3,26 +3,25 @@ import { useNavigate } from "react-router-dom";
 import { useState} from 'react';
 import axios from 'axios'
 import {createTheme, ThemeProvider, CssBaseline, Box, Typography, Button, Alert, Grid, Paper, Avatar, TextField, Link, LockOutlinedIcon, Photo} from '../components/ComponentsIndex'
+import { AuthManager } from '../classes/AuthManager';
 
-
-// TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 export default function Register() {
+
+  const authController = new AuthManager()
   
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [retypedPassword, setRetypedPassword] = useState('')
- 
-  // States for checking the errors
+
   const [isInvalidEmailFormat, setIsInvalidEmailFormat] = useState(true);
   const [isExistingUser, setIsExistingUser] = useState(false);
   const [isInvalidPassword, setIsInvalidPssword] = useState(true);
   const [isInvalidRetypedPassword, setIsInvalidRetypedPassword] = useState(true)
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isRegistrationSuccessful, setIsRegistrationSuccessful] = useState(false)
-  const [validRetypedPassword, setValidRetypedPassword] = useState({} as boolean);
 
   const handleEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
@@ -38,18 +37,16 @@ export default function Register() {
 
   const handleSubmit = async(event: React.FormEvent<HTMLFormElement>) => {
 
+    resetStatus();
+
     event.preventDefault();
 
-    let emailFormatValid = validateEmailAddressFormat(email)
-    let passwordValid = checkPasswordValidity(password)
+    let emailFormatValid = authController.validateEmailAddressFormat(email)
+    let passwordValid = authController.checkPasswordValidity(password)
     let retypedPasswordValid = false
     if (password===retypedPassword){
       retypedPasswordValid=true
     } 
-
-    if (passwordValid && password===retypedPassword){
-      setValidRetypedPassword(true);
-    }
 
     setIsSubmitted(true)
 
@@ -69,8 +66,7 @@ export default function Register() {
         }
       })
 
-    } else {
-      setValidRetypedPassword(false);  
+    } else { 
       setIsRegistrationSuccessful(false);
     }
 
@@ -78,8 +74,6 @@ export default function Register() {
     setIsInvalidPssword(!passwordValid);
     setIsInvalidRetypedPassword(!retypedPasswordValid)
   }
-
-  // message display depending on validity
 
   const EmailStatusMessage = () => {
     if (isSubmitted){
@@ -98,9 +92,6 @@ export default function Register() {
     if (isSubmitted){
       if (isInvalidPassword) {
         return <Alert severity="info">Password does not meet the requirements.</Alert>
-      }
-      if (validRetypedPassword === false){
-        return <Alert severity="info">Passwords do not match.</Alert>
       }
      return null;
     }
@@ -124,55 +115,19 @@ export default function Register() {
       } else {
         return <Alert severity="info">Error in Registration.</Alert>
       }
-     return null;
     }
     return null;
   }
 
-    // check if email is in the correct format
-  function validateEmailAddressFormat(email: string): boolean { 
-      const atSymbol: number = email.indexOf("@"); 
-      const dotSymbol: number = email.lastIndexOf("."); 
-      const spaceSymbol: number = email.indexOf(" "); 
-
-      if ((atSymbol !== -1) && 
-          (atSymbol !== 0) && 
-          (dotSymbol !== -1) && 
-          (dotSymbol !== 0) && 
-          (dotSymbol > atSymbol + 1) && 
-          (email.length > dotSymbol + 1) && 
-          (spaceSymbol === -1)) { 
-          return true; 
-      } else { 
-          return false; 
-      } 
+  function resetStatus(){
+    setIsSubmitted(false);
+    setIsInvalidEmailFormat(true);
+    setIsExistingUser(false);
+    setIsInvalidPssword(true);
+    setIsInvalidRetypedPassword(true);
+    setIsSubmitted(false);
+    setIsRegistrationSuccessful(false);
   }
-
-  // check if password meets requirements
-  function checkPasswordValidity(password: string) : boolean {
-
-      let upper: number = 0;
-      let lower: number = 0;
-      let special: number = 0;
-
-      for (let i: number = 0; i < password.length; i++) {
-          if (password[i] >= "A" && password[i] <= "Z") {
-              upper++;
-          } else if (password[i] >= "a" && password[i] <= "z") {
-              lower++;
-          } else {
-              special++;
-          }
-      }
-
-      if (password.length>=8 && upper>0 && lower>0 && special>0){
-          return true;
-      }
-
-      return false;
-
-  }
-
 
   return (
     <ThemeProvider theme={defaultTheme}>

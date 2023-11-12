@@ -47,7 +47,6 @@ const defaultTheme = createTheme();
 
 export default function CameraPage() {
   const [camera, setCamera] = useState<CameraData[]>([]);
-
   const [cameraName, setCameraName] = useState<string>("");
   const [isValidCamera, setIsValidCamera] = useState(false);
   const [cameraData, setCameraData] = useState<CameraData | null>(null);
@@ -72,9 +71,7 @@ export default function CameraPage() {
   const [oneCameraTrends, setOneCameraTrends] = useState([]);
   const [currentCarCount, setCurrentCarCount] = useState<number>(0);
   const [showTrafficChart, setShowTrafficChart] = useState(false);
-
   const [timeRetrieved, setTimeRetrieved] = useState<string>("");
-
   const { cameraId } = useParams();
 
   const getTrafficData = (cameraId: string) => {
@@ -100,7 +97,7 @@ export default function CameraPage() {
       const response = await axios.get(
         `https://${process.env.REACT_APP_SERVER_URL}/traffic/conditions`
       );
-      console.log(response.data);
+      
       const allCameras: CameraData[] = response.data.cameras;
 
       let cameraArray: Array<CameraData> = [];
@@ -123,7 +120,7 @@ export default function CameraPage() {
 
       setCamera(cameraArray);
     } catch (error) {
-      console.log(error);
+      
     }
   };
 
@@ -156,30 +153,18 @@ export default function CameraPage() {
       });
   };
 
-  // const fetchCameraData = async () => {
-  //   try {
-  //     const response = await axios.get<CameraData>(
-  //       `https://${process.env.REACT_APP_SERVER_URL}/traffic/conditions/${cameraData}`
-  //     );
-  //     setCameraData(response.data);
-  //   } catch (error) {
-  //     setError(
-  //       "Error fetching camera data. Please check the camera name and try again."
-  //     );
-  //   }
-  // };
 
   useEffect(() => {
-    // Fetch data from the API and update the state
+    
     const fetchData = async () => {
       try {
         const response = await fetch(
           `https://${process.env.REACT_APP_SERVER_URL}/traffic/conditions`
         );
         const data = await response.json();
-        // Assuming the API returns an array of camera data
+        
         if (data && data.length > 0) {
-          const parsedData: Array<CameraData> = data; // Assuming 'data' is an array of 'CameraData'
+          const parsedData: Array<CameraData> = data; 
           setCamera(parsedData);
           const filteredImages = parsedData.filter((cameraData: CameraData) =>
             [41, 45, 62, 69].includes(Number(cameraData.camera_id))
@@ -191,8 +176,7 @@ export default function CameraPage() {
       }
     };
     fetchData();
-    // getCurrentData(cameraIds[0]);
-    // getTrafficData(cameraIds[0]);
+    
   }, []);
 
   const fetchAllCameras = async () => {
@@ -203,13 +187,12 @@ export default function CameraPage() {
       if (!response.ok) {
         throw Error("Error found");
       }
-      // Everytime smth returns a promise, just await
+      
       const allData = await response.json();
-      console.log(allData);
       setCamera(allData.cameras);
       setDate(new Date(allData.date));
 
-      // If URL contains cameraId in params, load it!
+     
       if (!cameraId) return;
 
       let hasFoundCamera = false;
@@ -239,7 +222,6 @@ export default function CameraPage() {
       getCurrentData(cameraId);
       getOneTrafficCameraTrends(cameraId);
     } catch (err: any) {
-      console.log(err);
     }
   };
   useEffect(() => {
@@ -299,7 +281,7 @@ export default function CameraPage() {
 
     setShowTrafficChart(true);
     getCurrentData(foundCamera.camera_id);
-    //getTrafficData(foundCamera.camera_id);
+    
     getOneTrafficCameraTrends(foundCamera.camera_id);
   };
 
@@ -545,9 +527,9 @@ const TrafficTrend: FC<TrafficTrendProps> = ({
           : null,
     }));
 
-    const carsNow = currentCarCount; // Use the actual current car count
+    const carsNow = currentCarCount; 
     const average =
-      data.reduce((acc, curr) => acc + (curr.trend || 0), 0) / data.length; // Calculate the average
+      data.reduce((acc, curr) => acc + (curr.trend || 0), 0) / data.length;
 
     return (
       <React.Fragment>

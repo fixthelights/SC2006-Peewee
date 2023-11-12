@@ -2,8 +2,8 @@ import './Landing.css'
 import { useNavigate } from "react-router-dom";
 import {Button, Stack, Grid} from '../components/ComponentsIndex'
 import {ActionAreaCard} from "../components/ActionAreaCard";
-import Photo from '../assets/Landing2.jpg'
-import DataPhoto from '../assets/Data2.png'
+import Photo from '../assets/Landing.jpg'
+import DataPhoto from '../assets/Data.png'
 import AIPhoto from '../assets/AI.jpg'
 import HMPhoto from '../assets/Heatmap.png'
 import SearchPhoto from '../assets/Search.png'
