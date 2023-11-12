@@ -5,7 +5,7 @@ const userController = require('../controllers/userController');
 
 
 // GET request for a list of all users
-router.get('/', userController.getAllUsers);
+//router.get('/', userController.getAllUsers);
 
 // GET request for a specific user
 router.get('/:userId',userController.getOneUser);

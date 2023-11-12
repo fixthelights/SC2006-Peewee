@@ -31,7 +31,6 @@ const IncidentListItem: FC<IncidentListItemProps> = ({incidentType, incidentTime
                 component="h1"
                 variant="body1"
                 color="inherit"
-                noWrap
             >
                 {incidentType}
             </Typography>
@@ -42,7 +41,6 @@ const IncidentListItem: FC<IncidentListItemProps> = ({incidentType, incidentTime
                 component="h1"
                 variant="body1"
                 color="inherit"
-                noWrap
                 >
                 {incidentTime}
                 </Typography>
@@ -53,7 +51,6 @@ const IncidentListItem: FC<IncidentListItemProps> = ({incidentType, incidentTime
                 component="h1"
                 variant="body1"
                 color="inherit"
-                noWrap
                 >
                 {incidentLocation}
             </Typography>

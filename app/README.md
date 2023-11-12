@@ -1,4 +1,37 @@
-# Getting Started with Create React App
+# Getting Started with React
+
+Create a `.env` file in the current working directory. Here's an example:
+
+```diff
+    app
++   ├── .env
+    ├── README.md
+    ├── build
+    ├── node_modules
+    ├── package-lock.json
+    ├── package.json
+    ├── public
+    ├── src
+    └── tsconfig.json
+```
+
+Here's an example of a `.env` configuration file:
+
+```env
+# URL of Express API Server -----
+REACT_APP_SERVER_URL = "http://localhost:2000" 
+
+# Google Maps API Key -----
+REACT_APP_GOOGLE_KEY = "AIzaSyDm-rTxw55HDBTGxVL5kbYVtQjqHVIiPCE" 
+```
+
+Enter the `/app` directory to run the app.
+```shell
+cd app
+npm install
+npm run dev
+```
+
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 

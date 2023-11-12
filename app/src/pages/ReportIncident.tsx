@@ -164,7 +164,7 @@ export default function ReportIncident() {
   const handleSubmission = async(e: MouseEvent<HTMLButtonElement>) =>{
     const date = new Date();
     setSubmissionStatus(true);
-    axios.post('http://localhost:2000/reports', {
+    axios.post(`${process.env.REACT_APP_SERVER_URL}/reports`, {
             incident: incidentType,
             location: {
               lat: latitude,
