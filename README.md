@@ -5,7 +5,7 @@
 
 ---
 
-![](https://github.com/fixthelights/SC2006-Peewee/assets/40014625/e2075b2c-2642-4161-9f8a-ae37e407552b)
+![](https://github.com/fixthelights/SC2006-Peewee/assets/40014625/b5f03e85-2e2d-4aa1-90ed-2a4c412d2741)
 
 ---
 
