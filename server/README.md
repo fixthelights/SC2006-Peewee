@@ -50,9 +50,11 @@ mongosh -tls --host limzhengguang.com -u user -p bjRUVe5o9xr7TVRd384sQ0k862SqWhV
 ```
 
 ## Starting the backend
-In the `server/src` folder, run the following command:
+Navigate to `/server` folder, and run the following commands:
 
 ```
+cd server
+npm install
 npm run dev
 ```
 

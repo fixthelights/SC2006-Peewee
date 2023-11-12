@@ -22,8 +22,6 @@ const IncidentListItem: FC<IncidentListItemProps> = ({incidentType, incidentTime
                 p: 2,
                 display: 'flex',
                 flexDirection: 'column',
-                height: 300,
-                overflow: 'auto'
             }}
             >
             <Stack spacing={2} direction="row" paddingX={2} paddingY={2}>
